@@ -1,10 +1,10 @@
 "use client"
 
 import Link from "next/link"
-import Image from "next/image"
 import { Facebook, Twitter, Linkedin, Instagram } from "lucide-react"
 import { useLanguage } from "@/lib/language-context"
 import { PRACTICE_AREAS } from "@/lib/practice-areas-data"
+import { Logo } from "@/components/ui/logo"
 
 const social = [
   { name: "Facebook", icon: Facebook, href: "#" },
@@ -46,13 +46,8 @@ export function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-10">
           <div className="lg:col-span-2">
             <Link href="/" className="inline-block">
-              <Image
-                src="/logo.svg"
-                alt="Diaz & Johnson - Migration Advocates"
-                width={200}
-                height={70}
-                className="h-16 w-auto brightness-0 invert"
-              />
+              <Logo className="h-16 w-auto text-primary-foreground" />
+              <span className="sr-only">Diaz & Johnson - Migration Advocates</span>
             </Link>
             <p className="mt-6 text-primary-foreground/70 leading-relaxed max-w-sm">{t("footer.tagline")}</p>
             <div className="flex gap-4 mt-6">

@@ -2,12 +2,12 @@
 
 import { useState } from "react"
 import Link from "next/link"
-import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 import { Menu, Phone, Globe } from "lucide-react"
 import { useLanguage } from "@/lib/language-context"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
+import { Logo } from "@/components/ui/logo"
 
 export function Header() {
   const [isOpen, setIsOpen] = useState(false)
@@ -26,15 +26,9 @@ export function Header() {
     <header className="fixed top-0 left-0 right-0 z-50 bg-card/95 backdrop-blur-sm border-b border-border">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16 md:h-20">
-          <Link href="/" className="flex items-center">
-            <Image
-              src="/logo.svg"
-              alt="Diaz & Johnson - Migration Advocates"
-              width={180}
-              height={60}
-              className="h-12 md:h-14 w-auto text-foreground"
-              priority
-            />
+          <Link href="/" className="flex items-center gap-2">
+            <Logo className="h-12 md:h-14 w-auto text-foreground" />
+            <span className="sr-only">Diaz & Johnson - Migration Advocates</span>
           </Link>
 
           {/* Desktop Navigation */}
@@ -89,13 +83,7 @@ export function Header() {
             </SheetTrigger>
             <SheetContent side="right" className="w-full sm:w-80 bg-card">
               <div className="flex flex-col gap-6 mt-8">
-                <Image
-                  src="/logo.svg"
-                  alt="Diaz & Johnson - Migration Advocates"
-                  width={150}
-                  height={50}
-                  className="h-12 w-auto text-foreground"
-                />
+                <Logo className="h-12 w-auto text-foreground" />
                 <nav className="flex flex-col gap-4">
                   {navigation.map((item) => (
                     <Link

@@ -1,21 +1,12 @@
-<svg width="180" height="60" viewBox="0 0 180 60" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <!-- Greek Column Icon -->
-  <g transform="translate(40, 8)">
-    <rect x="18" y="2" width="24" height="4" fill="currentColor" opacity="0.9"/>
-    <rect x="18" y="6" width="24" height="3" fill="currentColor" opacity="0.8"/>
-    <rect x="21" y="9" width="5" height="26" fill="currentColor"/>
-    <rect x="30" y="9" width="5" height="26" fill="currentColor"/>
-    <rect x="39" y="9" width="5" height="26" fill="currentColor"/>
-    <rect x="18" y="35" width="26" height="4" fill="currentColor"/>
-  </g>
-  
-  <!-- DIAZ & JOHNSON Text -->
-  <text x="90" y="26" font-family="serif" font-size="11" font-weight="700" fill="currentColor" letter-spacing="1">DIAZ & JOHNSON</text>
-  
-  <!-- Migration Advocates -->
-  <line x1="90" y1="32" x2="115" y2="32" stroke="currentColor" stroke-width="1"/>
-  <text x="90" y="40" font-family="serif" font-size="7" font-weight="400" fill="currentColor" letter-spacing="0.5">Migration</text>
-  <line x1="127" y1="32" x2="152" y2="32" stroke="currentColor" stroke-width="1"/>
-  
-  <text x="90" y="48" font-family="serif" font-size="7" font-weight="400" fill="currentColor" letter-spacing="0.5">Advocates</text>
+<svg width="240" height="60" viewBox="0 0 240 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Icon: Abstract Column/Scales/Shield -->
+  <path d="M30 10 L50 20 L50 45 C50 50 40 55 30 55 C20 55 10 50 10 45 L10 20 L30 10 Z" fill="#c5a059" opacity="0.2"/>
+  <path d="M30 12 L46 20 V44 C46 47 38 51 30 51 C22 51 14 47 14 44 V20 L30 12 Z" stroke="#c5a059" stroke-width="2"/>
+  <path d="M22 24 L38 24 M30 24 V44 M22 28 L38 28 M22 24 L20 40 M38 24 L40 40" stroke="#0e2a47" stroke-width="2" stroke-linecap="round"/>
+
+  <!-- Text: Diaz & Johnson -->
+  <text x="60" y="34" font-family="Times New Roman, serif" font-size="24" font-weight="bold" fill="#0e2a47" letter-spacing="0.5">DIAZ &amp; JOHNSON</text>
+
+  <!-- Subtext: Migration Advocates -->
+  <text x="62" y="50" font-family="Arial, sans-serif" font-size="10" font-weight="bold" letter-spacing="2.5" fill="#c5a059" opacity="0.9">MIGRATION ADVOCATES</text>
 </svg>
