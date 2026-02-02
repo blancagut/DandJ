@@ -12,7 +12,15 @@ export async function signInWithPasswordAction(formData: FormData) {
     redirect(`/login?error=missing_fields&redirect=${encodeURIComponent(redirectTo)}`)
   }
 
-  const supabase = getSupabaseServerClient()
+  let supabase
+
+  try {
+    supabase = getSupabaseServerClient()
+  } catch (e) {
+    const message = e instanceof Error ? e.message : "Missing Supabase config"
+    redirect(`/login?error=${encodeURIComponent(message)}&redirect=${encodeURIComponent(redirectTo)}`)
+  }
+
   const { error } = await supabase.auth.signInWithPassword({ email, password })
 
   if (error) {

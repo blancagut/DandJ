@@ -41,7 +41,6 @@ import { Textarea } from "@/components/ui/textarea"
 import { cn } from "@/lib/utils"
 import Image from "next/image"
 import { useLanguage } from "@/lib/language-context"
-import { postJson } from "@/lib/api/client"
 import Link from "next/link"
 
 type SpeechRecognitionInstance = {
@@ -380,20 +379,55 @@ export function H2BWizard() {
     setServerFieldErrors({})
 
     try {
-      const { documents, ...rest } = formData
-      const payload = {
-        ...rest,
-        language,
-        website: honeypot,
-        documents: documents.map((f) => ({ name: f.name, size: f.size, type: f.type })),
-      }
+      const formDataToSend = new FormData()
+      
+      // Add all text fields
+      formDataToSend.append("firstName", formData.firstName)
+      formDataToSend.append("lastName", formData.lastName)
+      formDataToSend.append("email", formData.email)
+      formDataToSend.append("phone", formData.phone)
+      formDataToSend.append("dateOfBirth", formData.dateOfBirth || "")
+      formDataToSend.append("nationality", formData.nationality)
+      formDataToSend.append("currentCountry", formData.currentCountry)
+      formDataToSend.append("employerName", formData.employerName)
+      formDataToSend.append("employerAddress", formData.employerAddress || "")
+      formDataToSend.append("jobTitle", formData.jobTitle)
+      formDataToSend.append("jobDescription", formData.jobDescription)
+      formDataToSend.append("startDate", formData.startDate)
+      formDataToSend.append("endDate", formData.endDate)
+      formDataToSend.append("workersNeeded", formData.workersNeeded)
+      formDataToSend.append("yearsExperience", formData.yearsExperience)
+      formDataToSend.append("previousH2B", formData.previousH2B)
+      formDataToSend.append("englishLevel", formData.englishLevel)
+      formDataToSend.append("additionalInfo", formData.additionalInfo || "")
+      formDataToSend.append("howDidYouHear", formData.howDidYouHear || "")
+      formDataToSend.append("preferredContact", formData.preferredContact)
+      formDataToSend.append("urgency", formData.urgency)
+      formDataToSend.append("language", language)
+      formDataToSend.append("website", honeypot)
+      
+      // Add skills array
+      formData.skills.forEach((skill) => {
+        formDataToSend.append("skills", skill)
+      })
+      
+      // Add actual file objects
+      formData.documents.forEach((file) => {
+        formDataToSend.append("documents", file)
+      })
 
-      const json = await postJson<typeof payload, { received: true }>("/api/h2b", payload)
-      if (!json.ok) {
-        setSubmitError(json.error.message || "Unable to submit. Please try again.")
+      const response = await fetch("/api/h2b", {
+        method: "POST",
+        body: formDataToSend,
+      })
+
+      const json = await response.json()
+      
+      if (!response.ok || !json.ok) {
+        setSubmitError(json.error?.message || "Unable to submit. Please try again.")
 
         const nextErrors = Object.fromEntries(
-          Object.entries(json.error.fieldErrors ?? {}).map(([key, messages]) => [key, messages?.[0] || "Invalid"]),
+          Object.entries(json.error?.fieldErrors ?? {}).map(([key, messages]) => [key, messages?.[0] || "Invalid"]),
         )
         setServerFieldErrors(nextErrors)
 

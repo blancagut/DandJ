@@ -10,6 +10,42 @@ import { signOutAction } from "@/app/login/actions"
 export const dynamic = "force-dynamic"
 
 export default async function AdminPage() {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+  const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+
+  if (!supabaseUrl || !supabaseAnonKey) {
+    return (
+      <div className="max-w-3xl mx-auto px-4 py-10">
+        <Card>
+          <CardHeader>
+            <CardTitle>Environment not configured</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            <p className="text-muted-foreground">Set NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY in Vercel/hosting env and redeploy.</p>
+            <p className="text-xs text-muted-foreground">These are required before auth can work.</p>
+          </CardContent>
+        </Card>
+      </div>
+    )
+  }
+
+  if (!serviceRoleKey) {
+    return (
+      <div className="max-w-3xl mx-auto px-4 py-10">
+        <Card>
+          <CardHeader>
+            <CardTitle>Service role missing</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            <p className="text-muted-foreground">Set SUPABASE_SERVICE_ROLE_KEY in env so admin can load work items.</p>
+            <p className="text-xs text-muted-foreground">Find it in Supabase settings &gt; API.</p>
+          </CardContent>
+        </Card>
+      </div>
+    )
+  }
+
   const supabase = getSupabaseServerClient()
   const {
     data: { user },
