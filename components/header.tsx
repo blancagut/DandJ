@@ -25,9 +25,9 @@ export function Header() {
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-[#0B1E3A]/95 text-white backdrop-blur-sm border-b border-white/10">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-24 md:h-28">
+        <div className="flex items-center justify-between h-28 md:h-32">
           <Link href="/" className="flex items-center gap-2">
-            <Logo className="h-16 md:h-18 w-auto" priority />
+            <Logo className="h-24 md:h-28 w-auto" priority />
             <span className="sr-only">Diaz & Johnson - Migration Advocates</span>
           </Link>
 
@@ -68,9 +68,9 @@ export function Header() {
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
-            <a href="tel:+13055551234" className="flex items-center gap-2 text-sm font-medium text-white">
+            <a href="tel:+13057280029" className="flex items-center gap-2 text-sm font-medium text-white">
               <Phone className="h-4 w-4" />
-              (305) 555-1234
+              305-728-0029
             </a>
             <Button asChild className="bg-accent text-accent-foreground hover:bg-accent/90">
               <Link href="/consultation">{t("nav.freeConsultation")}</Link>
@@ -91,7 +91,7 @@ export function Header() {
             </SheetTrigger>
             <SheetContent side="right" className="w-full sm:w-80 bg-[#0B1E3A] text-white">
               <div className="flex flex-col gap-6 mt-8">
-                <Logo className="h-16 w-auto" />
+                <Logo className="h-24 w-auto" />
                 <nav className="flex flex-col gap-4">
                   {navigation.map((item) => (
                     <Link
@@ -123,9 +123,9 @@ export function Header() {
                       🇪🇸 Español
                     </Button>
                   </div>
-                  <a href="tel:+13055551234" className="flex items-center gap-2 text-white font-medium">
+                  <a href="tel:+13057280029" className="flex items-center gap-2 text-white font-medium">
                     <Phone className="h-5 w-5" />
-                    (305) 555-1234
+                    305-728-0029
                   </a>
                   <Button asChild className="w-full bg-accent text-accent-foreground hover:bg-accent/90">
                     <Link href="/consultation" onClick={() => setIsOpen(false)}>
