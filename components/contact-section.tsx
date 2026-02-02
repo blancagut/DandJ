@@ -10,7 +10,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { MapPin, Phone, Mail, Clock } from "lucide-react"
 import { useLanguage } from "@/lib/language-context"
 import { postJson, type ApiError } from "@/lib/api/client"
-import Image from "next/image"
 
 export function ContactSection() {
   const { t, language } = useLanguage()
@@ -147,13 +146,17 @@ export function ContactSection() {
               </div>
             </div>
 
-            <div className="mt-8 relative aspect-video rounded-lg overflow-hidden bg-muted">
-              <Image
-                src="/miami-downtown-map-location-marker.jpg"
-                alt="Office location map"
-                fill
-                sizes="(min-width: 1024px) 40vw, 100vw"
-                className="object-cover"
+            <div className="mt-8 relative aspect-video rounded-lg overflow-hidden bg-muted border border-border">
+              <iframe
+                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3592.4!2d-80.13!3d25.79!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x88d9b3e!2s1680%20Michigan%20Ave%20%23700%2C%20Miami%20Beach%2C%20FL%2033139!5e0!3m2!1sen!2sus!4v1234567890"
+                width="100%"
+                height="100%"
+                style={{ border: 0 }}
+                allowFullScreen
+                loading="lazy"
+                referrerPolicy="no-referrer-when-downgrade"
+                title="Office location map"
+                className="absolute inset-0"
               />
             </div>
           </div>

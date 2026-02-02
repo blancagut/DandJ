@@ -405,7 +405,7 @@ export default function ResourcesPage() {
                 : "These resources are just the beginning. For specific legal advice about your case, schedule a free consultation with our team."}
             </p>
             <Button asChild size="lg" variant="secondary" className="bg-card text-foreground hover:bg-card/90">
-              <Link href="/consultation">
+              <Link href="/consult">
                 {language === "es" ? "Consulta Gratuita" : "Free Consultation"}
               </Link>
             </Button>

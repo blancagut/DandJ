@@ -15,10 +15,10 @@ export function Header() {
 
   const navigation = [
     { name: t("nav.home"), href: "/" },
-    { name: t("nav.practiceAreas"), href: "/practice-areas" },
+    { name: t("nav.practiceAreas"), href: "/areas" },
     { name: t("nav.team"), href: "/team" },
     { name: t("nav.successStories"), href: "/#success-stories" },
-    { name: t("nav.consultation"), href: "/consultation" },
+    { name: t("nav.consultation"), href: "/consult" },
     { name: t("nav.contact"), href: "/#contact" },
   ]
 
@@ -73,7 +73,7 @@ export function Header() {
               305-728-0029
             </a>
             <Button asChild className="bg-accent text-accent-foreground hover:bg-accent/90">
-              <Link href="/consultation">{t("nav.freeConsultation")}</Link>
+              <Link href="/consult">{t("nav.freeConsultation")}</Link>
             </Button>
           </div>
 
@@ -128,7 +128,7 @@ export function Header() {
                     305-728-0029
                   </a>
                   <Button asChild className="w-full bg-accent text-accent-foreground hover:bg-accent/90">
-                    <Link href="/consultation" onClick={() => setIsOpen(false)}>
+                    <Link href="/consult" onClick={() => setIsOpen(false)}>
                       {t("nav.freeConsultation")}
                     </Link>
                   </Button>

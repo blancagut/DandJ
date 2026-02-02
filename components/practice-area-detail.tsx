@@ -95,7 +95,7 @@ export function PracticeAreaDetail({ area }: { area: PracticeArea }) {
             </div>
             <div className="mt-8 flex flex-col sm:flex-row gap-3">
               <Button asChild size="lg" className="bg-primary text-primary-foreground hover:bg-primary/90">
-                <Link href="/consultation">
+                <Link href="/consult">
                   {language === "es" ? "Consulta Gratuita" : "Free Consultation"}
                 </Link>
               </Button>
@@ -158,7 +158,7 @@ export function PracticeAreaDetail({ area }: { area: PracticeArea }) {
               variant="secondary"
               className="bg-card text-foreground hover:bg-card/90"
             >
-              <Link href="/consultation">
+              <Link href="/consult">
                 {language === "es" ? "Agendar Consulta Gratuita" : "Schedule Free Consultation"}
               </Link>
             </Button>

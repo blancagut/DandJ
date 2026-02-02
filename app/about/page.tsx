@@ -304,7 +304,7 @@ export default function AboutPage() {
             </p>
             <div className="flex flex-col sm:flex-row gap-3 justify-center">
               <Button asChild size="lg" variant="secondary" className="bg-card text-foreground hover:bg-card/90">
-                <Link href="/consultation">
+                <Link href="/consult">
                   {language === "es" ? "Consulta Gratuita" : "Free Consultation"}
                 </Link>
               </Button>

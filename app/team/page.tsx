@@ -290,12 +290,12 @@ export default function TeamPage() {
             <p className="text-primary-foreground/90 mb-6 max-w-2xl mx-auto">{data.cta.description}</p>
             <div className="flex flex-col sm:flex-row gap-3 justify-center">
               <Button asChild size="lg" variant="secondary" className="bg-card text-foreground hover:bg-card/90">
-                <Link href="/consultation">
+                <Link href="/consult">
                   {language === "es" ? "Consulta Gratuita" : "Free Consultation"}
                 </Link>
               </Button>
               <Button asChild size="lg" variant="outline" className="border-primary-foreground text-primary-foreground">
-                <Link href="/practice-areas">
+                <Link href="/areas">
                   {language === "es" ? "Ver Áreas de Práctica" : "View Practice Areas"}
                 </Link>
               </Button>

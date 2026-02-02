@@ -44,7 +44,7 @@ export default function PracticeAreasHubPage() {
                     <p className="text-muted-foreground leading-relaxed mb-5">{t(area.descKey)}</p>
                     <div className="flex items-center justify-between gap-3">
                       <Button asChild variant="outline" className="w-full justify-between">
-                        <Link href={`/practice-areas/${area.slug}`}>
+                        <Link href={`/areas/${area.slug}`}>
                           {t("pages.practiceAreasHub.viewDetails")}
                           <ArrowRight className="h-4 w-4" />
                         </Link>
@@ -58,7 +58,7 @@ export default function PracticeAreasHubPage() {
 
           <div className="mt-10">
             <Button asChild className="bg-primary text-primary-foreground hover:bg-primary/90">
-              <Link href="/consultation">{t("nav.freeConsultation")}</Link>
+              <Link href="/consult">{t("nav.freeConsultation")}</Link>
             </Button>
           </div>
         </div>

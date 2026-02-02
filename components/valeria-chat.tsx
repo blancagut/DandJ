@@ -267,7 +267,7 @@ export function ValeriaChat() {
 
         if (value === "startform") {
           setTimeout(() => {
-            window.location.href = "/consultation"
+            window.location.href = "/consult"
           }, 1500)
         }
 

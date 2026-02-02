@@ -19,7 +19,7 @@ export function Footer() {
   const navigation = {
     practice: PRACTICE_AREAS.map((area) => ({
       name: t(area.titleKey),
-      href: `/practice-areas/${area.slug}`,
+      href: `/areas/${area.slug}`,
     })),
     company: [
       { name: t("footer.aboutUs"), href: "/about" },
