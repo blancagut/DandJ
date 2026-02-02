@@ -37,3 +37,17 @@ create table if not exists lead_files (
 );
 
 create index if not exists lead_files_lead_id_idx on lead_files (lead_id);
+
+-- Admin: internal work tracking
+
+create table if not exists work_items (
+  id uuid primary key default gen_random_uuid(),
+  title text not null,
+  status text not null default 'todo' check (status in ('todo', 'in_progress', 'done')),
+  notes text,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+create index if not exists work_items_updated_at_idx on work_items (updated_at desc);
+create index if not exists work_items_status_updated_at_idx on work_items (status, updated_at desc);

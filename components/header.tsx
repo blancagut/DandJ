@@ -23,11 +23,11 @@ export function Header() {
   ]
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 bg-card/95 backdrop-blur-sm border-b border-border">
+    <header className="fixed top-0 left-0 right-0 z-50 bg-primary/95 text-primary-foreground backdrop-blur-sm border-b border-primary/30">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16 md:h-20">
+        <div className="flex items-center justify-between h-20 md:h-24">
           <Link href="/" className="flex items-center gap-2">
-            <Logo className="h-12 md:h-14 w-auto" priority />
+            <Logo className="h-14 md:h-16 w-auto" priority />
             <span className="sr-only">Diaz & Johnson - Migration Advocates</span>
           </Link>
 
@@ -37,7 +37,7 @@ export function Header() {
               <Link
                 key={item.name}
                 href={item.href}
-                className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors"
+                className="text-sm font-medium text-primary-foreground/85 hover:text-primary-foreground transition-colors"
               >
                 {item.name}
               </Link>
@@ -48,7 +48,11 @@ export function Header() {
           <div className="hidden lg:flex items-center gap-4">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon" className="h-9 w-9">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-9 w-9 text-primary-foreground hover:text-primary-foreground hover:bg-primary-foreground/10"
+                >
                   <Globe className="h-5 w-5" />
                   <span className="sr-only">Change language</span>
                 </Button>
@@ -64,11 +68,11 @@ export function Header() {
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
-            <a href="tel:+13055551234" className="flex items-center gap-2 text-sm font-medium text-primary">
+            <a href="tel:+13055551234" className="flex items-center gap-2 text-sm font-medium text-primary-foreground">
               <Phone className="h-4 w-4" />
               (305) 555-1234
             </a>
-            <Button asChild className="bg-primary text-primary-foreground hover:bg-primary/90">
+            <Button asChild className="bg-accent text-accent-foreground hover:bg-accent/90">
               <Link href="/consultation">{t("nav.freeConsultation")}</Link>
             </Button>
           </div>
@@ -76,27 +80,31 @@ export function Header() {
           {/* Mobile Menu */}
           <Sheet open={isOpen} onOpenChange={setIsOpen}>
             <SheetTrigger asChild className="lg:hidden">
-              <Button variant="ghost" size="icon" className="h-11 w-11">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-11 w-11 text-primary-foreground hover:text-primary-foreground hover:bg-primary-foreground/10"
+              >
                 <Menu className="h-6 w-6" />
                 <span className="sr-only">Open menu</span>
               </Button>
             </SheetTrigger>
-            <SheetContent side="right" className="w-full sm:w-80 bg-card">
+            <SheetContent side="right" className="w-full sm:w-80 bg-primary text-primary-foreground">
               <div className="flex flex-col gap-6 mt-8">
-                <Logo className="h-12 w-auto text-foreground" />
+                <Logo className="h-14 w-auto" />
                 <nav className="flex flex-col gap-4">
                   {navigation.map((item) => (
                     <Link
                       key={item.name}
                       href={item.href}
                       onClick={() => setIsOpen(false)}
-                      className="text-lg font-medium text-foreground hover:text-accent transition-colors py-2"
+                      className="text-lg font-medium text-primary-foreground/90 hover:text-primary-foreground transition-colors py-2"
                     >
                       {item.name}
                     </Link>
                   ))}
                 </nav>
-                <div className="border-t border-border pt-6 flex flex-col gap-4">
+                <div className="border-t border-primary-foreground/20 pt-6 flex flex-col gap-4">
                   <div className="flex gap-2">
                     <Button
                       variant={language === "en" ? "default" : "outline"}
@@ -115,11 +123,11 @@ export function Header() {
                       🇪🇸 Español
                     </Button>
                   </div>
-                  <a href="tel:+13055551234" className="flex items-center gap-2 text-primary font-medium">
+                  <a href="tel:+13055551234" className="flex items-center gap-2 text-primary-foreground font-medium">
                     <Phone className="h-5 w-5" />
                     (305) 555-1234
                   </a>
-                  <Button asChild className="w-full bg-primary text-primary-foreground">
+                  <Button asChild className="w-full bg-accent text-accent-foreground hover:bg-accent/90">
                     <Link href="/consultation" onClick={() => setIsOpen(false)}>
                       {t("nav.freeConsultation")}
                     </Link>
