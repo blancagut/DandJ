@@ -23,11 +23,11 @@ export function Header() {
   ]
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 bg-primary/95 text-primary-foreground backdrop-blur-sm border-b border-primary/30">
+    <header className="fixed top-0 left-0 right-0 z-50 bg-[#0B1E3A]/95 text-white backdrop-blur-sm border-b border-white/10">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-20 md:h-24">
+        <div className="flex items-center justify-between h-24 md:h-28">
           <Link href="/" className="flex items-center gap-2">
-            <Logo className="h-14 md:h-16 w-auto" priority />
+            <Logo className="h-16 md:h-18 w-auto" priority />
             <span className="sr-only">Diaz & Johnson - Migration Advocates</span>
           </Link>
 
@@ -37,7 +37,7 @@ export function Header() {
               <Link
                 key={item.name}
                 href={item.href}
-                className="text-sm font-medium text-primary-foreground/85 hover:text-primary-foreground transition-colors"
+                className="text-sm font-medium text-white/85 hover:text-white transition-colors"
               >
                 {item.name}
               </Link>
@@ -51,7 +51,7 @@ export function Header() {
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="h-9 w-9 text-primary-foreground hover:text-primary-foreground hover:bg-primary-foreground/10"
+                  className="h-9 w-9 text-white hover:text-white hover:bg-white/10"
                 >
                   <Globe className="h-5 w-5" />
                   <span className="sr-only">Change language</span>
@@ -68,7 +68,7 @@ export function Header() {
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
-            <a href="tel:+13055551234" className="flex items-center gap-2 text-sm font-medium text-primary-foreground">
+            <a href="tel:+13055551234" className="flex items-center gap-2 text-sm font-medium text-white">
               <Phone className="h-4 w-4" />
               (305) 555-1234
             </a>
@@ -83,28 +83,28 @@ export function Header() {
               <Button
                 variant="ghost"
                 size="icon"
-                className="h-11 w-11 text-primary-foreground hover:text-primary-foreground hover:bg-primary-foreground/10"
+                className="h-11 w-11 text-white hover:text-white hover:bg-white/10"
               >
                 <Menu className="h-6 w-6" />
                 <span className="sr-only">Open menu</span>
               </Button>
             </SheetTrigger>
-            <SheetContent side="right" className="w-full sm:w-80 bg-primary text-primary-foreground">
+            <SheetContent side="right" className="w-full sm:w-80 bg-[#0B1E3A] text-white">
               <div className="flex flex-col gap-6 mt-8">
-                <Logo className="h-14 w-auto" />
+                <Logo className="h-16 w-auto" />
                 <nav className="flex flex-col gap-4">
                   {navigation.map((item) => (
                     <Link
                       key={item.name}
                       href={item.href}
                       onClick={() => setIsOpen(false)}
-                      className="text-lg font-medium text-primary-foreground/90 hover:text-primary-foreground transition-colors py-2"
+                      className="text-lg font-medium text-white/90 hover:text-white transition-colors py-2"
                     >
                       {item.name}
                     </Link>
                   ))}
                 </nav>
-                <div className="border-t border-primary-foreground/20 pt-6 flex flex-col gap-4">
+                <div className="border-t border-white/15 pt-6 flex flex-col gap-4">
                   <div className="flex gap-2">
                     <Button
                       variant={language === "en" ? "default" : "outline"}
@@ -123,7 +123,7 @@ export function Header() {
                       🇪🇸 Español
                     </Button>
                   </div>
-                  <a href="tel:+13055551234" className="flex items-center gap-2 text-primary-foreground font-medium">
+                  <a href="tel:+13055551234" className="flex items-center gap-2 text-white font-medium">
                     <Phone className="h-5 w-5" />
                     (305) 555-1234
                   </a>
