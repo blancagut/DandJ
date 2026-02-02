@@ -9,52 +9,71 @@ export function Logo({ className, ...props }: LogoProps) {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
-      viewBox="0 0 240 60"
+      viewBox="0 0 260 60"
       fill="none"
       className={cn("h-10 w-auto", className)}
       {...props}
     >
-      {/* Icon: Abstract Column/Scales/Shield */}
-      <path
-        d="M30 10 L50 20 L50 45 C50 50 40 55 30 55 C20 55 10 50 10 45 L10 20 L30 10 Z"
-        className="opacity-20"
-        fill="currentColor"
-      />
-      <path
-        d="M30 12 L46 20 V44 C46 47 38 51 30 51 C22 51 14 47 14 44 V20 L30 12 Z"
+      {/* Icon: DJ monogram (clean, scalable, no font dependency) */}
+      <rect
+        x="10"
+        y="10"
+        width="40"
+        height="40"
+        rx="12"
         stroke="currentColor"
         strokeWidth="2"
+        className="opacity-80"
       />
       <path
-        d="M22 24 L38 24 M30 24 V44 M22 28 L38 28 M22 24 L20 40 M38 24 L40 40"
+        d="M18 20 H42"
         stroke="currentColor"
         strokeWidth="2"
         strokeLinecap="round"
+        className="opacity-80"
+      />
+      <circle cx="30" cy="20" r="2" fill="currentColor" className="opacity-80" />
+
+      {/* D */}
+      <path
+        d="M20 26 V44 M20 26 H28 A8 9 0 0 1 28 44 H20"
+        stroke="currentColor"
+        strokeWidth="2.4"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      {/* J */}
+      <path
+        d="M40 26 V38 C40 42 37 44 33 44 C30 44 28 42 28 40"
+        stroke="currentColor"
+        strokeWidth="2.4"
+        strokeLinecap="round"
+        strokeLinejoin="round"
       />
 
       {/* Text: Diaz & Johnson */}
       <text
-        x="60"
+        x="64"
         y="34"
-        fontFamily="Times New Roman, serif"
-        fontSize="24"
-        fontWeight="bold"
+        fontFamily="ui-serif, Georgia, 'Times New Roman', serif"
+        fontSize="22"
+        fontWeight="700"
         fill="currentColor"
-        className="tracking-wide"
+        letterSpacing="1"
       >
         DIAZ &amp; JOHNSON
       </text>
 
       {/* Subtext: Migration Advocates */}
       <text
-        x="62"
+        x="64"
         y="50"
-        fontFamily="Arial, sans-serif"
-        fontSize="10"
-        fontWeight="bold"
-        letterSpacing="2.5"
+        fontFamily="ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, Arial, sans-serif"
+        fontSize="9"
+        fontWeight="700"
+        letterSpacing="3"
         fill="currentColor"
-        className="opacity-80"
+        className="opacity-70"
       >
         MIGRATION ADVOCATES
       </text>
