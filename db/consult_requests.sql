@@ -3,6 +3,13 @@
 -- Ejecutar en Supabase SQL Editor
 -- =============================================
 
+-- Si necesitas recrear, descomenta estas líneas:
+-- DROP POLICY IF EXISTS "Permitir inserts públicos" ON consult_requests;
+-- DROP POLICY IF EXISTS "Solo auth puede leer" ON consult_requests;
+-- DROP POLICY IF EXISTS "Solo auth puede actualizar" ON consult_requests;
+-- DROP POLICY IF EXISTS "Solo auth puede eliminar" ON consult_requests;
+-- DROP TABLE IF EXISTS consult_requests;
+
 -- Crear la tabla
 CREATE TABLE IF NOT EXISTS consult_requests (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
