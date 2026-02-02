@@ -3,6 +3,7 @@
 import { useEffect, useState, useCallback } from "react"
 import { getSupabaseBrowserClient } from "@/lib/supabase/client"
 import type { User } from "@supabase/supabase-js"
+import { ConsultRequestsPanel } from "./consult-requests-panel"
 
 // Tipos
 type WorkItemStatus = "todo" | "in_progress" | "done"
@@ -252,6 +253,11 @@ export function AdminDashboard({ user, onSignOut }: AdminDashboardProps) {
             </button>
           </div>
         )}
+
+        {/* Panel de Solicitudes de Consulta */}
+        <div className="mb-8">
+          <ConsultRequestsPanel />
+        </div>
 
         {/* Crear nuevo item */}
         <div className="mb-8 p-6 rounded-lg border bg-card">
