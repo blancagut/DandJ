@@ -5,6 +5,8 @@ import { Label } from "@/components/ui/label"
 import { Button } from "@/components/ui/button"
 import { signInWithPasswordAction } from "@/app/login/actions"
 
+export const dynamic = "force-dynamic"
+
 type Props = {
   searchParams?: Record<string, string | string[] | undefined>
 }

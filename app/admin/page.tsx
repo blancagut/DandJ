@@ -7,6 +7,8 @@ import { isAdminUser } from "@/lib/server/admin-auth"
 import { listWorkItems, type WorkItem } from "@/lib/server/work-items"
 import { signOutAction } from "@/app/login/actions"
 
+export const dynamic = "force-dynamic"
+
 export default async function AdminPage() {
   const supabase = getSupabaseServerClient()
   const {
