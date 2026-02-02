@@ -515,11 +515,11 @@ export function H2BWizard() {
       <div className="p-4 md:p-6 flex items-center justify-between">
         <Link href="/" className="flex items-center gap-2">
           <Image
-            src="/logo.svg"
+            src="/logo.png"
             alt="Diaz & Johnson"
             width={120}
             height={40}
-            className="h-8 md:h-10 w-auto brightness-0 invert"
+            className="h-8 md:h-10 w-auto"
           />
         </Link>
         <div className="flex items-center gap-3">
