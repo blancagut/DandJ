@@ -1,9 +1,12 @@
 "use client"
 
+import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { ArrowRight, Shield, Award, Clock } from "lucide-react"
 import { useLanguage } from "@/lib/language-context"
 import Image from "next/image"
+
+const PHONE_TEL = "+13057280029"
 
 export function HeroSection() {
   const { t } = useLanguage()
@@ -37,18 +40,22 @@ export function HeroSection() {
 
           <div className="mt-8 flex flex-col sm:flex-row gap-4">
             <Button
+              asChild
               size="lg"
               className="bg-accent text-accent-foreground hover:bg-accent/90 h-12 md:h-14 px-8 text-base"
             >
-              {t("hero.cta")}
-              <ArrowRight className="ml-2 h-5 w-5" />
+              <Link href="/consult">
+                {t("hero.cta")}
+                <ArrowRight className="ml-2 h-5 w-5" />
+              </Link>
             </Button>
             <Button
+              asChild
               size="lg"
               variant="outline"
               className="border-primary-foreground/30 text-primary-foreground hover:bg-primary-foreground/10 h-12 md:h-14 px-8 text-base bg-transparent"
             >
-              {t("hero.callUs")}
+              <a href={`tel:${PHONE_TEL}`}>{t("hero.callUs")}</a>
             </Button>
           </div>
 
@@ -72,7 +79,7 @@ export function HeroSection() {
                 <p className="text-primary-foreground/70 text-sm">{t("hero.stat2.label")}</p>
               </div>
             </div>
-            <div className="flex items-center gap-3">
+            <a href={`tel:${PHONE_TEL}`} className="flex items-center gap-3" aria-label="Call our 24/7 line">
               <div className="p-2 bg-accent/20 rounded-lg">
                 <Clock className="h-6 w-6 text-accent" />
               </div>
@@ -80,7 +87,7 @@ export function HeroSection() {
                 <p className="text-primary-foreground font-semibold">{t("hero.stat3.number")}</p>
                 <p className="text-primary-foreground/70 text-sm">{t("hero.stat3.label")}</p>
               </div>
-            </div>
+            </a>
           </div>
         </div>
       </div>

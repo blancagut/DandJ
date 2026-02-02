@@ -92,7 +92,7 @@ const translations: Record<Language, Record<string, string>> = {
     "hero.subtitle":
       "For over 25 years, Diaz & Johnson has been a beacon of hope for immigrants, families, and individuals facing legal challenges in South Florida.",
     "hero.cta": "Schedule Free Consultation",
-    "hero.callUs": "Call (305) 555-1234",
+    "hero.callUs": "Call (305) 728-0029",
     "hero.stat1.number": "5,000+",
     "hero.stat1.label": "Cases Won",
     "hero.stat2.number": "25+ Years",
@@ -290,7 +290,7 @@ const translations: Record<Language, Record<string, string>> = {
     "hero.subtitle":
       "Por mas de 25 anos, Diaz & Johnson ha sido un faro de esperanza para inmigrantes, familias e individuos enfrentando desafios legales en el Sur de Florida.",
     "hero.cta": "Agendar Consulta Gratis",
-    "hero.callUs": "Llamar (305) 555-1234",
+    "hero.callUs": "Llamar (305) 728-0029",
     "hero.stat1.number": "5,000+",
     "hero.stat1.label": "Casos Ganados",
     "hero.stat2.number": "25+ Anos",
