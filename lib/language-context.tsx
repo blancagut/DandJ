@@ -170,7 +170,7 @@ const translations: Record<Language, Record<string, string>> = {
     "contact.subtitle":
       "Take the first step toward resolving your legal matter. Contact us today for a confidential consultation with one of our experienced attorneys.",
     "contact.location.title": "Office Location",
-    "contact.location.address": "100 SE 2nd Street, Suite 2000\nMiami, FL 33131",
+    "contact.location.address": "1680 Michigan Ave, Ste 700\nMiami Beach, FL 33139",
     "contact.phone.title": "Phone",
     "contact.email.title": "Email",
     "contact.hours.title": "Office Hours",
@@ -369,7 +369,7 @@ const translations: Record<Language, Record<string, string>> = {
     "contact.subtitle":
       "De el primer paso para resolver su asunto legal. Contactenos hoy para una consulta confidencial con uno de nuestros abogados experimentados.",
     "contact.location.title": "Ubicacion de la Oficina",
-    "contact.location.address": "100 SE 2nd Street, Suite 2000\nMiami, FL 33131",
+    "contact.location.address": "1680 Michigan Ave, Ste 700\nMiami Beach, FL 33139",
     "contact.phone.title": "Telefono",
     "contact.email.title": "Correo Electronico",
     "contact.hours.title": "Horario de Oficina",

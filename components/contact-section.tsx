@@ -109,8 +109,8 @@ export function ContactSection() {
                 <div>
                   <h4 className="font-semibold text-foreground">{t("contact.phone.title")}</h4>
                   <p className="text-muted-foreground mt-1">
-                    <a href="tel:+13055551234" className="hover:text-accent transition-colors">
-                      (305) 555-1234
+                    <a href="tel:+13057280029" className="hover:text-accent transition-colors">
+                      305-728-0029
                     </a>
                   </p>
                 </div>
@@ -222,7 +222,7 @@ export function ContactSection() {
                 <Input
                   id="phone"
                   type="tel"
-                  placeholder="(305) 555-1234"
+                  placeholder="305-728-0029"
                   required
                   className="h-12 bg-card"
                   value={formValues.phone}
