@@ -21,7 +21,7 @@ export function AttorneysSection() {
           {
             name: "Carlos Diaz Jr",
             title: "Socio Fundador",
-            specialty: "Defensa Criminal",
+            specialty: "Abogado de Inmigracion",
             image: "/team/CarlosDiazJr.jpg",
             bio: "Ex fiscal convertido en abogado defensor con una presencia inigualable en la corte.",
           },
@@ -51,7 +51,7 @@ export function AttorneysSection() {
           {
             name: "Carlos Diaz Jr",
             title: "Founding Partner",
-            specialty: "Criminal Defense",
+            specialty: "Immigration Attorney",
             image: "/team/CarlosDiazJr.jpg",
             bio: "Former prosecutor turned defense attorney with an unmatched courtroom presence.",
           },
