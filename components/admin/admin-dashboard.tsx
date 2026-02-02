@@ -4,6 +4,7 @@ import { useEffect, useState, useCallback } from "react"
 import { getSupabaseBrowserClient } from "@/lib/supabase/client"
 import type { User } from "@supabase/supabase-js"
 import { ConsultRequestsPanel } from "./consult-requests-panel"
+import { ChatPanel } from "./chat-panel"
 
 // Tipos
 type WorkItemStatus = "todo" | "in_progress" | "done"
@@ -257,6 +258,11 @@ export function AdminDashboard({ user, onSignOut }: AdminDashboardProps) {
         {/* Panel de Solicitudes de Consulta */}
         <div className="mb-8">
           <ConsultRequestsPanel />
+        </div>
+
+        {/* Panel de Chat de Soporte */}
+        <div className="mb-8">
+          <ChatPanel adminEmail={user.email || ""} />
         </div>
 
         {/* Crear nuevo item */}
