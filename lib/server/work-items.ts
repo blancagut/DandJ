@@ -30,7 +30,10 @@ export async function listWorkItems(): Promise<WorkItem[]> {
     .select("id,title,status,notes,created_at,updated_at")
     .order("updated_at", { ascending: false })
 
-  if (error) throw new Error(`Failed to load work items: ${error.message}`)
+  if (error) {
+    console.error("Supabase work_items query error:", error)
+    throw new Error(`Failed to load work items: ${error.message}`)
+  }
   return (data ?? []) as WorkItem[]
 }
 

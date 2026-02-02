@@ -45,6 +45,7 @@ export default async function AdminPage() {
   try {
     items = await listWorkItems()
   } catch (e) {
+    console.error("Admin page error loading work items:", e)
     loadError = e instanceof Error ? e.message : "Failed to load work items"
   }
 
