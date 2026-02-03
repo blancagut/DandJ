@@ -144,18 +144,14 @@ const urgencyLevels = [
 // Nationalities (common for immigration)
 const nationalities = [
   { id: "mexican", label: "Mexico" },
-  { id: "honduran", label: "Honduras" },
-  { id: "guatemalan", label: "Guatemala" },
-  { id: "salvadoran", label: "El Salvador" },
-  { id: "cuban", label: "Cuba" },
-  { id: "venezuelan", label: "Venezuela" },
-  { id: "colombian", label: "Colombia" },
-  { id: "nicaraguan", label: "Nicaragua" },
-  { id: "haitian", label: "Haiti" },
-  { id: "dominican", label: "Dominican Rep." },
-  { id: "peruvian", label: "Peru" },
   { id: "ecuadorian", label: "Ecuador" },
   { id: "brazilian", label: "Brazil" },
+  { id: "chilean", label: "Chile" },
+  { id: "argentinian", label: "Argentina" },
+  { id: "bolivian", label: "Bolivia" },
+  { id: "peruvian", label: "Peru" },
+  { id: "paraguayan", label: "Paraguay" },
+  { id: "spanish", label: "Spain" },
   { id: "other", label: "Other" },
 ]
 
