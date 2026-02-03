@@ -3,7 +3,6 @@ import type { Metadata, Viewport } from "next"
 import { Inter, Playfair_Display } from "next/font/google"
 import { Analytics } from "@vercel/analytics/next"
 import { LanguageProvider } from "@/lib/language-context"
-import { SupportChat } from "@/components/support-chat"
 import "./globals.css"
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" })
@@ -40,7 +39,6 @@ export default function RootLayout({
     <html lang="en" className="bg-background">
       <body className={`${inter.variable} ${playfair.variable} font-sans antialiased`}>
         <LanguageProvider>{children}</LanguageProvider>
-        <SupportChat />
         <Analytics />
       </body>
     </html>
