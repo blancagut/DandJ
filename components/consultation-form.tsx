@@ -26,63 +26,415 @@ import { getSupabaseBrowserClient } from "@/lib/supabase/client"
 import { cn } from "@/lib/utils"
 
 // ============================================
+// TRANSLATIONS
+// ============================================
+const translations = {
+  en: {
+    // Header
+    caseEvaluation: "Case Evaluation",
+    freeConsultation: "Free Consultation Request",
+    headerSubtitle: "Tell us about your case and we will help you find the best solution. All information is confidential.",
+    
+    // Case Types Section
+    whatHelpNeeded: "What do you need help with?",
+    selectCaseType: "Select the type of case that best describes your situation",
+    
+    // Case Types
+    h2bWorkVisa: "H-2B Work Visa",
+    h2bWorkVisaDesc: "Temporary work visas for seasonal jobs",
+    familyPetitions: "Family Petitions",
+    familyPetitionsDesc: "Reunite with your loved ones",
+    greenCard: "Green Card",
+    greenCardDesc: "Permanent residence applications",
+    citizenship: "Citizenship",
+    citizenshipDesc: "Naturalization process",
+    deportationDefense: "Deportation Defense",
+    deportationDefenseDesc: "Protection from removal",
+    asylum: "Asylum",
+    asylumDesc: "Protection for those fleeing persecution",
+    criminalDefense: "Criminal Defense",
+    criminalDefenseDesc: "Defense against criminal charges",
+    businessImmigration: "Business Immigration",
+    businessImmigrationDesc: "Investor & business visas",
+    
+    // Sub-options titles
+    selectIndustry: "Select Industry",
+    petitionType: "Petition Type",
+    greenCardCategory: "Green Card Category",
+    visaType: "Visa Type",
+    
+    // H2B Industries
+    agriculture: "Agriculture",
+    landscaping: "Landscaping",
+    construction: "Construction",
+    hospitality: "Hospitality",
+    foodProcessing: "Food Processing",
+    seafood: "Seafood Processing",
+    warehouse: "Warehouse",
+    manufacturing: "Manufacturing",
+    maintenance: "Maintenance",
+    housekeeping: "Housekeeping",
+    
+    // Family Petition Types
+    spouse: "Spouse",
+    parent: "Parent",
+    child: "Child",
+    sibling: "Sibling",
+    fiance: "Fiance(e)",
+    
+    // Green Card Categories
+    familyBased: "Family-Based",
+    employmentBased: "Employment-Based",
+    diversityLottery: "Diversity Lottery",
+    vawa: "VAWA",
+    specialImmigrant: "Special Immigrant",
+    
+    // Visa Types
+    studentF1: "Student (F-1)",
+    workH1b: "Work (H-1B)",
+    investorE2: "Investor (E-2)",
+    intracompanyL1: "Intracompany (L-1)",
+    religiousR1: "Religious (R-1)",
+    extraordinaryO1: "Extraordinary (O-1)",
+    
+    // Urgency Section
+    howUrgent: "How urgent is your case?",
+    immediate: "Immediate",
+    immediateDesc: "Within 24 hours",
+    urgent: "Urgent",
+    urgentDesc: "Within 1 week",
+    normal: "Normal",
+    normalDesc: "Within 2 weeks",
+    planning: "Planning",
+    planningDesc: "No rush",
+    
+    // Personal Information Section
+    personalInfo: "Personal Information",
+    firstName: "First Name",
+    lastName: "Last Name",
+    email: "Email Address",
+    phone: "Phone Number",
+    dateOfBirth: "Date of Birth",
+    nationality: "Nationality",
+    currentLocation: "Current Location",
+    locationPlaceholder: "City, State, Country",
+    enterNationality: "Enter your nationality",
+    other: "Other",
+    
+    // Case Details Section
+    caseDetails: "Case Details",
+    describeYourSituation: "Describe Your Situation",
+    situationPlaceholder: "Please provide details about your case, including relevant dates, circumstances, and what outcome you are hoping for...",
+    beDetailed: "Be as detailed as possible to help us understand your situation.",
+    previousAttorney: "Previous Attorney (if any)",
+    attorneyPlaceholder: "Attorney name or firm",
+    upcomingCourtDate: "Upcoming Court Date",
+    
+    // Documents Section
+    documents: "Documents",
+    documentsSubtitle: "Select which documents you have available and upload them if possible",
+    availableDocuments: "Available Documents",
+    passport: "Passport",
+    currentVisa: "Current Visa",
+    i94: "I-94",
+    birthCertificate: "Birth Certificate",
+    marriageCertificate: "Marriage Certificate",
+    policeRecord: "Police Record",
+    employmentLetter: "Employment Letter",
+    taxReturns: "Tax Returns",
+    courtDocuments: "Court Documents",
+    medicalRecords: "Medical Records",
+    clickToUpload: "Click to upload files",
+    fileTypes: "PDF, JPG, PNG, DOC (Max 10MB)",
+    uploadedFiles: "Uploaded Files",
+    
+    // Contact Preferences Section
+    contactPreferences: "Contact Preferences",
+    preferredContactMethod: "Preferred Contact Method",
+    phoneCall: "Phone Call",
+    emailMethod: "Email",
+    videoCall: "Video Call",
+    inPerson: "In-Person",
+    preferredTime: "Preferred Time",
+    morning: "Morning",
+    morningTime: "8 AM - 12 PM",
+    afternoon: "Afternoon",
+    afternoonTime: "12 PM - 5 PM",
+    evening: "Evening",
+    eveningTime: "5 PM - 7 PM",
+    weekend: "Weekend",
+    weekendTime: "Sat/Sun",
+    
+    // Terms & Submit
+    agreeToTerms: "I agree to the terms and conditions",
+    termsDescription: "Your information is protected by attorney-client privilege. We will only use it to evaluate and respond to your consultation request.",
+    submitting: "Submitting...",
+    submitButton: "Submit Consultation Request",
+    
+    // Success Screen
+    successTitle: "Consultation Request Submitted!",
+    successMessage: "Thank you for choosing Diaz & Johnson. Our attorneys will review your case and contact you within 24 hours.",
+    returnHome: "Return to Home",
+    
+    // Sidebar
+    whatHappensNext: "What Happens Next?",
+    step1Title: "Case Review",
+    step1Desc: "Our attorneys review your information within 24 hours.",
+    step2Title: "Initial Contact",
+    step2Desc: "We will reach out to schedule your consultation.",
+    step3Title: "Consultation",
+    step3Desc: "Meet with an attorney to discuss your case in detail.",
+    step4Title: "Action Plan",
+    step4Desc: "Receive a clear strategy and next steps.",
+    
+    needImmediateHelp: "Need Immediate Help?",
+    callUsNow: "Call us now",
+    emailUs: "Email us",
+    officeHours: "Office Hours",
+    officeHoursValue: "Mon-Fri: 8 AM - 6 PM",
+    location: "Location",
+    emergencyLine: "24/7 Emergency Line for Urgent Cases",
+    
+    confidential: "100% Confidential",
+    confidentialDesc: "Your information is protected by attorney-client privilege and encrypted using industry-standard security.",
+    
+    // Errors
+    errorSubmit: "Error submitting. Please try again.",
+    errorConnection: "Connection error. Please try again.",
+  },
+  es: {
+    // Header
+    caseEvaluation: "Evaluación de Caso",
+    freeConsultation: "Solicitud de Consulta Gratuita",
+    headerSubtitle: "Cuéntenos sobre su caso y le ayudaremos a encontrar la mejor solución. Toda la información es confidencial.",
+    
+    // Case Types Section
+    whatHelpNeeded: "¿En qué necesita ayuda?",
+    selectCaseType: "Seleccione el tipo de caso que mejor describe su situación",
+    
+    // Case Types
+    h2bWorkVisa: "Visa de Trabajo H-2B",
+    h2bWorkVisaDesc: "Visas temporales para trabajos de temporada",
+    familyPetitions: "Peticiones Familiares",
+    familyPetitionsDesc: "Reúnase con sus seres queridos",
+    greenCard: "Residencia Permanente",
+    greenCardDesc: "Solicitudes de Green Card",
+    citizenship: "Ciudadanía",
+    citizenshipDesc: "Proceso de naturalización",
+    deportationDefense: "Defensa de Deportación",
+    deportationDefenseDesc: "Protección contra la remoción",
+    asylum: "Asilo",
+    asylumDesc: "Protección para quienes huyen de persecución",
+    criminalDefense: "Defensa Criminal",
+    criminalDefenseDesc: "Defensa contra cargos criminales",
+    businessImmigration: "Inmigración de Negocios",
+    businessImmigrationDesc: "Visas de inversionista y negocios",
+    
+    // Sub-options titles
+    selectIndustry: "Seleccione Industria",
+    petitionType: "Tipo de Petición",
+    greenCardCategory: "Categoría de Green Card",
+    visaType: "Tipo de Visa",
+    
+    // H2B Industries
+    agriculture: "Agricultura",
+    landscaping: "Jardinería",
+    construction: "Construcción",
+    hospitality: "Hospitalidad",
+    foodProcessing: "Procesamiento de Alimentos",
+    seafood: "Procesamiento de Mariscos",
+    warehouse: "Almacén",
+    manufacturing: "Manufactura",
+    maintenance: "Mantenimiento",
+    housekeeping: "Limpieza",
+    
+    // Family Petition Types
+    spouse: "Cónyuge",
+    parent: "Padre/Madre",
+    child: "Hijo(a)",
+    sibling: "Hermano(a)",
+    fiance: "Prometido(a)",
+    
+    // Green Card Categories
+    familyBased: "Basada en Familia",
+    employmentBased: "Basada en Empleo",
+    diversityLottery: "Lotería de Diversidad",
+    vawa: "VAWA",
+    specialImmigrant: "Inmigrante Especial",
+    
+    // Visa Types
+    studentF1: "Estudiante (F-1)",
+    workH1b: "Trabajo (H-1B)",
+    investorE2: "Inversionista (E-2)",
+    intracompanyL1: "Intracompañía (L-1)",
+    religiousR1: "Religioso (R-1)",
+    extraordinaryO1: "Habilidad Extraordinaria (O-1)",
+    
+    // Urgency Section
+    howUrgent: "¿Qué tan urgente es su caso?",
+    immediate: "Inmediato",
+    immediateDesc: "Dentro de 24 horas",
+    urgent: "Urgente",
+    urgentDesc: "Dentro de 1 semana",
+    normal: "Normal",
+    normalDesc: "Dentro de 2 semanas",
+    planning: "Planificación",
+    planningDesc: "Sin prisa",
+    
+    // Personal Information Section
+    personalInfo: "Información Personal",
+    firstName: "Nombre",
+    lastName: "Apellido",
+    email: "Correo Electrónico",
+    phone: "Número de Teléfono",
+    dateOfBirth: "Fecha de Nacimiento",
+    nationality: "Nacionalidad",
+    currentLocation: "Ubicación Actual",
+    locationPlaceholder: "Ciudad, Estado, País",
+    enterNationality: "Ingrese su nacionalidad",
+    other: "Otro",
+    
+    // Case Details Section
+    caseDetails: "Detalles del Caso",
+    describeYourSituation: "Describa Su Situación",
+    situationPlaceholder: "Por favor proporcione detalles sobre su caso, incluyendo fechas relevantes, circunstancias y qué resultado espera obtener...",
+    beDetailed: "Sea lo más detallado posible para ayudarnos a entender su situación.",
+    previousAttorney: "Abogado Anterior (si tiene)",
+    attorneyPlaceholder: "Nombre del abogado o firma",
+    upcomingCourtDate: "Fecha de Corte Próxima",
+    
+    // Documents Section
+    documents: "Documentos",
+    documentsSubtitle: "Seleccione qué documentos tiene disponibles y súbalos si es posible",
+    availableDocuments: "Documentos Disponibles",
+    passport: "Pasaporte",
+    currentVisa: "Visa Actual",
+    i94: "I-94",
+    birthCertificate: "Acta de Nacimiento",
+    marriageCertificate: "Acta de Matrimonio",
+    policeRecord: "Antecedentes Policiales",
+    employmentLetter: "Carta de Empleo",
+    taxReturns: "Declaraciones de Impuestos",
+    courtDocuments: "Documentos de Corte",
+    medicalRecords: "Registros Médicos",
+    clickToUpload: "Clic para subir archivos",
+    fileTypes: "PDF, JPG, PNG, DOC (Máx 10MB)",
+    uploadedFiles: "Archivos Subidos",
+    
+    // Contact Preferences Section
+    contactPreferences: "Preferencias de Contacto",
+    preferredContactMethod: "Método de Contacto Preferido",
+    phoneCall: "Llamada Telefónica",
+    emailMethod: "Correo Electrónico",
+    videoCall: "Videollamada",
+    inPerson: "En Persona",
+    preferredTime: "Horario Preferido",
+    morning: "Mañana",
+    morningTime: "8 AM - 12 PM",
+    afternoon: "Tarde",
+    afternoonTime: "12 PM - 5 PM",
+    evening: "Noche",
+    eveningTime: "5 PM - 7 PM",
+    weekend: "Fin de Semana",
+    weekendTime: "Sáb/Dom",
+    
+    // Terms & Submit
+    agreeToTerms: "Acepto los términos y condiciones",
+    termsDescription: "Su información está protegida por el privilegio abogado-cliente. Solo la usaremos para evaluar y responder a su solicitud de consulta.",
+    submitting: "Enviando...",
+    submitButton: "Enviar Solicitud de Consulta",
+    
+    // Success Screen
+    successTitle: "¡Solicitud de Consulta Enviada!",
+    successMessage: "Gracias por elegir Diaz & Johnson. Nuestros abogados revisarán su caso y lo contactarán dentro de 24 horas.",
+    returnHome: "Volver al Inicio",
+    
+    // Sidebar
+    whatHappensNext: "¿Qué Sigue?",
+    step1Title: "Revisión del Caso",
+    step1Desc: "Nuestros abogados revisan su información dentro de 24 horas.",
+    step2Title: "Contacto Inicial",
+    step2Desc: "Nos comunicaremos para programar su consulta.",
+    step3Title: "Consulta",
+    step3Desc: "Reúnase con un abogado para discutir su caso en detalle.",
+    step4Title: "Plan de Acción",
+    step4Desc: "Reciba una estrategia clara y próximos pasos.",
+    
+    needImmediateHelp: "¿Necesita Ayuda Inmediata?",
+    callUsNow: "Llámenos ahora",
+    emailUs: "Envíenos un correo",
+    officeHours: "Horario de Oficina",
+    officeHoursValue: "Lun-Vie: 8 AM - 6 PM",
+    location: "Ubicación",
+    emergencyLine: "Línea de Emergencia 24/7 para Casos Urgentes",
+    
+    confidential: "100% Confidencial",
+    confidentialDesc: "Su información está protegida por el privilegio abogado-cliente y encriptada usando seguridad de nivel industrial.",
+    
+    // Errors
+    errorSubmit: "Error al enviar. Por favor intente de nuevo.",
+    errorConnection: "Error de conexión. Por favor intente de nuevo.",
+  },
+}
+
+// ============================================
 // CASE TYPES CONFIG
 // ============================================
 const caseTypes = [
   {
     id: "h2b-work-visa",
     icon: Briefcase,
-    title: "H-2B Work Visa",
-    description: "Temporary work visas for seasonal jobs",
+    titleKey: "h2bWorkVisa",
+    descKey: "h2bWorkVisaDesc",
     color: "bg-blue-500",
   },
   {
     id: "family-petition",
     icon: Heart,
-    title: "Family Petitions",
-    description: "Reunite with your loved ones",
+    titleKey: "familyPetitions",
+    descKey: "familyPetitionsDesc",
     color: "bg-pink-500",
   },
   {
     id: "immigration-greencard",
     icon: FileCheck,
-    title: "Green Card",
-    description: "Permanent residence applications",
+    titleKey: "greenCard",
+    descKey: "greenCardDesc",
     color: "bg-green-500",
   },
   {
     id: "immigration-citizenship",
     icon: Globe,
-    title: "Citizenship",
-    description: "Naturalization process",
+    titleKey: "citizenship",
+    descKey: "citizenshipDesc",
     color: "bg-purple-500",
   },
   {
     id: "immigration-deportation",
     icon: Shield,
-    title: "Deportation Defense",
-    description: "Protection from removal",
+    titleKey: "deportationDefense",
+    descKey: "deportationDefenseDesc",
     color: "bg-red-500",
   },
   {
     id: "immigration-asylum",
     icon: Home,
-    title: "Asylum",
-    description: "Protection for those fleeing persecution",
+    titleKey: "asylum",
+    descKey: "asylumDesc",
     color: "bg-amber-500",
   },
   {
     id: "criminal-defense",
     icon: Gavel,
-    title: "Criminal Defense",
-    description: "Defense against criminal charges",
+    titleKey: "criminalDefense",
+    descKey: "criminalDefenseDesc",
     color: "bg-slate-600",
   },
   {
     id: "business-immigration",
     icon: Building2,
-    title: "Business Immigration",
-    description: "Investor & business visas",
+    titleKey: "businessImmigration",
+    descKey: "businessImmigrationDesc",
     color: "bg-indigo-500",
   },
 ]
@@ -93,52 +445,52 @@ const caseTypes = [
 
 // H2B Industries
 const h2bIndustries = [
-  { id: "agriculture", label: "Agriculture", icon: Leaf },
-  { id: "landscaping", label: "Landscaping", icon: TreePine },
-  { id: "construction", label: "Construction", icon: HardHat },
-  { id: "hospitality", label: "Hospitality", icon: Hotel },
-  { id: "food-processing", label: "Food Processing", icon: Utensils },
-  { id: "seafood", label: "Seafood Processing", icon: Fish },
-  { id: "warehouse", label: "Warehouse", icon: Warehouse },
-  { id: "manufacturing", label: "Manufacturing", icon: Factory },
-  { id: "maintenance", label: "Maintenance", icon: Wrench },
-  { id: "housekeeping", label: "Housekeeping", icon: Home },
+  { id: "agriculture", labelKey: "agriculture", icon: Leaf },
+  { id: "landscaping", labelKey: "landscaping", icon: TreePine },
+  { id: "construction", labelKey: "construction", icon: HardHat },
+  { id: "hospitality", labelKey: "hospitality", icon: Hotel },
+  { id: "food-processing", labelKey: "foodProcessing", icon: Utensils },
+  { id: "seafood", labelKey: "seafood", icon: Fish },
+  { id: "warehouse", labelKey: "warehouse", icon: Warehouse },
+  { id: "manufacturing", labelKey: "manufacturing", icon: Factory },
+  { id: "maintenance", labelKey: "maintenance", icon: Wrench },
+  { id: "housekeeping", labelKey: "housekeeping", icon: Home },
 ]
 
 // Family Petition Types
 const familyPetitionTypes = [
-  { id: "spouse", label: "Spouse", icon: Heart },
-  { id: "parent", label: "Parent", icon: Users },
-  { id: "child", label: "Child", icon: Baby },
-  { id: "sibling", label: "Sibling", icon: UserPlus },
-  { id: "fiance", label: "Fiance(e)", icon: Heart },
+  { id: "spouse", labelKey: "spouse", icon: Heart },
+  { id: "parent", labelKey: "parent", icon: Users },
+  { id: "child", labelKey: "child", icon: Baby },
+  { id: "sibling", labelKey: "sibling", icon: UserPlus },
+  { id: "fiance", labelKey: "fiance", icon: Heart },
 ]
 
 // Green Card Categories
 const greenCardCategories = [
-  { id: "family-based", label: "Family-Based", icon: Heart },
-  { id: "employment-based", label: "Employment-Based", icon: Briefcase },
-  { id: "diversity-lottery", label: "Diversity Lottery", icon: Globe },
-  { id: "vawa", label: "VAWA", icon: Shield },
-  { id: "special-immigrant", label: "Special Immigrant", icon: FileCheck },
+  { id: "family-based", labelKey: "familyBased", icon: Heart },
+  { id: "employment-based", labelKey: "employmentBased", icon: Briefcase },
+  { id: "diversity-lottery", labelKey: "diversityLottery", icon: Globe },
+  { id: "vawa", labelKey: "vawa", icon: Shield },
+  { id: "special-immigrant", labelKey: "specialImmigrant", icon: FileCheck },
 ]
 
 // Visa Types (excluding tourist)
 const visaTypes = [
-  { id: "student-f1", label: "Student (F-1)", icon: GraduationCap },
-  { id: "work-h1b", label: "Work (H-1B)", icon: Briefcase },
-  { id: "investor-e2", label: "Investor (E-2)", icon: DollarSign },
-  { id: "intracompany-l1", label: "Intracompany (L-1)", icon: Building2 },
-  { id: "religious-r1", label: "Religious (R-1)", icon: HandHelping },
-  { id: "extraordinary-o1", label: "Extraordinary (O-1)", icon: TrendingUp },
+  { id: "student-f1", labelKey: "studentF1", icon: GraduationCap },
+  { id: "work-h1b", labelKey: "workH1b", icon: Briefcase },
+  { id: "investor-e2", labelKey: "investorE2", icon: DollarSign },
+  { id: "intracompany-l1", labelKey: "intracompanyL1", icon: Building2 },
+  { id: "religious-r1", labelKey: "religiousR1", icon: HandHelping },
+  { id: "extraordinary-o1", labelKey: "extraordinaryO1", icon: TrendingUp },
 ]
 
 // Urgency Levels
 const urgencyLevels = [
-  { id: "immediate", label: "Immediate", sublabel: "Within 24 hours", icon: AlertCircle, color: "bg-red-500 border-red-500" },
-  { id: "urgent", label: "Urgent", sublabel: "Within 1 week", icon: Clock, color: "bg-orange-500 border-orange-500" },
-  { id: "normal", label: "Normal", sublabel: "Within 2 weeks", icon: Calendar, color: "bg-blue-500 border-blue-500" },
-  { id: "planning", label: "Planning", sublabel: "No rush", icon: TrendingUp, color: "bg-gray-500 border-gray-500" },
+  { id: "immediate", labelKey: "immediate", sublabelKey: "immediateDesc", icon: AlertCircle, color: "bg-red-500 border-red-500" },
+  { id: "urgent", labelKey: "urgent", sublabelKey: "urgentDesc", icon: Clock, color: "bg-orange-500 border-orange-500" },
+  { id: "normal", labelKey: "normal", sublabelKey: "normalDesc", icon: Calendar, color: "bg-blue-500 border-blue-500" },
+  { id: "planning", labelKey: "planning", sublabelKey: "planningDesc", icon: TrendingUp, color: "bg-gray-500 border-gray-500" },
 ]
 
 // Nationalities (common for immigration)
@@ -152,37 +504,37 @@ const nationalities = [
   { id: "peruvian", label: "Peru" },
   { id: "paraguayan", label: "Paraguay" },
   { id: "spanish", label: "Spain" },
-  { id: "other", label: "Other" },
+  { id: "other", labelKey: "other" },
 ]
 
 // Document Types
 const documentTypes = [
-  { id: "passport", label: "Passport", required: true },
-  { id: "visa", label: "Current Visa", required: false },
-  { id: "i94", label: "I-94", required: false },
-  { id: "birth-certificate", label: "Birth Certificate", required: false },
-  { id: "marriage-certificate", label: "Marriage Certificate", required: false },
-  { id: "police-record", label: "Police Record", required: false },
-  { id: "employment-letter", label: "Employment Letter", required: false },
-  { id: "tax-returns", label: "Tax Returns", required: false },
-  { id: "court-documents", label: "Court Documents", required: false },
-  { id: "medical-records", label: "Medical Records", required: false },
+  { id: "passport", labelKey: "passport", required: true },
+  { id: "visa", labelKey: "currentVisa", required: false },
+  { id: "i94", labelKey: "i94", required: false },
+  { id: "birth-certificate", labelKey: "birthCertificate", required: false },
+  { id: "marriage-certificate", labelKey: "marriageCertificate", required: false },
+  { id: "police-record", labelKey: "policeRecord", required: false },
+  { id: "employment-letter", labelKey: "employmentLetter", required: false },
+  { id: "tax-returns", labelKey: "taxReturns", required: false },
+  { id: "court-documents", labelKey: "courtDocuments", required: false },
+  { id: "medical-records", labelKey: "medicalRecords", required: false },
 ]
 
 // Contact Methods
 const contactMethods = [
-  { id: "phone", label: "Phone Call", icon: Phone },
-  { id: "email", label: "Email", icon: Mail },
-  { id: "video", label: "Video Call", icon: Globe },
-  { id: "in-person", label: "In-Person", icon: MapPin },
+  { id: "phone", labelKey: "phoneCall", icon: Phone },
+  { id: "email", labelKey: "emailMethod", icon: Mail },
+  { id: "video", labelKey: "videoCall", icon: Globe },
+  { id: "in-person", labelKey: "inPerson", icon: MapPin },
 ]
 
 // Consultation Times
 const consultationTimes = [
-  { id: "morning", label: "Morning", sublabel: "8 AM - 12 PM" },
-  { id: "afternoon", label: "Afternoon", sublabel: "12 PM - 5 PM" },
-  { id: "evening", label: "Evening", sublabel: "5 PM - 7 PM" },
-  { id: "weekend", label: "Weekend", sublabel: "Sat/Sun" },
+  { id: "morning", labelKey: "morning", sublabelKey: "morningTime" },
+  { id: "afternoon", labelKey: "afternoon", sublabelKey: "afternoonTime" },
+  { id: "evening", labelKey: "evening", sublabelKey: "eveningTime" },
+  { id: "weekend", labelKey: "weekend", sublabelKey: "weekendTime" },
 ]
 
 // ============================================
@@ -215,6 +567,7 @@ type ConsultationFormValues = z.infer<typeof consultationFormSchema>
 // ============================================
 export function ConsultationForm() {
   const { language } = useLanguage()
+  const t = translations[language as keyof typeof translations] || translations.en
   const [uploadedFiles, setUploadedFiles] = useState<File[]>([])
   const [selectedDocTypes, setSelectedDocTypes] = useState<string[]>([])
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -252,13 +605,13 @@ export function ConsultationForm() {
   const getSubOptions = () => {
     switch (selectedCaseType) {
       case "h2b-work-visa":
-        return { title: "Select Industry", options: h2bIndustries }
+        return { titleKey: "selectIndustry", options: h2bIndustries }
       case "family-petition":
-        return { title: "Petition Type", options: familyPetitionTypes }
+        return { titleKey: "petitionType", options: familyPetitionTypes }
       case "immigration-greencard":
-        return { title: "Green Card Category", options: greenCardCategories }
+        return { titleKey: "greenCardCategory", options: greenCardCategories }
       case "business-immigration":
-        return { title: "Visa Type", options: visaTypes }
+        return { titleKey: "visaType", options: visaTypes }
       default:
         return null
     }
@@ -345,14 +698,14 @@ export function ConsultationForm() {
 
       if (error) {
         console.error("Supabase insert error:", error)
-        setSubmitError("Error al enviar. Por favor intente de nuevo.")
+        setSubmitError(t.errorSubmit)
         return
       }
 
       setSubmitSuccess(true)
     } catch (err) {
       console.error("Submit error:", err)
-      setSubmitError("Error de conexion. Por favor intente de nuevo.")
+      setSubmitError(t.errorConnection)
     } finally {
       setIsSubmitting(false)
     }
@@ -384,17 +737,17 @@ export function ConsultationForm() {
               <CheckCircle2 className="h-12 w-12 text-green-600" />
             </motion.div>
             <h2 className="font-serif text-3xl font-bold text-foreground mb-4">
-              Consultation Request Submitted!
+              {t.successTitle}
             </h2>
             <p className="text-muted-foreground text-lg mb-6">
-              Thank you for choosing Diaz & Johnson. Our attorneys will review your case and contact you within 24 hours.
+              {t.successMessage}
             </p>
             <Button
               size="lg"
               onClick={() => (window.location.href = "/")}
               className="bg-primary text-primary-foreground hover:bg-primary/90"
             >
-              Return to Home
+              {t.returnHome}
             </Button>
           </div>
         </motion.div>
@@ -407,12 +760,12 @@ export function ConsultationForm() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="text-center max-w-3xl mx-auto mb-12">
-          <p className="text-accent font-medium tracking-wider uppercase text-sm mb-3">Case Evaluation</p>
+          <p className="text-accent font-medium tracking-wider uppercase text-sm mb-3">{t.caseEvaluation}</p>
           <h1 className="font-serif text-4xl md:text-5xl font-bold text-foreground mb-6">
-            Free Consultation Request
+            {t.freeConsultation}
           </h1>
           <p className="text-muted-foreground text-lg leading-relaxed">
-            Tell us about your case and we will help you find the best solution. All information is confidential.
+            {t.headerSubtitle}
           </p>
         </div>
 
@@ -446,9 +799,9 @@ export function ConsultationForm() {
                   <div>
                     <h3 className="font-serif text-xl font-bold text-foreground mb-2 pb-2 border-b flex items-center gap-2">
                       <Scale className="h-5 w-5 text-accent" />
-                      What do you need help with?
+                      {t.whatHelpNeeded}
                     </h3>
-                    <p className="text-sm text-muted-foreground mb-4">Select the type of case that best describes your situation</p>
+                    <p className="text-sm text-muted-foreground mb-4">{t.selectCaseType}</p>
                     
                     <FormField
                       control={form.control}
@@ -487,10 +840,10 @@ export function ConsultationForm() {
                                       "font-semibold text-sm",
                                       isSelected ? "text-foreground" : "text-muted-foreground"
                                     )}>
-                                      {caseType.title}
+                                      {t[caseType.titleKey as keyof typeof t]}
                                     </h4>
                                     <p className="text-xs text-muted-foreground mt-1 line-clamp-2">
-                                      {caseType.description}
+                                      {t[caseType.descKey as keyof typeof t]}
                                     </p>
                                     {isSelected && (
                                       <div className="absolute top-2 right-2">
@@ -516,7 +869,7 @@ export function ConsultationForm() {
                           exit={{ opacity: 0, height: 0 }}
                           className="mt-4 overflow-hidden"
                         >
-                          <Label className="text-sm font-medium mb-3 block">{subOptions.title}</Label>
+                          <Label className="text-sm font-medium mb-3 block">{t[subOptions.titleKey as keyof typeof t]}</Label>
                           <FormField
                             control={form.control}
                             name="caseSubType"
@@ -541,7 +894,7 @@ export function ConsultationForm() {
                                         )}
                                       >
                                         <Icon className="h-4 w-4" />
-                                        {option.label}
+                                        {t[option.labelKey as keyof typeof t]}
                                         {isSelected && <Check className="h-3 w-3" />}
                                       </motion.button>
                                     )
@@ -561,7 +914,7 @@ export function ConsultationForm() {
                   <div>
                     <h3 className="font-serif text-xl font-bold text-foreground mb-2 pb-2 border-b flex items-center gap-2">
                       <Clock className="h-5 w-5 text-accent" />
-                      How urgent is your case?
+                      {t.howUrgent}
                     </h3>
                     
                     <FormField
@@ -590,10 +943,10 @@ export function ConsultationForm() {
                                   >
                                     <Icon className={cn("h-6 w-6 mx-auto mb-2", isSelected ? "text-white" : "text-muted-foreground")} />
                                     <h4 className={cn("font-semibold text-sm", isSelected ? "text-white" : "text-foreground")}>
-                                      {level.label}
+                                      {t[level.labelKey as keyof typeof t]}
                                     </h4>
                                     <p className={cn("text-xs mt-1", isSelected ? "text-white/80" : "text-muted-foreground")}>
-                                      {level.sublabel}
+                                      {t[level.sublabelKey as keyof typeof t]}
                                     </p>
                                   </motion.button>
                                 )
@@ -612,7 +965,7 @@ export function ConsultationForm() {
                   <div>
                     <h3 className="font-serif text-xl font-bold text-foreground mb-4 pb-2 border-b flex items-center gap-2">
                       <Users className="h-5 w-5 text-accent" />
-                      Personal Information
+                      {t.personalInfo}
                     </h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                       <FormField
@@ -620,7 +973,7 @@ export function ConsultationForm() {
                         name="firstName"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>First Name *</FormLabel>
+                            <FormLabel>{t.firstName} *</FormLabel>
                             <FormControl>
                               <Input placeholder="John" {...field} className="h-11" />
                             </FormControl>
@@ -634,7 +987,7 @@ export function ConsultationForm() {
                         name="lastName"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>Last Name *</FormLabel>
+                            <FormLabel>{t.lastName} *</FormLabel>
                             <FormControl>
                               <Input placeholder="Doe" {...field} className="h-11" />
                             </FormControl>
@@ -648,7 +1001,7 @@ export function ConsultationForm() {
                         name="email"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>Email Address *</FormLabel>
+                            <FormLabel>{t.email} *</FormLabel>
                             <FormControl>
                               <Input type="email" placeholder="john@example.com" {...field} className="h-11" />
                             </FormControl>
@@ -662,7 +1015,7 @@ export function ConsultationForm() {
                         name="phone"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>Phone Number *</FormLabel>
+                            <FormLabel>{t.phone} *</FormLabel>
                             <FormControl>
                               <Input type="tel" placeholder="(305) 555-1234" {...field} className="h-11" />
                             </FormControl>
@@ -676,7 +1029,7 @@ export function ConsultationForm() {
                         name="dateOfBirth"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>Date of Birth</FormLabel>
+                            <FormLabel>{t.dateOfBirth}</FormLabel>
                             <FormControl>
                               <Input type="date" {...field} className="h-11" />
                             </FormControl>
@@ -691,13 +1044,14 @@ export function ConsultationForm() {
                         name="nationality"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>Nationality *</FormLabel>
+                            <FormLabel>{t.nationality} *</FormLabel>
                             <FormControl>
                               <div>
                                 <div className="flex flex-wrap gap-2 mb-2">
                                   {nationalities.map((nat) => {
                                     const isSelected = field.value === nat.label
                                     const isOther = nat.id === "other"
+                                    const label = nat.labelKey ? t[nat.labelKey as keyof typeof t] : nat.label
                                     return (
                                       <motion.button
                                         key={nat.id}
@@ -720,7 +1074,7 @@ export function ConsultationForm() {
                                             : "bg-secondary/70 text-muted-foreground hover:bg-secondary"
                                         )}
                                       >
-                                        {nat.label}
+                                        {label}
                                       </motion.button>
                                     )
                                   })}
@@ -733,7 +1087,7 @@ export function ConsultationForm() {
                                       exit={{ opacity: 0, height: 0 }}
                                     >
                                       <Input
-                                        placeholder="Enter your nationality"
+                                        placeholder={t.enterNationality}
                                         value={field.value}
                                         onChange={(e) => field.onChange(e.target.value)}
                                         className="h-11"
@@ -753,9 +1107,9 @@ export function ConsultationForm() {
                         name="currentLocation"
                         render={({ field }) => (
                           <FormItem className="md:col-span-2">
-                            <FormLabel>Current Location *</FormLabel>
+                            <FormLabel>{t.currentLocation} *</FormLabel>
                             <FormControl>
-                              <Input placeholder="City, State, Country" {...field} className="h-11" />
+                              <Input placeholder={t.locationPlaceholder} {...field} className="h-11" />
                             </FormControl>
                             <FormMessage />
                           </FormItem>
@@ -770,7 +1124,7 @@ export function ConsultationForm() {
                   <div>
                     <h3 className="font-serif text-xl font-bold text-foreground mb-4 pb-2 border-b flex items-center gap-2">
                       <FileText className="h-5 w-5 text-accent" />
-                      Case Details
+                      {t.caseDetails}
                     </h3>
                     <div className="space-y-5">
                       <FormField
@@ -778,17 +1132,17 @@ export function ConsultationForm() {
                         name="caseDescription"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>Describe Your Situation *</FormLabel>
+                            <FormLabel>{t.describeYourSituation} *</FormLabel>
                             <FormControl>
                               <Textarea
-                                placeholder="Please provide details about your case, including relevant dates, circumstances, and what outcome you are hoping for..."
+                                placeholder={t.situationPlaceholder}
                                 rows={6}
                                 {...field}
                                 className="resize-none"
                               />
                             </FormControl>
                             <FormDescription>
-                              Be as detailed as possible to help us understand your situation.
+                              {t.beDetailed}
                             </FormDescription>
                             <FormMessage />
                           </FormItem>
@@ -801,9 +1155,9 @@ export function ConsultationForm() {
                           name="previousAttorney"
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel>Previous Attorney (if any)</FormLabel>
+                              <FormLabel>{t.previousAttorney}</FormLabel>
                               <FormControl>
-                                <Input placeholder="Attorney name or firm" {...field} className="h-11" />
+                                <Input placeholder={t.attorneyPlaceholder} {...field} className="h-11" />
                               </FormControl>
                               <FormMessage />
                             </FormItem>
@@ -815,7 +1169,7 @@ export function ConsultationForm() {
                           name="courtDate"
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel>Upcoming Court Date</FormLabel>
+                              <FormLabel>{t.upcomingCourtDate}</FormLabel>
                               <FormControl>
                                 <Input type="date" {...field} className="h-11" />
                               </FormControl>
@@ -833,15 +1187,15 @@ export function ConsultationForm() {
                   <div>
                     <h3 className="font-serif text-xl font-bold text-foreground mb-2 pb-2 border-b flex items-center gap-2">
                       <Upload className="h-5 w-5 text-accent" />
-                      Documents
+                      {t.documents}
                     </h3>
                     <p className="text-sm text-muted-foreground mb-4">
-                      Select which documents you have available and upload them if possible
+                      {t.documentsSubtitle}
                     </p>
 
                     {/* Document Type Pills */}
                     <div className="mb-4">
-                      <Label className="text-sm font-medium mb-3 block">Available Documents</Label>
+                      <Label className="text-sm font-medium mb-3 block">{t.availableDocuments}</Label>
                       <div className="flex flex-wrap gap-2">
                         {documentTypes.map((doc) => {
                           const isSelected = selectedDocTypes.includes(doc.id)
@@ -860,7 +1214,7 @@ export function ConsultationForm() {
                               )}
                             >
                               {isSelected && <Check className="h-3 w-3" />}
-                              {doc.label}
+                              {t[doc.labelKey as keyof typeof t]}
                             </motion.button>
                           )
                         })}
@@ -879,15 +1233,15 @@ export function ConsultationForm() {
                       />
                       <label htmlFor="file-upload" className="cursor-pointer">
                         <Upload className="h-12 w-12 text-muted-foreground mx-auto mb-3" />
-                        <p className="text-foreground font-medium mb-1">Click to upload files</p>
-                        <p className="text-sm text-muted-foreground">PDF, JPG, PNG, DOC (Max 10MB)</p>
+                        <p className="text-foreground font-medium mb-1">{t.clickToUpload}</p>
+                        <p className="text-sm text-muted-foreground">{t.fileTypes}</p>
                       </label>
                     </div>
 
                     {/* Uploaded Files List */}
                     {uploadedFiles.length > 0 && (
                       <div className="mt-4 space-y-2">
-                        <Label>Uploaded Files ({uploadedFiles.length})</Label>
+                        <Label>{t.uploadedFiles} ({uploadedFiles.length})</Label>
                         {uploadedFiles.map((file, index) => (
                           <motion.div
                             key={index}
@@ -925,7 +1279,7 @@ export function ConsultationForm() {
                   <div>
                     <h3 className="font-serif text-xl font-bold text-foreground mb-4 pb-2 border-b flex items-center gap-2">
                       <Phone className="h-5 w-5 text-accent" />
-                      Contact Preferences
+                      {t.contactPreferences}
                     </h3>
 
                     {/* Contact Method */}
@@ -935,7 +1289,7 @@ export function ConsultationForm() {
                         name="preferredContactMethod"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>Preferred Contact Method *</FormLabel>
+                            <FormLabel>{t.preferredContactMethod} *</FormLabel>
                             <FormControl>
                               <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-2">
                                 {contactMethods.map((method) => {
@@ -957,7 +1311,7 @@ export function ConsultationForm() {
                                     >
                                       <Icon className={cn("h-5 w-5", isSelected ? "text-accent" : "text-muted-foreground")} />
                                       <span className={cn("text-sm font-medium", isSelected ? "text-foreground" : "text-muted-foreground")}>
-                                        {method.label}
+                                        {t[method.labelKey as keyof typeof t]}
                                       </span>
                                     </motion.button>
                                   )
@@ -976,7 +1330,7 @@ export function ConsultationForm() {
                       name="preferredConsultationTime"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Preferred Time</FormLabel>
+                          <FormLabel>{t.preferredTime}</FormLabel>
                           <FormControl>
                             <div className="flex flex-wrap gap-2 mt-2">
                               {consultationTimes.map((time) => {
@@ -995,8 +1349,8 @@ export function ConsultationForm() {
                                         : "bg-secondary/70 text-muted-foreground hover:bg-secondary"
                                     )}
                                   >
-                                    {time.label}
-                                    <span className="text-xs opacity-70 ml-1">({time.sublabel})</span>
+                                    {t[time.labelKey as keyof typeof t]}
+                                    <span className="text-xs opacity-70 ml-1">({t[time.sublabelKey as keyof typeof t]})</span>
                                   </motion.button>
                                 )
                               })}
@@ -1021,9 +1375,9 @@ export function ConsultationForm() {
                             <Checkbox checked={field.value} onCheckedChange={field.onChange} />
                           </FormControl>
                           <div className="space-y-1 leading-none">
-                            <FormLabel>I agree to the terms and conditions *</FormLabel>
+                            <FormLabel>{t.agreeToTerms} *</FormLabel>
                             <FormDescription>
-                              Your information is protected by attorney-client privilege. We will only use it to evaluate and respond to your consultation request.
+                              {t.termsDescription}
                             </FormDescription>
                             <FormMessage />
                           </div>
@@ -1041,12 +1395,12 @@ export function ConsultationForm() {
                     {isSubmitting ? (
                       <span className="flex items-center gap-2">
                         <Clock className="h-5 w-5 animate-spin" />
-                        Submitting...
+                        {t.submitting}
                       </span>
                     ) : (
                       <span className="flex items-center gap-2">
                         <CheckCircle2 className="h-5 w-5" />
-                        Submit Consultation Request
+                        {t.submitButton}
                       </span>
                     )}
                   </Button>
@@ -1058,21 +1412,21 @@ export function ConsultationForm() {
           {/* Sidebar */}
           <div className="space-y-6">
             <Card className="p-6 bg-card">
-              <h3 className="font-serif text-xl font-bold text-foreground mb-4">What Happens Next?</h3>
+              <h3 className="font-serif text-xl font-bold text-foreground mb-4">{t.whatHappensNext}</h3>
               <div className="space-y-4">
                 {[
-                  { step: 1, title: "Case Review", desc: "Our attorneys review your information within 24 hours." },
-                  { step: 2, title: "Initial Contact", desc: "We will reach out to schedule your consultation." },
-                  { step: 3, title: "Consultation", desc: "Meet with an attorney to discuss your case in detail." },
-                  { step: 4, title: "Action Plan", desc: "Receive a clear strategy and next steps." },
+                  { step: 1, titleKey: "step1Title", descKey: "step1Desc" },
+                  { step: 2, titleKey: "step2Title", descKey: "step2Desc" },
+                  { step: 3, titleKey: "step3Title", descKey: "step3Desc" },
+                  { step: 4, titleKey: "step4Title", descKey: "step4Desc" },
                 ].map((item) => (
                   <div key={item.step} className="flex gap-3">
                     <div className="shrink-0 w-8 h-8 bg-accent/20 rounded-full flex items-center justify-center">
                       <span className="text-accent font-bold text-sm">{item.step}</span>
                     </div>
                     <div>
-                      <h4 className="font-semibold text-foreground text-sm">{item.title}</h4>
-                      <p className="text-muted-foreground text-sm mt-1">{item.desc}</p>
+                      <h4 className="font-semibold text-foreground text-sm">{t[item.titleKey as keyof typeof t]}</h4>
+                      <p className="text-muted-foreground text-sm mt-1">{t[item.descKey as keyof typeof t]}</p>
                     </div>
                   </div>
                 ))}
@@ -1080,12 +1434,12 @@ export function ConsultationForm() {
             </Card>
 
             <Card className="p-6 bg-primary text-primary-foreground">
-              <h3 className="font-serif text-xl font-bold mb-4">Need Immediate Help?</h3>
+              <h3 className="font-serif text-xl font-bold mb-4">{t.needImmediateHelp}</h3>
               <div className="space-y-4">
                 <a href="tel:+13057280029" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
                   <Phone className="h-5 w-5" />
                   <div>
-                    <p className="text-sm opacity-90">Call us now</p>
+                    <p className="text-sm opacity-90">{t.callUsNow}</p>
                     <p className="font-semibold">305-728-0029</p>
                   </div>
                 </a>
@@ -1093,7 +1447,7 @@ export function ConsultationForm() {
                 <a href="mailto:info@diazjohnsonlaw.com" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
                   <Mail className="h-5 w-5" />
                   <div>
-                    <p className="text-sm opacity-90">Email us</p>
+                    <p className="text-sm opacity-90">{t.emailUs}</p>
                     <p className="font-semibold">info@diazjohnsonlaw.com</p>
                   </div>
                 </a>
@@ -1101,22 +1455,22 @@ export function ConsultationForm() {
                 <div className="flex items-center gap-3">
                   <Clock className="h-5 w-5" />
                   <div>
-                    <p className="text-sm opacity-90">Office Hours</p>
-                    <p className="font-semibold">Mon-Fri: 8 AM - 6 PM</p>
+                    <p className="text-sm opacity-90">{t.officeHours}</p>
+                    <p className="font-semibold">{t.officeHoursValue}</p>
                   </div>
                 </div>
 
                 <div className="flex items-center gap-3">
                   <MapPin className="h-5 w-5" />
                   <div>
-                    <p className="text-sm opacity-90">Location</p>
+                    <p className="text-sm opacity-90">{t.location}</p>
                     <p className="font-semibold">1680 Michigan Ave, Miami Beach</p>
                   </div>
                 </div>
               </div>
 
               <div className="mt-6 pt-6 border-t border-primary-foreground/20">
-                <p className="text-sm opacity-90 text-center">24/7 Emergency Line for Urgent Cases</p>
+                <p className="text-sm opacity-90 text-center">{t.emergencyLine}</p>
               </div>
             </Card>
 
@@ -1124,9 +1478,9 @@ export function ConsultationForm() {
               <div className="flex items-start gap-3">
                 <Shield className="h-6 w-6 text-accent shrink-0 mt-1" />
                 <div>
-                  <h3 className="font-serif text-lg font-bold text-foreground mb-2">100% Confidential</h3>
+                  <h3 className="font-serif text-lg font-bold text-foreground mb-2">{t.confidential}</h3>
                   <p className="text-muted-foreground text-sm">
-                    Your information is protected by attorney-client privilege and encrypted using industry-standard security.
+                    {t.confidentialDesc}
                   </p>
                 </div>
               </div>
