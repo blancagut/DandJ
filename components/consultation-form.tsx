@@ -6,6 +6,7 @@ import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import * as z from "zod"
 import { motion, AnimatePresence } from "framer-motion"
+import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
@@ -18,7 +19,7 @@ import {
   AlertCircle, Calendar, TrendingUp, Check, Building2,
   GraduationCap, DollarSign, Home, Baby, UserPlus, Gavel,
   HandHelping, TreePine, Utensils, HardHat, Warehouse, Factory,
-  Wrench, Hotel, Fish, Leaf
+  Wrench, Hotel, Fish, Leaf, ArrowLeft
 } from "lucide-react"
 import { Card } from "@/components/ui/card"
 import { useLanguage } from "@/lib/language-context"
@@ -175,6 +176,9 @@ const translations = {
     successTitle: "Consultation Request Submitted!",
     successMessage: "Thank you for choosing Diaz & Johnson. Our attorneys will review your case and contact you within 24 hours.",
     returnHome: "Return to Home",
+    
+    // Navigation
+    backToHome: "Back to Home",
     
     // Sidebar
     whatHappensNext: "What Happens Next?",
@@ -348,6 +352,9 @@ const translations = {
     successTitle: "¡Solicitud de Consulta Enviada!",
     successMessage: "Gracias por elegir Diaz & Johnson. Nuestros abogados revisarán su caso y lo contactarán dentro de 24 horas.",
     returnHome: "Volver al Inicio",
+    
+    // Navigation
+    backToHome: "Volver al Inicio",
     
     // Sidebar
     whatHappensNext: "¿Qué Sigue?",
@@ -758,6 +765,16 @@ export function ConsultationForm() {
   return (
     <section className="py-12 md:py-20 bg-background">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Back Button */}
+        <div className="mb-8">
+          <Link href="/">
+            <Button variant="ghost" className="flex items-center gap-2 text-muted-foreground hover:text-foreground">
+              <ArrowLeft className="h-4 w-4" />
+              {t.backToHome}
+            </Button>
+          </Link>
+        </div>
+
         {/* Header */}
         <div className="text-center max-w-3xl mx-auto mb-12">
           <p className="text-accent font-medium tracking-wider uppercase text-sm mb-3">{t.caseEvaluation}</p>
