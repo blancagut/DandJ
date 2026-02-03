@@ -393,24 +393,24 @@ const translations: Record<Language, Record<string, string>> = {
 
     // Pie de Pagina
     "footer.tagline":
-      "Sirviendo a la comunidad de Miami por mas de 25 anos con representacion legal dedicada, compasiva y orientada a resultados en inmigracion, defensa criminal y derechos civiles.",
-    "footer.practiceAreas": "Areas de Practica",
-    "footer.company": "Compania",
+      "Sirviendo a la comunidad de Miami por más de 25 años con representación legal dedicada, compasiva y orientada a resultados en inmigración, defensa criminal y derechos civiles.",
+    "footer.practiceAreas": "Áreas de práctica",
+    "footer.company": "Compañía",
     "footer.resources": "Recursos",
     "footer.aboutUs": "Sobre Nosotros",
     "footer.ourTeam": "Nuestro Equipo",
-    "footer.successStories": "Casos de Exito",
+    "footer.successStories": "Casos de éxito",
     "footer.contact": "Contacto",
     "footer.blog": "Blog",
     "footer.faqs": "Preguntas Frecuentes",
-    "footer.caseStudies": "Estudios de Casos",
+    "footer.caseStudies": "Estudios de caso",
     "footer.news": "Noticias",
-    "footer.privacyPolicy": "Politica de Privacidad",
-    "footer.termsOfService": "Terminos de Servicio",
+    "footer.privacyPolicy": "Política de privacidad",
+    "footer.termsOfService": "Términos de servicio",
     "footer.disclaimer": "Aviso Legal",
     "footer.copyright": "Diaz & Johnson, P.A. Todos los derechos reservados.",
     "footer.legalDisclaimer":
-      "La informacion en este sitio web es solo para fines de informacion general. Nada en este sitio debe tomarse como asesoramiento legal para ningun caso o situacion individual.",
+      "La información en este sitio web es solo para fines de información general. Nada en este sitio debe tomarse como asesoramiento legal para ningún caso o situación individual.",
 
     // Chat de Valeria
     "chat.greeting.available": "Hola! Soy Valeria de Diaz & Johnson. Como puedo ayudarte hoy?",

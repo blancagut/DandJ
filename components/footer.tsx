@@ -7,10 +7,10 @@ import { PRACTICE_AREAS } from "@/lib/practice-areas-data"
 import { Logo } from "@/components/ui/logo"
 
 const social = [
-  { name: "Facebook", icon: Facebook, href: "#" },
-  { name: "Twitter", icon: Twitter, href: "#" },
-  { name: "LinkedIn", icon: Linkedin, href: "#" },
-  { name: "Instagram", icon: Instagram, href: "#" },
+  { name: "Facebook", icon: Facebook, href: "https://facebook.com/diazandjohnson" },
+  { name: "X", icon: Twitter, href: "https://x.com/" },
+  { name: "LinkedIn", icon: Linkedin, href: "https://linkedin.com/" },
+  { name: "Instagram", icon: Instagram, href: "https://www.instagram.com/" },
 ]
 
 export function Footer() {
@@ -55,6 +55,8 @@ export function Footer() {
                 <a
                   key={item.name}
                   href={item.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
                   className="p-2 bg-primary-foreground/10 rounded-full hover:bg-accent hover:text-accent-foreground transition-colors"
                   aria-label={item.name}
                 >
