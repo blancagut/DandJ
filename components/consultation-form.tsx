@@ -16,7 +16,7 @@ import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, For
 import { Upload, X, FileText, CheckCircle2, Phone, Mail, MapPin, Clock } from "lucide-react"
 import { Card } from "@/components/ui/card"
 import { useLanguage } from "@/lib/language-context"
-import { postJson, type ApiError } from "@/lib/api/client"
+import { getSupabaseBrowserClient } from "@/lib/supabase/client"
 
 const consultationFormSchema = z.object({
   firstName: z.string().min(2, "First name must be at least 2 characters"),
@@ -103,59 +103,52 @@ export function ConsultationForm() {
   }
 
   const onSubmit = async (data: ConsultationFormValues) => {
+    // Honeypot check - si tiene valor, es un bot
+    if (honeypot) {
+      setSubmitSuccess(true)
+      return
+    }
+
     setIsSubmitting(true)
     setSubmitError(null)
 
     try {
-      const json = await postJson<
-        ConsultationFormValues & {
-          language: string
-          website: string
-          files: { name: string; size: number; type: string }[]
-        },
-        { received: true }
-      >("/api/consultation", {
-        ...data,
-        language,
-        website: honeypot,
-        files: uploadedFiles.map((f) => ({ name: f.name, size: f.size, type: f.type })),
-      })
+      const supabase = getSupabaseBrowserClient()
 
-      if (json.ok !== true) {
-        const err = json as ApiError
-        setSubmitError(err.error.message)
+      // @ts-expect-error - No hay tipos generados de Supabase
+      const { error } = await supabase
+        .from("consultation_requests")
+        .insert({
+          first_name: data.firstName,
+          last_name: data.lastName,
+          email: data.email.toLowerCase(),
+          phone: data.phone,
+          date_of_birth: data.dateOfBirth || null,
+          nationality: data.nationality,
+          current_location: data.currentLocation,
+          case_type: data.caseType,
+          urgency: data.urgency,
+          case_description: data.caseDescription,
+          previous_attorney: data.previousAttorney || null,
+          court_date: data.courtDate || null,
+          preferred_contact_method: data.preferredContactMethod,
+          preferred_consultation_time: data.preferredConsultationTime || null,
+          referral_source: data.referralSource || null,
+          files: uploadedFiles.map((f) => ({ name: f.name, size: f.size, type: f.type })),
+          language: language,
+          status: "new",
+        })
 
-        const fieldErrors = err.error.fieldErrors
-        if (fieldErrors) {
-          for (const [fieldName, messages] of Object.entries(fieldErrors)) {
-            const msg = messages?.[0]
-            if (!msg) continue
-
-            if (fieldName === "firstName") form.setError("firstName", { type: "server", message: msg })
-            else if (fieldName === "lastName") form.setError("lastName", { type: "server", message: msg })
-            else if (fieldName === "email") form.setError("email", { type: "server", message: msg })
-            else if (fieldName === "phone") form.setError("phone", { type: "server", message: msg })
-            else if (fieldName === "dateOfBirth") form.setError("dateOfBirth", { type: "server", message: msg })
-            else if (fieldName === "nationality") form.setError("nationality", { type: "server", message: msg })
-            else if (fieldName === "currentLocation") form.setError("currentLocation", { type: "server", message: msg })
-            else if (fieldName === "caseType") form.setError("caseType", { type: "server", message: msg })
-            else if (fieldName === "urgency") form.setError("urgency", { type: "server", message: msg })
-            else if (fieldName === "caseDescription") form.setError("caseDescription", { type: "server", message: msg })
-            else if (fieldName === "previousAttorney") form.setError("previousAttorney", { type: "server", message: msg })
-            else if (fieldName === "courtDate") form.setError("courtDate", { type: "server", message: msg })
-            else if (fieldName === "preferredContactMethod") {
-              form.setError("preferredContactMethod", { type: "server", message: msg })
-            } else if (fieldName === "preferredConsultationTime") {
-              form.setError("preferredConsultationTime", { type: "server", message: msg })
-            } else if (fieldName === "referralSource") form.setError("referralSource", { type: "server", message: msg })
-            else if (fieldName === "agreeToTerms") form.setError("agreeToTerms", { type: "server", message: msg })
-          }
-        }
-
+      if (error) {
+        console.error("Supabase insert error:", error)
+        setSubmitError("Error al enviar. Por favor intente de nuevo.")
         return
       }
 
       setSubmitSuccess(true)
+    } catch (err) {
+      console.error("Submit error:", err)
+      setSubmitError("Error de conexión. Por favor intente de nuevo.")
     } finally {
       setIsSubmitting(false)
     }
@@ -165,7 +158,7 @@ export function ConsultationForm() {
       form.reset()
       setUploadedFiles([])
       setSubmitSuccess(false)
-    }, 3000)
+    }, 5000)
   }
 
   if (submitSuccess) {
