@@ -14,12 +14,12 @@ export function Logo({
 }: LogoProps) {
   return (
     <Image
-      src="/logo.png"
+      src="/logo.svg"
       alt={alt}
-      width={500}
-      height={500}
+      width={260}
+      height={60}
       priority={priority}
-      className={cn("h-10 w-auto", className)}
+      className={cn("h-10 w-auto object-contain", className)}
     />
   )
 }

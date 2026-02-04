@@ -81,6 +81,8 @@ This creates:
 - `leads` table (form submissions)
 - `lead_files` table (H2B file uploads)
 - `work_items` table (admin todo list)
+- `consultation_requests` table (/consult and /consulta submissions)
+- `chat_conversations` + `chat_messages` tables (Support chat + admin chat panel)
 
 ## 5️⃣ Create Admin User
 
@@ -153,6 +155,17 @@ In Vercel Dashboard → Settings → Domains:
 1. Verify `RESEND_API_KEY` is valid
 2. Check domain is verified in Resend
 3. Use verified domain in `RESEND_FROM_EMAIL`
+
+### Admin chat error: "Could not find the table 'public.chat_conversations' in the schema cache"
+This means the chat tables were not created in your Supabase project (or you created them in a different project than the one your app points at).
+
+1. Run migrations: `pnpm db:migrate`
+2. If you created tables manually, go to Supabase Dashboard → Settings → API → **Reload schema cache**
+3. Verify your Vercel env vars point to the same Supabase project where you created tables:
+  - `NEXT_PUBLIC_SUPABASE_URL`
+  - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+
+If you prefer manual SQL, run [db/chat_tables.sql](../db/chat_tables.sql) in Supabase SQL Editor, then reload schema cache.
 
 ## 📚 Next Steps
 

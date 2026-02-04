@@ -13,6 +13,9 @@ export function Header() {
   const [isOpen, setIsOpen] = useState(false)
   const { language, setLanguage, t } = useLanguage()
 
+  const languageLabel = language === "es" ? "Idioma" : "Language"
+  const languageName = language === "es" ? "Español" : "English"
+
   const navigation = [
     { name: t("nav.home"), href: "/" },
     { name: t("nav.practiceAreas"), href: "/areas" },
@@ -59,11 +62,9 @@ export function Header() {
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
                 <DropdownMenuItem onClick={() => setLanguage("en")} className="cursor-pointer">
-                  <span className="mr-2">🇺🇸</span>
                   English {language === "en" && "✓"}
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => setLanguage("es")} className="cursor-pointer">
-                  <span className="mr-2">🇪🇸</span>
                   Español {language === "es" && "✓"}
                 </DropdownMenuItem>
               </DropdownMenuContent>
@@ -91,7 +92,9 @@ export function Header() {
             </SheetTrigger>
             <SheetContent side="right" className="w-full sm:w-80 bg-[#0B1E3A] text-white">
               <div className="flex flex-col gap-6 mt-8">
-                <Logo className="h-24 w-auto" />
+                <div className="flex justify-center">
+                  <Logo className="h-20 w-auto max-w-65" />
+                </div>
                 <nav className="flex flex-col gap-4">
                   {navigation.map((item) => (
                     <Link
@@ -105,24 +108,24 @@ export function Header() {
                   ))}
                 </nav>
                 <div className="border-t border-white/15 pt-6 flex flex-col gap-4">
-                  <div className="flex gap-2">
-                    <Button
-                      variant={language === "en" ? "default" : "outline"}
-                      size="sm"
-                      onClick={() => setLanguage("en")}
-                      className="flex-1"
-                    >
-                      🇺🇸 English
-                    </Button>
-                    <Button
-                      variant={language === "es" ? "default" : "outline"}
-                      size="sm"
-                      onClick={() => setLanguage("es")}
-                      className="flex-1"
-                    >
-                      🇪🇸 Español
-                    </Button>
-                  </div>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="outline" className="w-full justify-between bg-transparent text-white border-white/30 hover:bg-white/10 hover:text-white">
+                        <span>
+                          {languageLabel}: <span className="font-medium">{languageName}</span>
+                        </span>
+                        <Globe className="h-4 w-4 opacity-80" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="start">
+                      <DropdownMenuItem onClick={() => setLanguage("en")} className="cursor-pointer">
+                        English {language === "en" && "✓"}
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => setLanguage("es")} className="cursor-pointer">
+                        Español {language === "es" && "✓"}
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
                   <a href="tel:+13057280029" className="flex items-center gap-2 text-white font-medium">
                     <Phone className="h-5 w-5" />
                     305-728-0029
