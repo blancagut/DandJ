@@ -1,7 +1,7 @@
 "use client"
 
 import type React from "react"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import * as z from "zod"
@@ -574,7 +574,13 @@ type ConsultationFormValues = z.infer<typeof consultationFormSchema>
 // ============================================
 export function ConsultationForm() {
   const { language } = useLanguage()
-  const t = translations[language as keyof typeof translations] || translations.en
+  const [mounted, setMounted] = useState(false)
+  
+  // Prevent hydration mismatch: always render "en" on server and first client render,
+  // then switch to actual language after mount
+  const effectiveLanguage = mounted ? language : "en"
+  const t = translations[effectiveLanguage as keyof typeof translations] || translations.en
+  
   const [uploadedFiles, setUploadedFiles] = useState<File[]>([])
   const [selectedDocTypes, setSelectedDocTypes] = useState<string[]>([])
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -605,6 +611,11 @@ export function ConsultationForm() {
       agreeToTerms: false,
     },
   })
+
+  // Set mounted after hydration to enable correct language
+  useEffect(() => {
+    setMounted(true)
+  }, [])
 
   const selectedCaseType = form.watch("caseType")
 
