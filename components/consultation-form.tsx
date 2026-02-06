@@ -573,8 +573,7 @@ type ConsultationFormValues = z.infer<typeof consultationFormSchema>
 // COMPONENT
 // ============================================
 export function ConsultationForm() {
-  const { language } = useLanguage()
-  const t = translations[language as keyof typeof translations] || translations.en
+  const t = translations.es
   
   const [uploadedFiles, setUploadedFiles] = useState<File[]>([])
   const [selectedDocTypes, setSelectedDocTypes] = useState<string[]>([])
