@@ -37,6 +37,7 @@ export default function TeamPage() {
               email: "cdiaz@diazjohnsonlaw.com",
               phone: "(305) 555-1234",
             },
+            profileUrl: undefined,
           },
           {
             name: "Steven Johnson",
@@ -51,6 +52,22 @@ export default function TeamPage() {
               email: "sjohnson@diazjohnsonlaw.com",
               phone: "(305) 555-1235",
             },
+            profileUrl: undefined,
+          },
+          {
+            name: "Carlos Roberto Díaz Jr.",
+            title: "Partner & Immigration Specialist",
+            initials: "CD",
+            bio: "Carlos Roberto Díaz Jr. brings over 17 years of combined legal experience, including six years as a prosecutor and extensive private practice in U.S. immigration law. Born and raised in Miami, Florida, Carlos holds advanced degrees including an LL.M. in Immigration Law and has completed doctoral-level legal studies. His unique prosecutorial background provides valuable insight into government case evaluation. Carlos is known for his meticulous attention to detail and strategic approach to complex immigration matters.",
+            specialties: ["Immigration Law", "Deportation Defense", "Waivers of Inadmissibility", "Employment Immigration"],
+            education: "Doctoral Studies in Immigration Policy; LL.M., Immigration Law; J.D., Accredited American Law School",
+            admissions: ["Florida Bar", "U.S. Immigration Courts", "Board of Immigration Appeals"],
+            languages: ["English", "Spanish", "Italian"],
+            contact: {
+              email: "cdiaz@diazjohnsonlaw.com",
+              phone: "(305) 728-0029",
+            },
+            profileUrl: "/team/carlos-diaz-jr",
           },
         ],
       },
@@ -98,6 +115,7 @@ export default function TeamPage() {
               email: "cdiaz@diazjohnsonlaw.com",
               phone: "(305) 555-1234",
             },
+            profileUrl: undefined,
           },
           {
             name: "Steven Johnson",
@@ -112,6 +130,22 @@ export default function TeamPage() {
               email: "sjohnson@diazjohnsonlaw.com",
               phone: "(305) 555-1235",
             },
+            profileUrl: undefined,
+          },
+          {
+            name: "Carlos Roberto Díaz Jr.",
+            title: "Socio y Especialista en Inmigración",
+            initials: "CD",
+            bio: "Carlos Roberto Díaz Jr. aporta más de 17 años de experiencia legal combinada, incluyendo seis años como fiscal y extensa práctica privada en derecho de inmigración de EE.UU. Nacido y criado en Miami, Florida, Carlos posee títulos avanzados incluyendo un LL.M. en Derecho de Inmigración y ha completado estudios legales de nivel doctoral. Su experiencia única como fiscal proporciona una perspectiva valiosa sobre la evaluación de casos gubernamentales. Carlos es conocido por su meticulosa atención al detalle y enfoque estratégico en asuntos complejos de inmigración.",
+            specialties: ["Derecho de Inmigración", "Defensa de Deportación", "Exenciones de Inadmisibilidad", "Inmigración Laboral"],
+            education: "Estudios Doctorales en Política de Inmigración; LL.M., Derecho de Inmigración; J.D., Escuela de Derecho Estadounidense Acreditada",
+            admissions: ["Colegio de Abogados de Florida", "Cortes de Inmigración de EE.UU.", "Junta de Apelaciones de Inmigración"],
+            languages: ["Inglés", "Español", "Italiano"],
+            contact: {
+              email: "cdiaz@diazjohnsonlaw.com",
+              phone: "(305) 728-0029",
+            },
+            profileUrl: "/team/carlos-diaz-jr",
           },
         ],
       },
@@ -255,6 +289,13 @@ export default function TeamPage() {
                           <Phone className="h-4 w-4" />
                           {member.contact.phone}
                         </a>
+                        {member.profileUrl && (
+                          <Button asChild size="sm" variant="outline" className="ml-auto">
+                            <Link href={member.profileUrl}>
+                              {language === "es" ? "Ver Perfil Completo" : "View Full Profile"}
+                            </Link>
+                          </Button>
+                        )}
                       </div>
                     </div>
                   </div>

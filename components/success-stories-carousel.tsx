@@ -2,10 +2,12 @@
 
 import { useState, useEffect, useCallback } from "react"
 import Image from "next/image"
+import { motion, AnimatePresence } from "framer-motion"
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { ChevronLeft, ChevronRight, CheckCircle2 } from "lucide-react"
 import { useLanguage } from "@/lib/language-context"
+import { FadeIn } from "@/components/animations/fade-in"
 
 export function SuccessStoriesCarousel() {
   const { t, language } = useLanguage()
@@ -149,11 +151,13 @@ export function SuccessStoriesCarousel() {
     <section id="success-stories" className="py-16 md:py-24 bg-muted">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center max-w-3xl mx-auto mb-12 md:mb-16">
-          <p className="text-accent font-medium tracking-wider uppercase text-sm mb-3">{t("success.tagline")}</p>
-          <h2 className="font-serif text-3xl md:text-4xl lg:text-5xl font-bold text-foreground text-balance">
-            {t("success.title")}
-          </h2>
-          <p className="mt-4 text-muted-foreground text-base md:text-lg leading-relaxed">{t("success.subtitle")}</p>
+          <FadeIn>
+            <p className="text-accent font-medium tracking-wider uppercase text-sm mb-3">{t("success.tagline")}</p>
+            <h2 className="font-serif text-3xl md:text-4xl lg:text-5xl font-bold text-foreground text-balance">
+              {t("success.title")}
+            </h2>
+            <p className="mt-4 text-muted-foreground text-base md:text-lg leading-relaxed">{t("success.subtitle")}</p>
+          </FadeIn>
         </div>
 
         <div
@@ -223,34 +227,46 @@ export function SuccessStoriesCarousel() {
           {/* Mobile View */}
           <div className="md:hidden">
             <div className="relative max-w-sm mx-auto px-12">
-              <Card className="border-border overflow-hidden shadow-xl">
-                <div className="relative aspect-[3/4] overflow-hidden bg-neutral-200">
-                  <Image
-                    src={successStories[currentIndex].image || "/placeholder.svg"}
-                    alt={successStories[currentIndex].title}
-                    fill
-                    className="object-cover"
-                    sizes="(max-width: 768px) 100vw, 50vw"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent" />
+              <div className="overflow-hidden min-h-[400px]">
+                <AnimatePresence mode="wait">
+                  <motion.div
+                    key={currentIndex}
+                    initial={{ opacity: 0, x: 50 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: -50 }}
+                    transition={{ duration: 0.3 }}
+                  >
+                    <Card className="border-border overflow-hidden shadow-xl">
+                      <div className="relative aspect-[3/4] overflow-hidden bg-neutral-200">
+                        <Image
+                          src={successStories[currentIndex].image || "/placeholder.svg"}
+                          alt={successStories[currentIndex].title}
+                          fill
+                          className="object-cover"
+                          sizes="(max-width: 768px) 100vw, 50vw"
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent" />
 
-                  <div className="absolute bottom-0 left-0 right-0 p-5">
-                    <div className="flex items-center gap-2 mb-2">
-                      <CheckCircle2 className="h-5 w-5 text-green-400" />
-                      <span className="text-green-400 text-sm font-semibold">{t("success.approved")}</span>
-                    </div>
-                    <h3 className="font-serif text-xl font-bold text-white mb-2 text-balance">
-                      {successStories[currentIndex].title}
-                    </h3>
-                    <p className="text-white/90 text-sm leading-relaxed mb-3">
-                      {successStories[currentIndex].description}
-                    </p>
-                    <span className="inline-block bg-accent text-accent-foreground text-xs font-medium px-3 py-1.5 rounded-full">
-                      {successStories[currentIndex].caseType}
-                    </span>
-                  </div>
-                </div>
-              </Card>
+                        <div className="absolute bottom-0 left-0 right-0 p-5">
+                          <div className="flex items-center gap-2 mb-2">
+                            <CheckCircle2 className="h-5 w-5 text-green-400" />
+                            <span className="text-green-400 text-sm font-semibold">{t("success.approved")}</span>
+                          </div>
+                          <h3 className="font-serif text-xl font-bold text-white mb-2 text-balance">
+                            {successStories[currentIndex].title}
+                          </h3>
+                          <p className="text-white/90 text-sm leading-relaxed mb-3">
+                            {successStories[currentIndex].description}
+                          </p>
+                          <span className="inline-block bg-accent text-accent-foreground text-xs font-medium px-3 py-1.5 rounded-full">
+                            {successStories[currentIndex].caseType}
+                          </span>
+                        </div>
+                      </div>
+                    </Card>
+                  </motion.div>
+                </AnimatePresence>
+              </div>
 
               <Button
                 variant="outline"
@@ -290,24 +306,26 @@ export function SuccessStoriesCarousel() {
         </div>
 
         {/* Stats */}
-        <div className="mt-16 grid grid-cols-2 lg:grid-cols-4 gap-8">
-          <div className="text-center">
-            <p className="font-serif text-4xl md:text-5xl font-bold text-primary">{t("success.stat1.number")}</p>
-            <p className="text-muted-foreground text-sm md:text-base mt-2">{t("success.stat1.label")}</p>
+        <FadeIn delay={0.2} direction="up">
+          <div className="mt-16 grid grid-cols-2 lg:grid-cols-4 gap-8">
+            <div className="text-center">
+              <p className="font-serif text-4xl md:text-5xl font-bold text-primary">{t("success.stat1.number")}</p>
+              <p className="text-muted-foreground text-sm md:text-base mt-2">{t("success.stat1.label")}</p>
+            </div>
+            <div className="text-center">
+              <p className="font-serif text-4xl md:text-5xl font-bold text-primary">{t("success.stat2.number")}</p>
+              <p className="text-muted-foreground text-sm md:text-base mt-2">{t("success.stat2.label")}</p>
+            </div>
+            <div className="text-center">
+              <p className="font-serif text-4xl md:text-5xl font-bold text-primary">{t("success.stat3.number")}</p>
+              <p className="text-muted-foreground text-sm md:text-base mt-2">{t("success.stat3.label")}</p>
+            </div>
+            <div className="text-center">
+              <p className="font-serif text-4xl md:text-5xl font-bold text-primary">{t("success.stat4.number")}</p>
+              <p className="text-muted-foreground text-sm md:text-base mt-2">{t("success.stat4.label")}</p>
+            </div>
           </div>
-          <div className="text-center">
-            <p className="font-serif text-4xl md:text-5xl font-bold text-primary">{t("success.stat2.number")}</p>
-            <p className="text-muted-foreground text-sm md:text-base mt-2">{t("success.stat2.label")}</p>
-          </div>
-          <div className="text-center">
-            <p className="font-serif text-4xl md:text-5xl font-bold text-primary">{t("success.stat3.number")}</p>
-            <p className="text-muted-foreground text-sm md:text-base mt-2">{t("success.stat3.label")}</p>
-          </div>
-          <div className="text-center">
-            <p className="font-serif text-4xl md:text-5xl font-bold text-primary">{t("success.stat4.number")}</p>
-            <p className="text-muted-foreground text-sm md:text-base mt-2">{t("success.stat4.label")}</p>
-          </div>
-        </div>
+        </FadeIn>
       </div>
     </section>
   )

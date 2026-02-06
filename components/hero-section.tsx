@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button"
 import { ArrowRight, Shield, Award, Clock } from "lucide-react"
 import { useLanguage } from "@/lib/language-context"
 import Image from "next/image"
+import { FadeIn } from "@/components/animations/fade-in"
 
 const PHONE_TEL = "+13057280029"
 
@@ -30,65 +31,75 @@ export function HeroSection() {
 
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 md:py-32 lg:py-40">
         <div className="max-w-3xl">
-          <p className="text-accent font-medium tracking-wider uppercase text-sm mb-4">{t("hero.tagline")}</p>
-          <h1 className="font-serif text-4xl md:text-5xl lg:text-6xl font-bold text-primary-foreground leading-tight text-balance">
-            {t("hero.title")}
-          </h1>
-          <p className="mt-6 text-lg md:text-xl text-primary-foreground/80 leading-relaxed max-w-2xl">
-            {t("hero.subtitle")}
-          </p>
+          <FadeIn delay={0.1}>
+            <p className="text-accent font-medium tracking-wider uppercase text-sm mb-4">{t("hero.tagline")}</p>
+          </FadeIn>
+          <FadeIn delay={0.2}>
+            <h1 className="font-serif text-4xl md:text-5xl lg:text-6xl font-bold text-primary-foreground leading-tight text-balance">
+              {t("hero.title")}
+            </h1>
+          </FadeIn>
+          <FadeIn delay={0.3}>
+            <p className="mt-6 text-lg md:text-xl text-primary-foreground/80 leading-relaxed max-w-2xl">
+              {t("hero.subtitle")}
+            </p>
+          </FadeIn>
 
-          <div className="mt-8 flex flex-col sm:flex-row gap-4">
-            <Button
-              asChild
-              size="lg"
-              className="bg-accent text-accent-foreground hover:bg-accent/90 h-12 md:h-14 px-8 text-base"
-            >
-              <Link href="/consult">
-                {t("hero.cta")}
-                <ArrowRight className="ml-2 h-5 w-5" />
-              </Link>
-            </Button>
-            <Button
-              asChild
-              size="lg"
-              variant="outline"
-              className="border-primary-foreground/30 text-primary-foreground hover:bg-primary-foreground/10 h-12 md:h-14 px-8 text-base bg-transparent"
-            >
-              <a href={`tel:${PHONE_TEL}`}>{t("hero.callUs")}</a>
-            </Button>
-          </div>
+          <FadeIn delay={0.4}>
+            <div className="mt-8 flex flex-col sm:flex-row gap-4">
+              <Button
+                asChild
+                size="lg"
+                className="bg-accent text-accent-foreground hover:bg-accent/90 h-12 md:h-14 px-8 text-base"
+              >
+                <Link href="/consult">
+                  {t("hero.cta")}
+                  <ArrowRight className="ml-2 h-5 w-5" />
+                </Link>
+              </Button>
+              <Button
+                asChild
+                size="lg"
+                variant="outline"
+                className="border-primary-foreground/30 text-primary-foreground hover:bg-primary-foreground/10 h-12 md:h-14 px-8 text-base bg-transparent"
+              >
+                <a href={`tel:${PHONE_TEL}`}>{t("hero.callUs")}</a>
+              </Button>
+            </div>
+          </FadeIn>
 
           {/* Trust Badges */}
-          <div className="mt-12 grid grid-cols-1 sm:grid-cols-3 gap-6">
-            <div className="flex items-center gap-3">
-              <div className="p-2 bg-accent/20 rounded-lg">
-                <Shield className="h-6 w-6 text-accent" />
+          <FadeIn delay={0.6}>
+            <div className="mt-12 grid grid-cols-1 sm:grid-cols-3 gap-6">
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-accent/20 rounded-lg">
+                  <Shield className="h-6 w-6 text-accent" />
+                </div>
+                <div>
+                  <p className="text-primary-foreground font-semibold">{t("hero.stat1.number")}</p>
+                  <p className="text-primary-foreground/70 text-sm">{t("hero.stat1.label")}</p>
+                </div>
               </div>
-              <div>
-                <p className="text-primary-foreground font-semibold">{t("hero.stat1.number")}</p>
-                <p className="text-primary-foreground/70 text-sm">{t("hero.stat1.label")}</p>
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-accent/20 rounded-lg">
+                  <Award className="h-6 w-6 text-accent" />
+                </div>
+                <div>
+                  <p className="text-primary-foreground font-semibold">{t("hero.stat2.number")}</p>
+                  <p className="text-primary-foreground/70 text-sm">{t("hero.stat2.label")}</p>
+                </div>
               </div>
+              <a href={`tel:${PHONE_TEL}`} className="flex items-center gap-3" aria-label="Call our 24/7 line">
+                <div className="p-2 bg-accent/20 rounded-lg">
+                  <Clock className="h-6 w-6 text-accent" />
+                </div>
+                <div>
+                  <p className="text-primary-foreground font-semibold">{t("hero.stat3.number")}</p>
+                  <p className="text-primary-foreground/70 text-sm">{t("hero.stat3.label")}</p>
+                </div>
+              </a>
             </div>
-            <div className="flex items-center gap-3">
-              <div className="p-2 bg-accent/20 rounded-lg">
-                <Award className="h-6 w-6 text-accent" />
-              </div>
-              <div>
-                <p className="text-primary-foreground font-semibold">{t("hero.stat2.number")}</p>
-                <p className="text-primary-foreground/70 text-sm">{t("hero.stat2.label")}</p>
-              </div>
-            </div>
-            <a href={`tel:${PHONE_TEL}`} className="flex items-center gap-3" aria-label="Call our 24/7 line">
-              <div className="p-2 bg-accent/20 rounded-lg">
-                <Clock className="h-6 w-6 text-accent" />
-              </div>
-              <div>
-                <p className="text-primary-foreground font-semibold">{t("hero.stat3.number")}</p>
-                <p className="text-primary-foreground/70 text-sm">{t("hero.stat3.label")}</p>
-              </div>
-            </a>
-          </div>
+          </FadeIn>
         </div>
       </div>
     </section>
