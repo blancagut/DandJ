@@ -11,8 +11,9 @@ export const size = {
 export const contentType = "image/png"
 
 export default async function Icon() {
-  const svg = await fetch(new URL("../public/icon.svg", import.meta.url)).then((res) => res.text())
-  const dataUrl = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`
+  const iconBuffer = await fetch(new URL("../public/favicon.ico", import.meta.url)).then((res) => res.arrayBuffer())
+  const base64 = Buffer.from(iconBuffer).toString('base64')
+  const dataUrl = `data:image/x-icon;base64,${base64}`
 
   return new ImageResponse(
     (
@@ -23,11 +24,9 @@ export default async function Icon() {
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          background: "#0B1E3A",
-          borderRadius: 8,
         }}
       >
-        <img src={dataUrl} width={28} height={28} alt="Diaz & Johnson" />
+        <img src={dataUrl} width={32} height={32} alt="Diaz & Johnson" />
       </div>
     ),
     size,
