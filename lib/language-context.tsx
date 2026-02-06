@@ -1,7 +1,7 @@
 "use client"
 
 import type React from "react"
-import { createContext, useCallback, useContext, useMemo, useSyncExternalStore } from "react"
+import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react"
 
 type Language = "en" | "es"
 
@@ -15,39 +15,46 @@ const LanguageContext = createContext<LanguageContextType | undefined>(undefined
 
 const LANGUAGE_STORAGE_KEY = "language"
 
-function readStoredLanguage(): Language {
-  if (typeof window === "undefined") return "en"
-  const saved = localStorage.getItem(LANGUAGE_STORAGE_KEY)
-  return saved === "es" ? "es" : "en"
-}
-
-function subscribeToLanguageChanges(onStoreChange: () => void) {
-  if (typeof window === "undefined") return () => {}
-
-  const onStorage = (event: StorageEvent) => {
-    if (event.key === LANGUAGE_STORAGE_KEY) {
-      onStoreChange()
-    }
-  }
-
-  const onCustom = () => {
-    onStoreChange()
-  }
-
-  window.addEventListener("storage", onStorage)
-  window.addEventListener("language-change", onCustom)
-  return () => {
-    window.removeEventListener("storage", onStorage)
-    window.removeEventListener("language-change", onCustom)
-  }
-}
-
 export function LanguageProvider({ children }: { children: React.ReactNode }) {
-  const language = useSyncExternalStore(subscribeToLanguageChanges, readStoredLanguage, () => "en")
+  // Start with "en" to match server render, then hydrate to stored value
+  const [language, setLanguageState] = useState<Language>("en")
+  const [mounted, setMounted] = useState(false)
+
+  // After mount, read the actual stored language
+  useEffect(() => {
+    const stored = localStorage.getItem(LANGUAGE_STORAGE_KEY)
+    if (stored === "es") {
+      setLanguageState("es")
+    }
+    setMounted(true)
+  }, [])
+
+  // Listen for changes (other tabs, manual changes)
+  useEffect(() => {
+    if (!mounted) return
+
+    const onStorage = (event: StorageEvent) => {
+      if (event.key === LANGUAGE_STORAGE_KEY) {
+        setLanguageState(event.newValue === "es" ? "es" : "en")
+      }
+    }
+
+    const onCustom = () => {
+      const stored = localStorage.getItem(LANGUAGE_STORAGE_KEY)
+      setLanguageState(stored === "es" ? "es" : "en")
+    }
+
+    window.addEventListener("storage", onStorage)
+    window.addEventListener("language-change", onCustom)
+    return () => {
+      window.removeEventListener("storage", onStorage)
+      window.removeEventListener("language-change", onCustom)
+    }
+  }, [mounted])
 
   const setLanguage = useCallback((lang: Language) => {
-    if (typeof window === "undefined") return
     localStorage.setItem(LANGUAGE_STORAGE_KEY, lang)
+    setLanguageState(lang)
     window.dispatchEvent(new Event("language-change"))
   }, [])
 
