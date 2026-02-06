@@ -699,7 +699,7 @@ export function ConsultationForm() {
           referral_source: data.referralSource || null,
           document_types: selectedDocTypes,
           files: uploadedFiles.map((f) => ({ name: f.name, size: f.size, type: f.type })),
-          language: language,
+          language: "es",
           status: "new",
         })
 
