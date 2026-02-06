@@ -22,7 +22,6 @@ import {
   Wrench, Hotel, Fish, Leaf, ArrowLeft
 } from "lucide-react"
 import { Card } from "@/components/ui/card"
-import { useLanguage } from "@/lib/language-context"
 import { getSupabaseBrowserClient } from "@/lib/supabase/client"
 import { cn } from "@/lib/utils"
 
