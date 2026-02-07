@@ -1,0 +1,118 @@
+{
+  "header": {
+    "title": "Waiver Eligibility Screening",
+    "subtitle": "Automated inadmissibility detection and waiver classification."
+  },
+  "steps": {
+    "location": { "title": "Location", "description": "Current Status" },
+    "presence": { "title": "Presence", "description": "Stay History" },
+    "removals": { "title": "Removals", "description": "Deportations" },
+    "verify": { "title": "Verify", "description": "Documents" },
+    "history": { "title": "History", "description": "Legal Record" },
+    "hardship": { "title": "Hardship", "description": "Family/Impact" },
+    "analysis": { "title": "Analysis", "description": "Results" }
+  },
+  "validation": {
+    "locationRequired": "Please select your current location and application context.",
+    "overstayRequired": "Please answer the overstay question.",
+    "overstayDetailsRequired": "If you overstayed, please specify duration and whether you departed.",
+    "removalRequired": "Please answer all removal history questions.",
+    "criminalRequired": "Please answer criminal history question.",
+    "offenseCategoryRequired": "Please select at least one offense category."
+  },
+  "step1": {
+    "heading": "Location & Application Context",
+    "locationQuestion": "Where are you currently located?",
+    "insideUS": "Inside the U.S.",
+    "insideUSDesc": "Currently present",
+    "outsideUS": "Outside the U.S.",
+    "outsideUSDesc": "Abroad",
+    "applyingFor": "What are you applying for?",
+    "applyingForTooltip": "Select \"Adjustment of Status\" if applying inside the U.S. Select \"Consular Processing\" if applying for a visa abroad.",
+    "greenCard": "Green Card",
+    "temporaryVisa": "Temporary Visa",
+    "reentry": "Reentry After Removal",
+    "consularProcessing": "Consular Processing",
+    "adjustmentOfStatus": "Adjustment of Status"
+  },
+  "step2": {
+    "heading": "Unlawful Presence Analysis",
+    "tooltip": "Unlawful presence accumulates when you stay in the U.S. without a valid visa or after your authorized stay has expired.",
+    "overstayQuestion": "Have you ever overstayed a visa or authorized stay?",
+    "yes": "Yes",
+    "no": "No",
+    "durationLabel": "Estimated unlawful presence duration",
+    "under180": "Under 180 Days",
+    "180to1y": "180 Days - 1 Year",
+    "over1y": "Over 1 Year",
+    "departedQuestion": "Did you depart the U.S. after this unlawful presence?",
+    "yesLeft": "Yes, I left",
+    "noStayed": "No, I stayed"
+  },
+  "step3": {
+    "heading": "Removal & Deportation",
+    "tooltip": "Deportation orders create a permanent bar. Expedited removal at the border is a 5-year bar. These trigger the need for I-212 consent.",
+    "removalHistory": "Ever deported or removed?",
+    "voluntaryDeparture": "Ever signed voluntary departure?",
+    "activeRemovalOrder": "Is there an active removal order?",
+    "expeditedRemoval": "Prior expedited removal (airport/border)?",
+    "yes": "Yes",
+    "no": "No",
+    "lastRemovalDate": "Date of last removal (Approximate)"
+  },
+  "step4": {
+    "heading": "Fraud or Misrepresentation",
+    "subtitle": "Please answer honestly. This is for screening only.",
+    "falseStatements": "False statements on immigration forms/visas",
+    "falseDocuments": "Use of false documents",
+    "falseIdentity": "Entry using another identity",
+    "priorVisaDenialFraud": "Prior visa denial for misrepresentation"
+  },
+  "step5": {
+    "heading": "Criminal History",
+    "arrestQuestion": "Have you ever been arrested or convicted?",
+    "yesHistory": "Yes, I have history",
+    "noClean": "No, record is clean",
+    "offenseCategoryLabel": "Select all offense categories involved:",
+    "drug": "Drug / Controlled Substance",
+    "theftMoral": "Theft / Moral Turpitude",
+    "violence": "Violence / Assault",
+    "dui": "DUI / Alcohol",
+    "other": "Other Charges"
+  },
+  "step6": {
+    "heading": "Qualifying Relatives & Hardship",
+    "tooltip": "Extreme hardship to a U.S. citizen or LPR spouse/parent is often required for waivers. Children usually don't count for the \"Extreme Hardship\" standard but matter for the case.",
+    "relativesQuestion": "Do you have any of these U.S. Citizen or Permanent Resident relatives?",
+    "spouse": "Spouse",
+    "parent": "Parent",
+    "child": "Child",
+    "hardshipLabel": "Check any potential hardship factors that apply to them:",
+    "medical": "Medical Dependency",
+    "financial": "Financial Dependency",
+    "psychological": "Psychological Hardship",
+    "educational": "Educational Disruption",
+    "countryConditions": "Country Condition Risks"
+  },
+  "step7": {
+    "heading": "Screening Results",
+    "disclaimer": "LEGAL DISCLAIMER: This screening is informational only and does not constitute legal advice. Final eligibility must be determined by a licensed immigration attorney.",
+    "predictedWaivers": "Predicted Waivers",
+    "noneLikelyRequired": "None Likely Required",
+    "probability": "Probability",
+    "complexityRisk": "Complexity Risk",
+    "detectedFlags": "Detected Inadmissibility Flags",
+    "guidanceTitle": "Guidance & Next Steps",
+    "priorityReview": "Priority Attorney Review Recommended",
+    "priorityReviewDesc": "Complex factors detected (Fraud/Removal/Criminal) that require specialized analysis."
+  },
+  "nav": {
+    "back": "Back",
+    "continue": "Continue",
+    "analyzeCase": "Analyze Case",
+    "saveResults": "Save Results to Profile"
+  },
+  "alerts": {
+    "saved": "Results saved to client profile. (Data logged to console for validation)"
+  }
+}

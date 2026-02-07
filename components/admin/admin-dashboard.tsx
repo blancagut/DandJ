@@ -5,6 +5,7 @@ import { getSupabaseBrowserClient } from "@/lib/supabase/client"
 import type { User } from "@supabase/supabase-js"
 import { ConsultationRequestsPanel } from "./consultation-requests-panel"
 import { ChatPanel } from "./chat-panel"
+import { PetitionResultsPanel } from "./petition-results-panel"
 
 // Tipos
 type WorkItemStatus = "todo" | "in_progress" | "done"
@@ -263,6 +264,11 @@ export function AdminDashboard({ user, onSignOut }: AdminDashboardProps) {
         {/* Panel de Chat de Soporte */}
         <div className="mb-8">
           <ChatPanel adminEmail={user.email || ""} />
+        </div>
+
+        {/* Panel de Resultados de Petición */}
+        <div className="mb-8">
+          <PetitionResultsPanel />
         </div>
 
         {/* Crear nuevo item */}

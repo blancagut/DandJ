@@ -1,0 +1,118 @@
+{
+  "header": {
+    "title": "Evaluación de Elegibilidad para Perdón Migratorio",
+    "subtitle": "Detección automatizada de inadmisibilidad y clasificación de perdón."
+  },
+  "steps": {
+    "location": { "title": "Ubicación", "description": "Estado Actual" },
+    "presence": { "title": "Presencia", "description": "Historial" },
+    "removals": { "title": "Deportación", "description": "Remociones" },
+    "verify": { "title": "Verificar", "description": "Documentos" },
+    "history": { "title": "Historial", "description": "Récord Legal" },
+    "hardship": { "title": "Dificultad", "description": "Familia/Impacto" },
+    "analysis": { "title": "Análisis", "description": "Resultados" }
+  },
+  "validation": {
+    "locationRequired": "Por favor seleccione su ubicación actual y el contexto de su solicitud.",
+    "overstayRequired": "Por favor responda la pregunta sobre permanencia indebida.",
+    "overstayDetailsRequired": "Si permaneció indebidamente, especifique la duración y si salió del país.",
+    "removalRequired": "Por favor responda todas las preguntas sobre historial de deportación.",
+    "criminalRequired": "Por favor responda la pregunta sobre historial criminal.",
+    "offenseCategoryRequired": "Por favor seleccione al menos una categoría de delito."
+  },
+  "step1": {
+    "heading": "Ubicación y Contexto de Solicitud",
+    "locationQuestion": "¿Dónde se encuentra actualmente?",
+    "insideUS": "Dentro de EE.UU.",
+    "insideUSDesc": "Presente actualmente",
+    "outsideUS": "Fuera de EE.UU.",
+    "outsideUSDesc": "En el extranjero",
+    "applyingFor": "¿Qué está solicitando?",
+    "applyingForTooltip": "Seleccione \"Ajuste de Estatus\" si solicita dentro de EE.UU. Seleccione \"Procesamiento Consular\" si solicita una visa en el extranjero.",
+    "greenCard": "Tarjeta Verde",
+    "temporaryVisa": "Visa Temporal",
+    "reentry": "Reingreso Tras Deportación",
+    "consularProcessing": "Procesamiento Consular",
+    "adjustmentOfStatus": "Ajuste de Estatus"
+  },
+  "step2": {
+    "heading": "Análisis de Presencia Ilegal",
+    "tooltip": "La presencia ilegal se acumula cuando permanece en EE.UU. sin una visa válida o después de que su estadía autorizada ha expirado.",
+    "overstayQuestion": "¿Alguna vez se quedó más tiempo del permitido por su visa o estadía autorizada?",
+    "yes": "Sí",
+    "no": "No",
+    "durationLabel": "Duración estimada de presencia ilegal",
+    "under180": "Menos de 180 Días",
+    "180to1y": "180 Días - 1 Año",
+    "over1y": "Más de 1 Año",
+    "departedQuestion": "¿Salió de EE.UU. después de esta presencia ilegal?",
+    "yesLeft": "Sí, salí",
+    "noStayed": "No, me quedé"
+  },
+  "step3": {
+    "heading": "Deportación y Remoción",
+    "tooltip": "Las órdenes de deportación crean una prohibición permanente. La remoción expedita en la frontera es una prohibición de 5 años. Estas activan la necesidad de consentimiento I-212.",
+    "removalHistory": "¿Alguna vez fue deportado o removido?",
+    "voluntaryDeparture": "¿Alguna vez firmó salida voluntaria?",
+    "activeRemovalOrder": "¿Tiene una orden de deportación activa?",
+    "expeditedRemoval": "¿Remoción expedita previa (aeropuerto/frontera)?",
+    "yes": "Sí",
+    "no": "No",
+    "lastRemovalDate": "Fecha de última deportación (Aproximada)"
+  },
+  "step4": {
+    "heading": "Fraude o Falsificación",
+    "subtitle": "Por favor responda honestamente. Esto es solo para evaluación.",
+    "falseStatements": "Declaraciones falsas en formularios de inmigración/visas",
+    "falseDocuments": "Uso de documentos falsos",
+    "falseIdentity": "Entrada usando otra identidad",
+    "priorVisaDenialFraud": "Negación previa de visa por falsificación"
+  },
+  "step5": {
+    "heading": "Historial Criminal",
+    "arrestQuestion": "¿Alguna vez ha sido arrestado o condenado?",
+    "yesHistory": "Sí, tengo historial",
+    "noClean": "No, mi récord está limpio",
+    "offenseCategoryLabel": "Seleccione todas las categorías de delito involucradas:",
+    "drug": "Drogas / Sustancias Controladas",
+    "theftMoral": "Robo / Depravación Moral",
+    "violence": "Violencia / Agresión",
+    "dui": "DUI / Alcohol",
+    "other": "Otros Cargos"
+  },
+  "step6": {
+    "heading": "Familiares Calificados y Dificultad Extrema",
+    "tooltip": "La dificultad extrema para un cónyuge o padre ciudadano estadounidense o residente permanente es frecuentemente requerida para los perdones. Los hijos generalmente no cuentan para el estándar de \"Dificultad Extrema\" pero importan para el caso.",
+    "relativesQuestion": "¿Tiene alguno de estos familiares Ciudadanos Estadounidenses o Residentes Permanentes?",
+    "spouse": "Cónyuge",
+    "parent": "Padre/Madre",
+    "child": "Hijo/a",
+    "hardshipLabel": "Marque los factores de dificultad que les apliquen:",
+    "medical": "Dependencia Médica",
+    "financial": "Dependencia Financiera",
+    "psychological": "Dificultad Psicológica",
+    "educational": "Interrupción Educativa",
+    "countryConditions": "Riesgos por Condiciones del País"
+  },
+  "step7": {
+    "heading": "Resultados de Evaluación",
+    "disclaimer": "AVISO LEGAL: Esta evaluación es solo informativa y no constituye asesoría legal. La elegibilidad final debe ser determinada por un abogado de inmigración licenciado.",
+    "predictedWaivers": "Perdones Predichos",
+    "noneLikelyRequired": "Probablemente No Se Requiere Ninguno",
+    "probability": "Probabilidad",
+    "complexityRisk": "Riesgo de Complejidad",
+    "detectedFlags": "Señales de Inadmisibilidad Detectadas",
+    "guidanceTitle": "Orientación y Próximos Pasos",
+    "priorityReview": "Se Recomienda Revisión Prioritaria por Abogado",
+    "priorityReviewDesc": "Se detectaron factores complejos (Fraude/Deportación/Criminal) que requieren análisis especializado."
+  },
+  "nav": {
+    "back": "Atrás",
+    "continue": "Continuar",
+    "analyzeCase": "Analizar Caso",
+    "saveResults": "Guardar Resultados en Perfil"
+  },
+  "alerts": {
+    "saved": "Resultados guardados en el perfil del cliente. (Datos registrados en consola para validación)"
+  }
+}
