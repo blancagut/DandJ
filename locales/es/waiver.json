@@ -18,7 +18,8 @@
     "overstayDetailsRequired": "Si permaneció indebidamente, especifique la duración y si salió del país.",
     "removalRequired": "Por favor responda todas las preguntas sobre historial de deportación.",
     "criminalRequired": "Por favor responda la pregunta sobre historial criminal.",
-    "offenseCategoryRequired": "Por favor seleccione al menos una categoría de delito."
+    "offenseCategoryRequired": "Por favor seleccione al menos una categoría de delito.",
+    "analysisError": "El análisis falló. Por favor revise sus respuestas e intente nuevamente."
   },
   "step1": {
     "heading": "Ubicación y Contexto de Solicitud",
@@ -114,5 +115,12 @@
   },
   "alerts": {
     "saved": "Resultados guardados en el perfil del cliente. (Datos registrados en consola para validación)"
+  },
+  "confirmation": {
+    "title": "Evaluación Enviada Exitosamente",
+    "message": "Su evaluación de perdón ha sido guardada. Nuestros abogados revisarán su caso y se comunicarán con usted pronto.",
+    "followUp": "Recibirá seguimiento dentro de 24–48 horas hábiles.",
+    "backToForms": "Volver a Formularios",
+    "backToHome": "Regresar al Inicio"
   }
 }

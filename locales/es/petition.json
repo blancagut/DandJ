@@ -33,7 +33,8 @@
     "dependentsRequired": "Por favor ingrese el número de dependientes.",
     "employmentRequired": "Por favor indique el estado de empleo.",
     "marriageDateRequired": "Por favor ingrese la fecha de matrimonio.",
-    "marriageLocationRequired": "Por favor ingrese el lugar del matrimonio."
+    "marriageLocationRequired": "Por favor ingrese el lugar del matrimonio.",
+    "analysisError": "El análisis falló. Por favor revise sus respuestas e intente nuevamente."
   },
   "step1": {
     "heading": "Relación Familiar y Categoría",
@@ -217,6 +218,13 @@
   },
   "alerts": {
     "saved": "Resultados de evaluación de petición guardados en el perfil del cliente. (Datos registrados en consola para validación)"
+  },
+  "confirmation": {
+    "title": "Petición Enviada Exitosamente",
+    "message": "Su evaluación de petición familiar ha sido guardada. Nuestros abogados revisarán su caso y se comunicarán con usted pronto.",
+    "followUp": "Recibirá seguimiento dentro de 24\u201348 horas hábiles.",
+    "backToForms": "Volver a Formularios",
+    "backToHome": "Regresar al Inicio"
   },
   "categories": {
     "IR-1": "IR-1 — Cónyuge de Ciudadano (casados 2+ años)",

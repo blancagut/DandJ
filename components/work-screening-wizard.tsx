@@ -27,6 +27,7 @@ import { Badge } from "@/components/ui/badge"
 import { cn } from "@/lib/utils"
 import { useWorkScreeningTranslation } from "@/lib/work-screening-i18n"
 import { WaiverLanguageSelector } from "@/components/waiver-language-selector"
+import Link from "next/link"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 
 // ==========================================
@@ -278,13 +279,17 @@ export function WorkScreeningWizard() {
   const [validationError, setValidationError] = useState<string | null>(null)
   const [showResults, setShowResults] = useState(false)
   const [isLoaded, setIsLoaded] = useState(false)
+  const [isSaved, setIsSaved] = useState(false)
 
   // Data persistence
   useEffect(() => {
     if (typeof window !== "undefined") {
       const saved = localStorage.getItem("work-screening-data")
       if (saved) {
-        try { setFormData(JSON.parse(saved)) } catch { /* ignore */ }
+        try {
+          const parsed = JSON.parse(saved)
+          setFormData({ ...initialFormData, ...parsed })
+        } catch { /* ignore */ }
       }
       setIsLoaded(true)
     }
@@ -351,29 +356,35 @@ export function WorkScreeningWizard() {
 
   const handleSave = () => {
     if (!result) return
-    const saveData: WorkScreeningSavedData = {
-      workScreening: {
-        goalType: formData.goalType,
-        jobOfferStatus: formData.jobOfferStatus,
-        workCategory: formData.workCategory,
-        usTravelHistory: formData.usTravel,
-        overstayHistory: formData.overstayHistory,
-        deportationHistory: formData.deportationHistory,
-        visaDenialHistory: formData.visaDenialHistory,
-        criminalHistory: formData.criminalHistory,
-        offenseType: formData.offenseType,
-        educationLevel: formData.educationLevel,
-        specializedExperience: formData.specializedExperience,
-        yearsExperience: formData.yearsExperience,
-        recommendedVisaPaths: result.visaPaths,
-        riskFlags: result.riskFlags,
-        eligibilityLevel: result.eligibility,
-        nextStep: result.nextStep,
-        timestamp: new Date().toISOString(),
-      },
+    try {
+      const saveData: WorkScreeningSavedData = {
+        workScreening: {
+          goalType: formData.goalType,
+          jobOfferStatus: formData.jobOfferStatus,
+          workCategory: formData.workCategory,
+          usTravelHistory: formData.usTravel,
+          overstayHistory: formData.overstayHistory,
+          deportationHistory: formData.deportationHistory,
+          visaDenialHistory: formData.visaDenialHistory,
+          criminalHistory: formData.criminalHistory,
+          offenseType: formData.offenseType,
+          educationLevel: formData.educationLevel,
+          specializedExperience: formData.specializedExperience,
+          yearsExperience: formData.yearsExperience,
+          recommendedVisaPaths: result.visaPaths,
+          riskFlags: result.riskFlags,
+          eligibilityLevel: result.eligibility,
+          nextStep: result.nextStep,
+          timestamp: new Date().toISOString(),
+        },
+      }
+      console.log("Work Screening Save:", saveData)
+      // Clear localStorage after successful save
+      localStorage.removeItem("work-screening-data")
+      setIsSaved(true)
+    } catch (e) {
+      console.error("Work screening save failed:", e)
     }
-    console.log("Work Screening Save:", saveData)
-    alert(t("alerts.saved"))
   }
 
   const updateField = <K extends keyof WorkScreeningData>(field: K, value: WorkScreeningData[K]) => {
@@ -391,6 +402,38 @@ export function WorkScreeningWizard() {
     return (
       <div className="min-h-screen bg-slate-50 flex items-center justify-center">
         <div className="text-slate-400 animate-pulse text-lg">Loading…</div>
+      </div>
+    )
+  }
+
+  // ==========================================
+  // SAVED CONFIRMATION SCREEN
+  // ==========================================
+  if (isSaved) {
+    return (
+      <div className="min-h-screen bg-slate-50 py-12 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-3xl mx-auto">
+          <Card className="p-8 md:p-12 shadow-lg border-t-4 border-t-green-600 text-center">
+            <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
+              <CheckCircle2 className="w-10 h-10 text-green-600" />
+            </div>
+            <h2 className="text-3xl font-bold text-slate-900 mb-3">{t("confirmation.title")}</h2>
+            <p className="text-lg text-slate-600 mb-2">{t("confirmation.message")}</p>
+            <p className="text-slate-500 mb-8">{t("confirmation.followUp")}</p>
+            <div className="flex flex-col sm:flex-row gap-3 justify-center">
+              <Link href="/consult">
+                <Button variant="outline" className="gap-2 w-full sm:w-auto">
+                  <ChevronLeft className="w-4 h-4" /> {t("confirmation.backToForms")}
+                </Button>
+              </Link>
+              <Link href="/">
+                <Button className="gap-2 bg-indigo-600 hover:bg-indigo-700 w-full sm:w-auto">
+                  {t("confirmation.backToHome")}
+                </Button>
+              </Link>
+            </div>
+          </Card>
+        </div>
       </div>
     )
   }

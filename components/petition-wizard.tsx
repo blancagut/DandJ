@@ -48,6 +48,7 @@ import { Card } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
+import Link from "next/link"
 
 // Step definition with icons
 const allStepDefs = [
@@ -77,6 +78,7 @@ export function PetitionWizard() {
   const [analysis, setAnalysis] = useState<PetitionAnalysis | null>(null)
   const [validationError, setValidationError] = useState<string | null>(null)
   const [isLoaded, setIsLoaded] = useState(false)
+  const [isSaved, setIsSaved] = useState(false)
 
   // Marriage step is included only for spouse petitions
   const includeMarriage = formData.relationship === "spouse"
@@ -98,7 +100,12 @@ export function PetitionWizard() {
     const saved = localStorage.getItem("petition-wizard-data")
     if (saved) {
       try {
-        setFormData(JSON.parse(saved))
+        const parsed = JSON.parse(saved)
+        // Merge with defaults to prevent undefined array fields from stale localStorage
+        setFormData({ ...initialPetitionFormData, ...parsed,
+          offenseTypes: Array.isArray(parsed.offenseTypes) ? parsed.offenseTypes : [],
+          evidenceOfRelationship: Array.isArray(parsed.evidenceOfRelationship) ? parsed.evidenceOfRelationship : [],
+        })
       } catch (e) {
         console.error("Failed to load saved petition data", e)
       }
@@ -169,39 +176,45 @@ export function PetitionWizard() {
 
   const handleSave = () => {
     if (!analysis) return
-    const saveData = {
-      petitionScreening: {
-        petitionerInfo: {
-          status: formData.petitionerStatus,
-          citizenshipMethod: formData.citizenshipMethod,
-          yearsWithStatus: formData.yearsWithStatus,
-          priorPetitions: formData.priorPetitions,
+    try {
+      const saveData = {
+        petitionScreening: {
+          petitionerInfo: {
+            status: formData.petitionerStatus,
+            citizenshipMethod: formData.citizenshipMethod,
+            yearsWithStatus: formData.yearsWithStatus,
+            priorPetitions: formData.priorPetitions,
+          },
+          beneficiaryInfo: {
+            countryOfBirth: formData.beneficiaryCountryOfBirth,
+            countryOfResidence: formData.beneficiaryCountryOfResidence,
+            location: formData.beneficiaryLocation,
+            age: formData.beneficiaryAge,
+            maritalStatus: formData.beneficiaryMaritalStatus,
+          },
+          relationshipCategory: analysis.category,
+          processingPath: analysis.processingPath,
+          inadmissibilityFlags: analysis.inadmissibilityFlags,
+          financialEligibility: {
+            income: formData.annualIncome,
+            dependents: formData.dependents,
+            meetsGuideline: analysis.financialMeetsGuideline,
+            coSponsor: formData.coSponsorAvailable,
+          },
+          marriageFraudIndicators: analysis.marriageFraudIndicators,
+          recommendedStrategy: analysis.strategy,
+          casePriority: analysis.casePriority,
+          waiverFlag: analysis.waiverFlag,
+          timestamp: new Date().toISOString(),
         },
-        beneficiaryInfo: {
-          countryOfBirth: formData.beneficiaryCountryOfBirth,
-          countryOfResidence: formData.beneficiaryCountryOfResidence,
-          location: formData.beneficiaryLocation,
-          age: formData.beneficiaryAge,
-          maritalStatus: formData.beneficiaryMaritalStatus,
-        },
-        relationshipCategory: analysis.category,
-        processingPath: analysis.processingPath,
-        inadmissibilityFlags: analysis.inadmissibilityFlags,
-        financialEligibility: {
-          income: formData.annualIncome,
-          dependents: formData.dependents,
-          meetsGuideline: analysis.financialMeetsGuideline,
-          coSponsor: formData.coSponsorAvailable,
-        },
-        marriageFraudIndicators: analysis.marriageFraudIndicators,
-        recommendedStrategy: analysis.strategy,
-        casePriority: analysis.casePriority,
-        waiverFlag: analysis.waiverFlag,
-        timestamp: new Date().toISOString(),
-      },
+      }
+      console.log("Hypothetical Save to CRM:", saveData)
+      // Clear localStorage after successful save
+      localStorage.removeItem("petition-wizard-data")
+      setIsSaved(true)
+    } catch (e) {
+      console.error("Petition save failed:", e)
     }
-    console.log("Hypothetical Save to CRM:", saveData)
-    alert(t("alerts.saved"))
   }
 
   const isLastContentStep = currentStepKey === stepKeys[totalSteps - 2] // step before results
@@ -214,7 +227,13 @@ export function PetitionWizard() {
     if (currentStep < totalSteps) {
       // Run analysis before results step
       if (stepKeys[currentStep] === "results") {
-        setAnalysis(analyzePetitionCase(formData))
+        try {
+          setAnalysis(analyzePetitionCase(formData))
+        } catch (e) {
+          console.error("Petition analysis failed:", e)
+          setValidationError(t("validation.analysisError") || "Analysis failed. Please review your answers and try again.")
+          return
+        }
       }
       setDirection(1)
       setCurrentStep((prev) => prev + 1)
@@ -246,6 +265,38 @@ export function PetitionWizard() {
     return (
       <div className="min-h-screen bg-slate-50 flex items-center justify-center">
         <div className="text-slate-400 animate-pulse text-lg">Loading…</div>
+      </div>
+    )
+  }
+
+  // ==========================================
+  // SAVED CONFIRMATION SCREEN
+  // ==========================================
+  if (isSaved) {
+    return (
+      <div className="min-h-screen bg-slate-50 py-12 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-3xl mx-auto">
+          <Card className="p-8 md:p-12 shadow-lg border-t-4 border-t-green-600 text-center">
+            <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
+              <CheckCircle2 className="w-10 h-10 text-green-600" />
+            </div>
+            <h2 className="text-3xl font-bold text-slate-900 mb-3">{t("confirmation.title")}</h2>
+            <p className="text-lg text-slate-600 mb-2">{t("confirmation.message")}</p>
+            <p className="text-slate-500 mb-8">{t("confirmation.followUp")}</p>
+            <div className="flex flex-col sm:flex-row gap-3 justify-center">
+              <Link href="/consult">
+                <Button variant="outline" className="gap-2 w-full sm:w-auto">
+                  <ChevronLeft className="w-4 h-4" /> {t("confirmation.backToForms")}
+                </Button>
+              </Link>
+              <Link href="/">
+                <Button className="gap-2 bg-emerald-600 hover:bg-emerald-700 w-full sm:w-auto">
+                  {t("confirmation.backToHome")}
+                </Button>
+              </Link>
+            </div>
+          </Card>
+        </div>
       </div>
     )
   }

@@ -133,6 +133,13 @@
   "alerts": {
     "saved": "Work visa screening results saved. (Data logged to console for validation)"
   },
+  "confirmation": {
+    "title": "Screening Submitted Successfully",
+    "message": "Your work visa screening has been saved. Our attorneys will review your case and contact you shortly.",
+    "followUp": "You will receive a follow-up within 24–48 business hours.",
+    "backToForms": "Back to Forms",
+    "backToHome": "Return Home"
+  },
   "admin": {
     "panelTitle": "Work Visa Screening Results",
     "noCases": "No work visa screenings available yet.",

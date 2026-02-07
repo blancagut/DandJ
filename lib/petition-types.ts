@@ -241,8 +241,9 @@ export function analyzePetitionCase(data: PetitionFormData): PetitionAnalysis {
   if (data.priorVisaDenials) { inadmissibilityFlags.push("flags.prior_visa_denials") }
   if (data.arrests) { inadmissibilityFlags.push("flags.arrest_history"); waiverFlag = true }
   if (data.convictions) { inadmissibilityFlags.push("flags.criminal_convictions"); waiverFlag = true }
-  if (data.offenseTypes.includes("drug")) { inadmissibilityFlags.push("flags.drug_offense") }
-  if (data.offenseTypes.includes("violence")) { inadmissibilityFlags.push("flags.violent_offense") }
+  const offenseTypes = Array.isArray(data.offenseTypes) ? data.offenseTypes : []
+  if (offenseTypes.includes("drug")) { inadmissibilityFlags.push("flags.drug_offense") }
+  if (offenseTypes.includes("violence")) { inadmissibilityFlags.push("flags.violent_offense") }
 
   // Financial
   const financialMeetsGuideline = checkFinancialEligibility(data.annualIncome, data.dependents)
@@ -259,7 +260,8 @@ export function analyzePetitionCase(data: PetitionFormData): PetitionAnalysis {
     }
     if (data.childrenTogether === false) marriageFraudIndicators.push("indicators.no_children")
     if (data.priorMarriages) marriageFraudIndicators.push("indicators.prior_marriages")
-    if (data.evidenceOfRelationship.length < 2) { marriageFraudIndicators.push("indicators.limited_evidence"); marriageFraudRisk = true }
+    const evidence = Array.isArray(data.evidenceOfRelationship) ? data.evidenceOfRelationship : []
+    if (evidence.length < 2) { marriageFraudIndicators.push("indicators.limited_evidence"); marriageFraudRisk = true }
   }
 
   // Alerts — store i18n keys
@@ -269,7 +271,7 @@ export function analyzePetitionCase(data: PetitionFormData): PetitionAnalysis {
   if (marriageFraudRisk) alerts.push("engineAlerts.marriage_fraud_risk")
   if (waiverFlag) alerts.push("engineAlerts.waiver_needed")
   if (inadmissibilityFlags.length >= 3) alerts.push("engineAlerts.multiple_grounds")
-  if (data.offenseTypes.includes("drug")) alerts.push("engineAlerts.drug_permanent_bar")
+  if (offenseTypes.includes("drug")) alerts.push("engineAlerts.drug_permanent_bar")
   if (!isEligible) alerts.push("engineAlerts.ineligible")
 
   // Case priority

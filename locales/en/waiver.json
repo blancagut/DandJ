@@ -18,7 +18,8 @@
     "overstayDetailsRequired": "If you overstayed, please specify duration and whether you departed.",
     "removalRequired": "Please answer all removal history questions.",
     "criminalRequired": "Please answer criminal history question.",
-    "offenseCategoryRequired": "Please select at least one offense category."
+    "offenseCategoryRequired": "Please select at least one offense category.",
+    "analysisError": "Analysis failed. Please review your answers and try again."
   },
   "step1": {
     "heading": "Location & Application Context",
@@ -114,5 +115,12 @@
   },
   "alerts": {
     "saved": "Results saved to client profile. (Data logged to console for validation)"
+  },
+  "confirmation": {
+    "title": "Screening Submitted Successfully",
+    "message": "Your waiver screening has been saved. Our attorneys will review your case and contact you shortly.",
+    "followUp": "You will receive a follow-up within 24–48 business hours.",
+    "backToForms": "Back to Forms",
+    "backToHome": "Return Home"
   }
 }

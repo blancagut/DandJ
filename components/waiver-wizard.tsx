@@ -41,6 +41,7 @@ import { Badge } from "@/components/ui/badge"
 import { Checkbox } from "@/components/ui/checkbox"
 
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
+import Link from "next/link"
 
 // ==========================================
 // TYPES
@@ -184,13 +185,14 @@ function analyzeWaiverCase(data: WaiverFormData): WaiverAnalysis {
   if (data.arrestHistory || data.convictions) {
       triggers.push("Criminal Inadmissibility")
       
-      if (data.offenseCategories.includes("drug")) {
+      const offenses = Array.isArray(data.offenseCategories) ? data.offenseCategories : []
+      if (offenses.includes("drug")) {
           triggers.push("Controlled Substance")
           isPriority = true
           riskLevel = "High"
           recommendations.push("Complex Criminal Waiver Analysis Required")
           probability = "Attorney Review Required"
-      } else if (data.offenseCategories.includes("violence")) {
+      } else if (offenses.includes("violence")) {
            triggers.push("Violence/Assault")
            riskLevel = "High"
            probability = "Attorney Review Required"
@@ -265,6 +267,7 @@ export function WaiverWizard() {
   const [direction, setDirection] = useState(0)
   const [analysis, setAnalysis] = useState<WaiverAnalysis | null>(null)
   const [validationError, setValidationError] = useState<string | null>(null)
+  const [isSaved, setIsSaved] = useState(false)
   
   const [isLoaded, setIsLoaded] = useState(false)
 
@@ -277,7 +280,13 @@ export function WaiverWizard() {
         const saved = localStorage.getItem("waiver-wizard-data")
         if (saved) {
             try {
-                setFormData(JSON.parse(saved))
+                const parsed = JSON.parse(saved)
+                // Merge with defaults to prevent undefined array fields from stale localStorage
+                setFormData({ ...initialFormData, ...parsed,
+                  offenseCategories: Array.isArray(parsed.offenseCategories) ? parsed.offenseCategories : [],
+                  relatives: Array.isArray(parsed.relatives) ? parsed.relatives : [],
+                  hardships: Array.isArray(parsed.hardships) ? parsed.hardships : [],
+                })
             } catch (e) {
                 console.error("Failed to load saved waiver data", e)
             }
@@ -332,49 +341,55 @@ export function WaiverWizard() {
     // Basic verification of completed analysis
     if (!analysis) return
 
-    const saveData = {
-        waiverScreening: {
-            locationContext: formData.location,
-            contextType: formData.applicationContext,
-            unlawfulPresence: {
-                overstayed: formData.hasOverstayed,
-                duration: formData.unlawfulDuration,
-                departed: formData.departedAfterUnlawful
-            },
-            removalHistory: {
-                removed: formData.removalHistory,
-                voluntary: formData.voluntaryDeparture,
-                activeOrder: formData.activeRemovalOrder,
-                expedited: formData.expeditedRemoval
-            },
-            fraudIndicators: {
-                statements: formData.falseStatements,
-                documents: formData.falseDocuments,
-                identity: formData.falseIdentity,
-                priorDenial: formData.priorVisaDenialFraud
-            },
-            criminalIndicators: {
-                arrests: formData.arrestHistory,
-                convictions: formData.convictions,
-                offenses: formData.offenseCategories
-            },
-            hardshipFactors: {
-                relatives: formData.relatives,
-                types: formData.hardships
-            },
-            decisionEngineOutput: {
-                recommendedWaivers: analysis.recommendations,
-                probabilityLevel: analysis.probability,
-                riskLevel: analysis.risk,
-                flags: analysis.triggers,
-                nextStepGuidance: analysis.guidance
-            },
-            timestamp: new Date().toISOString()
-        }
-    }
+    try {
+      const saveData = {
+          waiverScreening: {
+              locationContext: formData.location,
+              contextType: formData.applicationContext,
+              unlawfulPresence: {
+                  overstayed: formData.hasOverstayed,
+                  duration: formData.unlawfulDuration,
+                  departed: formData.departedAfterUnlawful
+              },
+              removalHistory: {
+                  removed: formData.removalHistory,
+                  voluntary: formData.voluntaryDeparture,
+                  activeOrder: formData.activeRemovalOrder,
+                  expedited: formData.expeditedRemoval
+              },
+              fraudIndicators: {
+                  statements: formData.falseStatements,
+                  documents: formData.falseDocuments,
+                  identity: formData.falseIdentity,
+                  priorDenial: formData.priorVisaDenialFraud
+              },
+              criminalIndicators: {
+                  arrests: formData.arrestHistory,
+                  convictions: formData.convictions,
+                  offenses: formData.offenseCategories
+              },
+              hardshipFactors: {
+                  relatives: formData.relatives,
+                  types: formData.hardships
+              },
+              decisionEngineOutput: {
+                  recommendedWaivers: analysis.recommendations,
+                  probabilityLevel: analysis.probability,
+                  riskLevel: analysis.risk,
+                  flags: analysis.triggers,
+                  nextStepGuidance: analysis.guidance
+              },
+              timestamp: new Date().toISOString()
+          }
+      }
 
-    console.log("Hypothetical Save to CRM:", saveData)
-    alert(t("alerts.saved"))
+      console.log("Hypothetical Save to CRM:", saveData)
+      // Clear localStorage after successful save
+      localStorage.removeItem("waiver-wizard-data")
+      setIsSaved(true)
+    } catch (e) {
+      console.error("Waiver save failed:", e)
+    }
   }
 
   const handleNext = () => {
@@ -387,8 +402,14 @@ export function WaiverWizard() {
     if (currentStep < 7) {
       if (currentStep === 6) {
           // Run analysis before moving to 7
-          const result = analyzeWaiverCase(formData)
-          setAnalysis(result)
+          try {
+            const result = analyzeWaiverCase(formData)
+            setAnalysis(result)
+          } catch (e) {
+            console.error("Waiver analysis failed:", e)
+            setValidationError(t("validation.analysisError") || "Analysis failed. Please review your answers and try again.")
+            return
+          }
       }
       setDirection(1)
       setCurrentStep((prev) => prev + 1)
@@ -438,6 +459,38 @@ export function WaiverWizard() {
     return (
       <div className="min-h-screen bg-slate-50 flex items-center justify-center">
         <div className="text-slate-400 animate-pulse text-lg">Loading…</div>
+      </div>
+    )
+  }
+
+  // ==========================================
+  // SAVED CONFIRMATION SCREEN
+  // ==========================================
+  if (isSaved) {
+    return (
+      <div className="min-h-screen bg-slate-50 py-12 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-3xl mx-auto">
+          <Card className="p-8 md:p-12 shadow-lg border-t-4 border-t-green-600 text-center">
+            <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
+              <CheckCircle2 className="w-10 h-10 text-green-600" />
+            </div>
+            <h2 className="text-3xl font-bold text-slate-900 mb-3">{t("confirmation.title")}</h2>
+            <p className="text-lg text-slate-600 mb-2">{t("confirmation.message")}</p>
+            <p className="text-slate-500 mb-8">{t("confirmation.followUp")}</p>
+            <div className="flex flex-col sm:flex-row gap-3 justify-center">
+              <Link href="/consult">
+                <Button variant="outline" className="gap-2 w-full sm:w-auto">
+                  <ChevronLeft className="w-4 h-4" /> {t("confirmation.backToForms")}
+                </Button>
+              </Link>
+              <Link href="/">
+                <Button className="gap-2 bg-blue-600 hover:bg-blue-700 w-full sm:w-auto">
+                  {t("confirmation.backToHome")}
+                </Button>
+              </Link>
+            </div>
+          </Card>
+        </div>
       </div>
     )
   }

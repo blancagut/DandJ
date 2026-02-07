@@ -133,6 +133,13 @@
   "alerts": {
     "saved": "Resultados de evaluación de visa de trabajo guardados. (Datos registrados en consola para validación)"
   },
+  "confirmation": {
+    "title": "Evaluación Enviada Exitosamente",
+    "message": "Su evaluación de visa de trabajo ha sido guardada. Nuestros abogados revisarán su caso y se comunicarán con usted pronto.",
+    "followUp": "Recibirá seguimiento dentro de 24–48 horas hábiles.",
+    "backToForms": "Volver a Formularios",
+    "backToHome": "Regresar al Inicio"
+  },
   "admin": {
     "panelTitle": "Resultados de Evaluación de Visa de Trabajo",
     "noCases": "Aún no hay evaluaciones de visa de trabajo disponibles.",

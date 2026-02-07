@@ -33,7 +33,8 @@
     "dependentsRequired": "Please enter the number of dependents.",
     "employmentRequired": "Please indicate employment status.",
     "marriageDateRequired": "Please enter the marriage date.",
-    "marriageLocationRequired": "Please enter the marriage location."
+    "marriageLocationRequired": "Please enter the marriage location.",
+    "analysisError": "Analysis failed. Please review your answers and try again."
   },
   "step1": {
     "heading": "Family Relationship & Category",
@@ -217,6 +218,13 @@
   },
   "alerts": {
     "saved": "Petition screening results saved to client profile. (Data logged to console for validation)"
+  },
+  "confirmation": {
+    "title": "Petition Submitted Successfully",
+    "message": "Your family petition screening has been saved. Our attorneys will review your case and contact you shortly.",
+    "followUp": "You will receive a follow-up within 24\u201348 business hours.",
+    "backToForms": "Back to Forms",
+    "backToHome": "Return Home"
   },
   "categories": {
     "IR-1": "IR-1 — Spouse of U.S. Citizen (married 2+ years)",
