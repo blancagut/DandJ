@@ -1,11 +1,6 @@
 "use client"
 
-import { useState } from "react"
-import { ConsultationForm } from "@/components/consultation-form"
 import { ValeriaChat } from "@/components/valeria-chat"
-import { WorkScreeningWizard } from "@/components/work-screening-wizard"
-import { WaiverWizard } from "@/components/waiver-wizard"
-import { PetitionWizard } from "@/components/petition-wizard"
 import { Card } from "@/components/ui/card"
 import { FileText, Briefcase, ShieldAlert, ArrowLeft, ChevronRight, Users } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -65,92 +60,9 @@ const consultTranslations = {
   },
 } as const
 
-type ConsultationView = "selection" | "general" | "work_screening" | "waiver" | "petition"
-
 export default function ConsultationPage() {
   const { language } = useLanguage()
   const ct = consultTranslations[language]
-  const [view, setView] = useState<ConsultationView>("selection")
-
-  const handleBack = () => {
-    setView("selection")
-  }
-
-  if (view === "general") {
-    // ConsultationForm has its own Back button to Home, but we might want a way to return to selection
-    // Since we can't easily modify ConsultationForm's internal back button without props, we'll wrap it
-    return (
-      <div className="relative">
-        <Button 
-            variant="outline" 
-            size="sm" 
-            className="absolute top-4 left-4 z-50 md:top-8 md:left-8 bg-white/80 backdrop-blur"
-            onClick={handleBack}
-        >
-            <ArrowLeft className="w-4 h-4 mr-2" /> {ct.backToSelection}
-        </Button>
-        <ConsultationForm />
-        <ValeriaChat />
-      </div>
-    )
-  }
-
-  if (view === "work_screening") {
-    return (
-      <div className="relative">
-         <div className="bg-slate-50 min-h-screen pt-4">
-            <Button 
-                variant="outline" 
-                size="sm" 
-                className="ml-4 md:ml-8 mb-4"
-                onClick={handleBack}
-            >
-                <ArrowLeft className="w-4 h-4 mr-2" /> {ct.backToSelection}
-            </Button>
-            <WorkScreeningWizard />
-         </div>
-         <ValeriaChat />
-      </div>
-    )
-  }
-
-  if (view === "waiver") {
-    return (
-      <div className="relative">
-           <div className="bg-slate-50 min-h-screen pt-4">
-             <Button 
-                  variant="outline" 
-                  size="sm" 
-                  className="ml-4 md:ml-8 mb-4"
-                  onClick={handleBack}
-              >
-                  <ArrowLeft className="w-4 h-4 mr-2" /> {ct.backToSelection}
-              </Button>
-              <WaiverWizard />
-           </div>
-           <ValeriaChat />
-      </div>
-    )
-  }
-
-  if (view === "petition") {
-    return (
-      <div className="relative">
-           <div className="bg-slate-50 min-h-screen pt-4">
-             <Button 
-                  variant="outline" 
-                  size="sm" 
-                  className="ml-4 md:ml-8 mb-4"
-                  onClick={handleBack}
-              >
-                  <ArrowLeft className="w-4 h-4 mr-2" /> {ct.backToSelection}
-              </Button>
-              <PetitionWizard />
-           </div>
-           <ValeriaChat />
-      </div>
-    )
-  }
 
   return (
     <div className="min-h-screen bg-slate-50 py-12 px-4 sm:px-6 lg:px-8">
@@ -174,9 +86,9 @@ export default function ConsultationPage() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* General Consultation */}
             <motion.div whileHover={{ y: -5 }} transition={{ type: "spring", stiffness: 300 }}>
+              <Link href="/consult/general">
                 <Card 
                     className="h-full p-0 overflow-hidden cursor-pointer group hover:ring-2 hover:ring-blue-500 transition-all border-slate-200"
-                    onClick={() => setView("general")}
                 >
                     <div className="p-6">
                         <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center mb-4 group-hover:bg-blue-600 transition-colors">
@@ -194,13 +106,14 @@ export default function ConsultationPage() {
                         <span className="text-sm font-semibold text-blue-700 flex items-center">{ct.generalCta} <ChevronRight className="w-4 h-4 ml-1" /></span>
                     </div>
                 </Card>
+              </Link>
             </motion.div>
 
              {/* Work Visa Screening */}
              <motion.div whileHover={{ y: -5 }} transition={{ type: "spring", stiffness: 300 }}>
+              <Link href="/consult/work">
                 <Card 
                     className="h-full p-0 overflow-hidden cursor-pointer group hover:ring-2 hover:ring-indigo-500 transition-all border-slate-200"
-                    onClick={() => setView("work_screening")}
                 >
                     <div className="p-6">
                         <div className="w-12 h-12 bg-indigo-100 rounded-xl flex items-center justify-center mb-4 group-hover:bg-indigo-600 transition-colors">
@@ -217,13 +130,14 @@ export default function ConsultationPage() {
                         <span className="text-sm font-semibold text-indigo-700 flex items-center">{ct.workCta} <ChevronRight className="w-4 h-4 ml-1" /></span>
                     </div>
                 </Card>
+              </Link>
             </motion.div>
 
             {/* Waiver Screening - NEW */}
             <motion.div whileHover={{ y: -5 }} transition={{ type: "spring", stiffness: 300 }}>
+              <Link href="/consult/waiver">
                 <Card 
                     className="h-full p-0 overflow-hidden cursor-pointer group hover:ring-2 hover:ring-amber-500 transition-all border-slate-200"
-                    onClick={() => setView("waiver")}
                 >
                     <div className="p-6">
                         <div className="w-12 h-12 bg-amber-100 rounded-xl flex items-center justify-center mb-4 group-hover:bg-amber-600 transition-colors">
@@ -244,13 +158,14 @@ export default function ConsultationPage() {
                         <span className="text-sm font-semibold text-amber-700 flex items-center">{ct.waiverCta} <ChevronRight className="w-4 h-4 ml-1" /></span>
                     </div>
                 </Card>
+              </Link>
             </motion.div>
 
              {/* Petition Assessment - ACTIVE */}
              <motion.div whileHover={{ y: -5 }} transition={{ type: "spring", stiffness: 300 }}>
+              <Link href="/consult/petition">
                 <Card 
                     className="h-full p-0 overflow-hidden cursor-pointer group hover:ring-2 hover:ring-emerald-500 transition-all border-slate-200"
-                    onClick={() => setView("petition")}
                 >
                     <div className="p-6">
                         <div className="w-12 h-12 bg-emerald-100 rounded-xl flex items-center justify-center mb-4 group-hover:bg-emerald-600 transition-colors">
@@ -271,6 +186,7 @@ export default function ConsultationPage() {
                         <span className="text-sm font-semibold text-emerald-700 flex items-center">{ct.petitionCta} <ChevronRight className="w-4 h-4 ml-1" /></span>
                     </div>
                 </Card>
+              </Link>
             </motion.div>
         </div>
 
