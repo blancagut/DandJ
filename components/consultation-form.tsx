@@ -40,8 +40,8 @@ const translations = {
     selectCaseType: "Select the type of case that best describes your situation",
     
     // Case Types
-    h2bWorkVisa: "H-2B Work Visa",
-    h2bWorkVisaDesc: "Temporary work visas for seasonal jobs",
+    h2bWorkVisa: "Work Visa",
+    h2bWorkVisaDesc: "Employment-based work visa screening",
     familyPetitions: "Family Petitions",
     familyPetitionsDesc: "Reunite with your loved ones",
     greenCard: "Green Card",
@@ -216,8 +216,8 @@ const translations = {
     selectCaseType: "Seleccione el tipo de caso que mejor describe su situación",
     
     // Case Types
-    h2bWorkVisa: "Visa de Trabajo H-2B",
-    h2bWorkVisaDesc: "Visas temporales para trabajos de temporada",
+    h2bWorkVisa: "Visa de Trabajo",
+    h2bWorkVisaDesc: "Evaluación de visa de trabajo basada en empleo",
     familyPetitions: "Peticiones Familiares",
     familyPetitionsDesc: "Reúnase con sus seres queridos",
     greenCard: "Residencia Permanente",

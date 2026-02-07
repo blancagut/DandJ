@@ -3,7 +3,7 @@
 import { useState } from "react"
 import { ConsultationForm } from "@/components/consultation-form"
 import { ValeriaChat } from "@/components/valeria-chat"
-import { H2BWizard } from "@/components/h2b-wizard"
+import { WorkScreeningWizard } from "@/components/work-screening-wizard"
 import { WaiverWizard } from "@/components/waiver-wizard"
 import { PetitionWizard } from "@/components/petition-wizard"
 import { Card } from "@/components/ui/card"
@@ -12,7 +12,7 @@ import { Button } from "@/components/ui/button"
 import Link from "next/link"
 import { motion } from "framer-motion"
 
-type ConsultationView = "selection" | "general" | "h2b" | "waiver" | "petition"
+type ConsultationView = "selection" | "general" | "work_screening" | "waiver" | "petition"
 
 export default function ConsultationPage() {
   const [view, setView] = useState<ConsultationView>("selection")
@@ -40,7 +40,7 @@ export default function ConsultationPage() {
     )
   }
 
-  if (view === "h2b") {
+  if (view === "work_screening") {
     return (
       <div className="relative">
          <div className="bg-slate-50 min-h-screen pt-4">
@@ -52,7 +52,7 @@ export default function ConsultationPage() {
             >
                 <ArrowLeft className="w-4 h-4 mr-2" /> Back to Selection
             </Button>
-            <H2BWizard />
+            <WorkScreeningWizard />
          </div>
          <ValeriaChat />
       </div>
@@ -140,25 +140,25 @@ export default function ConsultationPage() {
                 </Card>
             </motion.div>
 
-             {/* H-2B Wizard */}
+             {/* Work Visa Screening */}
              <motion.div whileHover={{ y: -5 }} transition={{ type: "spring", stiffness: 300 }}>
                 <Card 
                     className="h-full p-0 overflow-hidden cursor-pointer group hover:ring-2 hover:ring-indigo-500 transition-all border-slate-200"
-                    onClick={() => setView("h2b")}
+                    onClick={() => setView("work_screening")}
                 >
                     <div className="p-6">
                         <div className="w-12 h-12 bg-indigo-100 rounded-xl flex items-center justify-center mb-4 group-hover:bg-indigo-600 transition-colors">
                             <Briefcase className="w-6 h-6 text-indigo-600 group-hover:text-white" />
                         </div>
-                        <h3 className="text-xl font-bold text-slate-900 mb-2">Working Visa (H-2B)</h3>
-                        <p className="text-slate-600 mb-4">Specialized eligibility wizard for seasonal non-agricultural employment visas.</p>
+                        <h3 className="text-xl font-bold text-slate-900 mb-2">Work Visa Screening</h3>
+                        <p className="text-slate-600 mb-4">Quick eligibility screening for employment-based work visas — under 2 minutes.</p>
                         <div className="flex gap-2 flex-wrap mb-2">
-                            <span className="text-xs bg-indigo-50 text-indigo-700 px-2 py-1 rounded-md">Eligibility Score</span>
-                            <span className="text-xs bg-indigo-50 text-indigo-700 px-2 py-1 rounded-md">Job Match</span>
+                            <span className="text-xs bg-indigo-50 text-indigo-700 px-2 py-1 rounded-md">Visa Paths</span>
+                            <span className="text-xs bg-indigo-50 text-indigo-700 px-2 py-1 rounded-md">Risk Flags</span>
                         </div>
                     </div>
                      <div className="bg-slate-50 p-4 border-t border-slate-100 group-hover:bg-indigo-50">
-                        <span className="text-sm font-semibold text-indigo-700 flex items-center">Check H-2B Eligibility <ChevronRight className="w-4 h-4 ml-1" /></span>
+                        <span className="text-sm font-semibold text-indigo-700 flex items-center">Start Work Visa Screening <ChevronRight className="w-4 h-4 ml-1" /></span>
                     </div>
                 </Card>
             </motion.div>

@@ -1,0 +1,152 @@
+{
+  "header": {
+    "title": "Evaluación de Elegibilidad para Visa de Trabajo",
+    "subtitle": "Herramienta rápida de pre-calificación para determinar su elegibilidad general para una visa de trabajo de EE.UU."
+  },
+  "steps": {
+    "profile": { "title": "Perfil", "description": "Info Básica" },
+    "immigration": { "title": "Inmigración", "description": "Historial" },
+    "criminal": { "title": "Criminal", "description": "Récord" },
+    "qualifications": { "title": "Calificaciones", "description": "Habilidades" }
+  },
+  "validation": {
+    "goalRequired": "Por favor seleccione su objetivo.",
+    "jobOfferRequired": "Por favor indique el estado de su oferta de trabajo.",
+    "workCategoryRequired": "Por favor seleccione el tipo de trabajo.",
+    "usTravelRequired": "Por favor indique si ha estado en EE.UU. anteriormente.",
+    "overstayRequired": "Por favor responda la pregunta sobre permanencia indebida.",
+    "deportationRequired": "Por favor responda la pregunta sobre deportación.",
+    "visaDenialRequired": "Por favor responda la pregunta sobre negación de visa.",
+    "criminalRequired": "Por favor responda la pregunta sobre historial criminal.",
+    "offenseRequired": "Por favor seleccione el tipo de delito.",
+    "educationRequired": "Por favor seleccione su nivel de educación.",
+    "experienceRequired": "Por favor indique su nivel de experiencia.",
+    "yearsRequired": "Por favor seleccione sus años de experiencia."
+  },
+  "step1": {
+    "heading": "Perfil Básico",
+    "goalLabel": "¿Cuál es su objetivo?",
+    "goalTemp": "Trabajar temporalmente en los Estados Unidos",
+    "goalPerm": "Trabajar permanentemente y obtener una Green Card",
+    "goalUnsure": "No estoy seguro",
+    "jobOfferLabel": "¿Tiene actualmente una oferta de trabajo de un empleador estadounidense?",
+    "jobOfferYes": "Sí",
+    "jobOfferNo": "No",
+    "jobOfferProcess": "En proceso / hablando con empleador",
+    "workCategoryLabel": "¿Qué tipo de trabajo busca?",
+    "workSkilled": "Trabajo calificado / profesional",
+    "workSeasonal": "Trabajo temporal / de temporada",
+    "workConstruction": "Construcción / Trabajo manual",
+    "workAgriculture": "Agricultura",
+    "workUnsure": "No estoy seguro",
+    "goalTooltip": "Seleccione la opción que mejor describa su objetivo migratorio.",
+    "jobOfferTooltip": "Una oferta de trabajo válida de un empleador estadounidense es requerida para la mayoría de categorías de visa de trabajo.",
+    "workCategoryTooltip": "El tipo de trabajo determina qué categoría de visa puede ser apropiada."
+  },
+  "step2": {
+    "heading": "Historial Migratorio",
+    "usTravelLabel": "¿Ha estado alguna vez en los Estados Unidos?",
+    "yes": "Sí",
+    "no": "No",
+    "overstayLabel": "¿Alguna vez se quedó más tiempo del permitido por su visa en EE.UU.?",
+    "overstayYes": "Sí",
+    "overstayNo": "No",
+    "overstayUnsure": "No estoy seguro",
+    "deportationLabel": "¿Alguna vez ha sido deportado o removido de EE.UU.?",
+    "visaDenialLabel": "¿Alguna vez le han negado una visa de EE.UU.?",
+    "usTravelTooltip": "Viajes previos a EE.UU. no son un descalificador, pero permanencias indebidas o remociones pueden afectar la elegibilidad.",
+    "overstayTooltip": "Permanecer indebidamente puede activar barras de reingreso.",
+    "deportationTooltip": "Deportación o remoción previa crea barras significativas a beneficios migratorios.",
+    "visaDenialTooltip": "Una negación de visa previa no necesariamente lo descalifica, pero será considerada."
+  },
+  "step3": {
+    "heading": "Historial Criminal",
+    "criminalLabel": "¿Alguna vez ha sido arrestado o condenado por un delito?",
+    "yes": "Sí",
+    "no": "No",
+    "offenseLabel": "¿Qué tipo de delito?",
+    "offenseMinor": "Delito menor (tráfico, multa pequeña, etc.)",
+    "offenseTheft": "Robo / Fraude",
+    "offenseDrug": "Relacionado con drogas",
+    "offenseViolence": "Relacionado con violencia",
+    "offenseUnsure": "No estoy seguro",
+    "criminalTooltip": "El historial criminal puede afectar la elegibilidad de visa. Las infracciones menores de tráfico generalmente no afectan.",
+    "offenseTooltip": "Seleccione la categoría que mejor describa el delito."
+  },
+  "step4": {
+    "heading": "Calificaciones Laborales",
+    "educationLabel": "Nivel más alto de educación completado",
+    "eduHighSchool": "Preparatoria o menos",
+    "eduTechnical": "Certificación técnica",
+    "eduCollege": "Título universitario",
+    "eduAdvanced": "Título avanzado (Maestría/Doctorado)",
+    "experienceLabel": "¿Tiene experiencia laboral especializada?",
+    "yes": "Sí",
+    "no": "No",
+    "yearsLabel": "¿Cuántos años de experiencia laboral tiene?",
+    "yearsLess1": "Menos de 1 año",
+    "years1to3": "1 – 3 años",
+    "years3to5": "3 – 5 años",
+    "yearsMore5": "Más de 5 años",
+    "educationTooltip": "El nivel de educación ayuda a determinar para qué categorías de visa puede calificar.",
+    "experienceTooltip": "Experiencia especializada en su campo fortalece su solicitud de visa.",
+    "yearsTooltip": "La duración de la experiencia puede calificarlo para categorías de visa de trabajador calificado."
+  },
+  "results": {
+    "heading": "Resultados de la Evaluación",
+    "disclaimer": "AVISO LEGAL: Esta evaluación es solo informativa y no constituye asesoría legal. La elegibilidad final debe ser determinada por un abogado de inmigración licenciado.",
+    "eligibilityLevel": "Nivel de Elegibilidad",
+    "likelyEligible": "Probablemente Elegible",
+    "possiblyEligible": "Posiblemente Elegible — Necesita Revisión",
+    "higherRisk": "Mayor Riesgo — Se Recomienda Consulta con Abogado",
+    "visaPaths": "Posibles Rutas de Visa",
+    "riskFlags": "Señales de Riesgo",
+    "noRisks": "No se detectaron señales de riesgo importantes.",
+    "nextSteps": "Siguiente Paso Recomendado",
+    "seekSponsor": "Buscar patrocinio de un empleador para proceder con una solicitud de visa de trabajo.",
+    "scheduleConsult": "Programar una consulta legal para discutir sus opciones y posibles desafíos.",
+    "provideDocumentation": "Preparar y proporcionar documentación adicional para apoyar su solicitud.",
+    "reviewWaiver": "Revisar elegibilidad para perdón a través de nuestro módulo de Evaluación de Perdón.",
+    "proceedApplication": "Parece cumplir los requisitos básicos. Proceda a programar una evaluación detallada del caso.",
+    "paths": {
+      "h2b": "H-2B (Trabajador Temporal No Agrícola)",
+      "h2a": "H-2A (Trabajador Temporal Agrícola)",
+      "h1b": "H-1B (Ocupación Especializada)",
+      "eb3": "EB-3 (Green Card de Trabajador Calificado)",
+      "eb2": "EB-2 (Profesional con Título Avanzado)",
+      "h1bSpecialized": "H-1B (Ocupación Especializada)",
+      "needsSponsor": "Se Requiere Patrocinio del Empleador"
+    },
+    "flags": {
+      "possible_unlawful_presence": "Posible presencia ilegal — puede activar barras de reingreso.",
+      "possible_deportation_history": "Deportación previa detectada — barra significativa a beneficios migratorios.",
+      "possible_criminal_risk": "Historial criminal detectado — puede requerir perdón o hacer inelegible.",
+      "prior_visa_denial": "Negación de visa previa — será considerada en futuras solicitudes."
+    }
+  },
+  "nav": {
+    "back": "Atrás",
+    "continue": "Continuar",
+    "viewResults": "Ver Resultados",
+    "saveResults": "Guardar Resultados"
+  },
+  "alerts": {
+    "saved": "Resultados de evaluación de visa de trabajo guardados. (Datos registrados en consola para validación)"
+  },
+  "admin": {
+    "panelTitle": "Resultados de Evaluación de Visa de Trabajo",
+    "noCases": "Aún no hay evaluaciones de visa de trabajo disponibles.",
+    "caseNumber": "Caso",
+    "submitted": "Enviado",
+    "goal": "Objetivo",
+    "jobOffer": "Oferta de Trabajo",
+    "workCategory": "Tipo de Trabajo",
+    "eligibility": "Elegibilidad",
+    "visaPaths": "Rutas de Visa",
+    "riskFlags": "Señales de Riesgo",
+    "noRisks": "Sin riesgos detectados",
+    "nextStep": "Siguiente Paso",
+    "education": "Educación",
+    "experience": "Experiencia"
+  }
+}

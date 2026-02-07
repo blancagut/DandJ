@@ -94,7 +94,7 @@ export function ValeriaChat() {
                   text: "Nos especializamos en todos los asuntos de inmigracion incluyendo visas, permisos de trabajo e inmigracion familiar. ¿Le gustaria agendar una consulta o conocer sobre un tipo de visa especifico?",
                   buttons: [
                     { text: "Agendar Consulta", value: "schedule" },
-                    { text: "Visa H-2B", value: "h2b" },
+                    { text: "Visa de Trabajo", value: "h2b" },
                     { text: "Visa Familiar", value: "family" },
                     { text: "Permiso de Trabajo", value: "workpermit" },
                   ],
@@ -181,7 +181,7 @@ export function ValeriaChat() {
                   text: "We specialize in all immigration matters including visas, work permits, and family-based immigration. Would you like to schedule a consultation or learn about a specific visa type?",
                   buttons: [
                     { text: "Schedule Consultation", value: "schedule" },
-                    { text: "H-2B Visa", value: "h2b" },
+                    { text: "Work Visa", value: "h2b" },
                     { text: "Family Visa", value: "family" },
                     { text: "Work Permit", value: "workpermit" },
                   ],

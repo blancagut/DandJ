@@ -6,6 +6,7 @@ import type { User } from "@supabase/supabase-js"
 import { ConsultationRequestsPanel } from "./consultation-requests-panel"
 import { ChatPanel } from "./chat-panel"
 import { PetitionResultsPanel } from "./petition-results-panel"
+import { WorkScreeningPanel } from "./work-screening-panel"
 
 // Tipos
 type WorkItemStatus = "todo" | "in_progress" | "done"
@@ -269,6 +270,11 @@ export function AdminDashboard({ user, onSignOut }: AdminDashboardProps) {
         {/* Panel de Resultados de Petición */}
         <div className="mb-8">
           <PetitionResultsPanel />
+        </div>
+
+        {/* Panel de Work Visa Screening */}
+        <div className="mb-8">
+          <WorkScreeningPanel />
         </div>
 
         {/* Crear nuevo item */}
