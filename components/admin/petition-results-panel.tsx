@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect, useCallback } from "react"
 import {
   AlertCircle,
   AlertTriangle,
@@ -20,8 +20,8 @@ import { WaiverLanguageSelector } from "@/components/waiver-language-selector"
 import {
   type PetitionSavedData,
   type CasePriority,
-  demoPetitionCases,
 } from "@/lib/petition-types"
+import { getSupabaseBrowserClient } from "@/lib/supabase/client"
 
 // Helper: capitalize first letter for translation key lookup
 const capFirst = (s: string) => s.charAt(0).toUpperCase() + s.slice(1)
@@ -42,11 +42,47 @@ const priorityIcons: Record<CasePriority, React.ReactNode> = {
 export function PetitionResultsPanel() {
   const { t, ready } = usePetitionTranslation()
   const [expandedCase, setExpandedCase] = useState<number | null>(null)
+  const [cases, setCases] = useState<(PetitionSavedData & { contactName?: string; contactEmail?: string; contactPhone?: string })[]>([])  
+  const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
-  // In production, this would come from Supabase. Using demo data for now.
-  const cases: PetitionSavedData[] = demoPetitionCases
+  const loadCases = useCallback(async () => {
+    try {
+      setError(null)
+      const supabase = getSupabaseBrowserClient()
 
-  if (!ready) {
+      // @ts-expect-error - No hay tipos generados de Supabase
+      const { data, error: queryError } = await supabase
+        .from("petition_screenings")
+        .select("id, data, status, contact_name, contact_email, contact_phone, created_at")
+        .order("created_at", { ascending: false })
+
+      if (queryError) {
+        console.error("Query error:", queryError)
+        setError("Failed to load petition results.")
+        return
+      }
+
+      const parsed = (data || []).map((row: { data: PetitionSavedData; contact_name?: string; contact_email?: string; contact_phone?: string }) => ({
+        ...row.data,
+        contactName: row.contact_name,
+        contactEmail: row.contact_email,
+        contactPhone: row.contact_phone,
+      }))
+      setCases(parsed)
+    } catch (err) {
+      console.error("Load error:", err)
+      setError("Connection error.")
+    } finally {
+      setIsLoading(false)
+    }
+  }, [])
+
+  useEffect(() => {
+    loadCases()
+  }, [loadCases])
+
+  if (!ready || isLoading) {
     return (
       <div className="rounded-lg border bg-card p-6">
         <div className="animate-pulse space-y-3">
@@ -54,6 +90,17 @@ export function PetitionResultsPanel() {
           <div className="h-4 w-full bg-muted rounded" />
           <div className="h-4 w-3/4 bg-muted rounded" />
         </div>
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className="rounded-lg border bg-card p-6">
+        <p className="text-sm text-destructive">{error}</p>
+        <button onClick={loadCases} className="mt-2 text-xs underline text-muted-foreground">
+          Retry
+        </button>
       </div>
     )
   }
@@ -97,6 +144,7 @@ export function PetitionResultsPanel() {
                       <span className="font-medium text-sm">
                         {t("admin.caseNumber")} #{idx + 1}
                       </span>
+                      {caseData.contactName && <span className="text-sm font-semibold text-slate-900">{caseData.contactName}</span>}
                       {s.relationshipCategory && (
                         <Badge variant="outline" className="text-xs font-mono">
                           {s.relationshipCategory}
@@ -130,6 +178,17 @@ export function PetitionResultsPanel() {
                 {/* Expanded Detail */}
                 {isExpanded && (
                   <div className="px-4 pb-4 space-y-4">
+                    {/* Contact Info */}
+                    {(caseData.contactName || caseData.contactEmail || caseData.contactPhone) && (
+                      <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                        <span className="text-blue-800 font-semibold text-xs uppercase tracking-wide">Contact Info</span>
+                        <div className="mt-1 flex flex-wrap gap-4 text-sm">
+                          {caseData.contactName && <span className="text-slate-900">{caseData.contactName}</span>}
+                          {caseData.contactEmail && <a href={`mailto:${caseData.contactEmail}`} className="text-blue-600 underline">{caseData.contactEmail}</a>}
+                          {caseData.contactPhone && <a href={`tel:${caseData.contactPhone}`} className="text-blue-600 underline">{caseData.contactPhone}</a>}
+                        </div>
+                      </div>
+                    )}
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                       {/* Category */}
                       <Card className="p-3 border-l-4 border-l-emerald-500">

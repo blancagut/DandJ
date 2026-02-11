@@ -24,7 +24,10 @@ import {
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
 import { cn } from "@/lib/utils"
+import { getSupabaseBrowserClient } from "@/lib/supabase/client"
 import { useWorkScreeningTranslation } from "@/lib/work-screening-i18n"
 import { WaiverLanguageSelector } from "@/components/waiver-language-selector"
 import Link from "next/link"
@@ -280,6 +283,10 @@ export function WorkScreeningWizard() {
   const [showResults, setShowResults] = useState(false)
   const [isLoaded, setIsLoaded] = useState(false)
   const [isSaved, setIsSaved] = useState(false)
+  const [contactName, setContactName] = useState("")
+  const [contactEmail, setContactEmail] = useState("")
+  const [contactPhone, setContactPhone] = useState("")
+  const [contactError, setContactError] = useState<string | null>(null)
 
   // Data persistence
   useEffect(() => {
@@ -354,8 +361,13 @@ export function WorkScreeningWizard() {
     }
   }
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (!result) return
+    setContactError(null)
+    if (!contactName.trim() || !contactEmail.trim() || !contactPhone.trim()) {
+      setContactError(t("contact.required"))
+      return
+    }
     try {
       const saveData: WorkScreeningSavedData = {
         workScreening: {
@@ -378,7 +390,19 @@ export function WorkScreeningWizard() {
           timestamp: new Date().toISOString(),
         },
       }
-      console.log("Work Screening Save:", saveData)
+
+      // Save to Supabase
+      const supabase = getSupabaseBrowserClient()
+      // @ts-expect-error - No hay tipos generados de Supabase
+      const { error } = await supabase
+        .from("work_screenings")
+        .insert({ data: saveData, status: "new", contact_name: contactName.trim(), contact_email: contactEmail.trim(), contact_phone: contactPhone.trim() })
+
+      if (error) {
+        console.error("Supabase insert error:", error)
+        return
+      }
+
       // Clear localStorage after successful save
       localStorage.removeItem("work-screening-data")
       setIsSaved(true)
@@ -517,6 +541,36 @@ export function WorkScreeningWizard() {
               <h3 className="text-sm font-medium text-slate-500 uppercase mb-2">{t("results.nextSteps")}</h3>
               <p className="text-indigo-900 font-medium">{t(`results.${result.nextStep}`)}</p>
             </Card>
+
+            {/* Contact Information */}
+            {!isSaved && (
+              <Card className="p-5 border-indigo-200 shadow-sm space-y-4">
+                <div>
+                  <h3 className="text-lg font-semibold text-slate-900">{t("contact.title")}</h3>
+                  <p className="text-sm text-slate-500">{t("contact.subtitle")}</p>
+                </div>
+                {contactError && (
+                  <div className="p-3 bg-red-50 border border-red-200 rounded-lg flex items-center gap-2">
+                    <AlertCircle className="w-4 h-4 text-red-600" />
+                    <span className="text-sm text-red-800">{contactError}</span>
+                  </div>
+                )}
+                <div className="space-y-3">
+                  <div>
+                    <Label htmlFor="contact-name">{t("contact.fullName")}</Label>
+                    <Input id="contact-name" value={contactName} onChange={(e) => setContactName(e.target.value)} placeholder={t("contact.fullNamePlaceholder")} className="mt-1" />
+                  </div>
+                  <div>
+                    <Label htmlFor="contact-email">{t("contact.email")}</Label>
+                    <Input id="contact-email" type="email" value={contactEmail} onChange={(e) => setContactEmail(e.target.value)} placeholder={t("contact.emailPlaceholder")} className="mt-1" />
+                  </div>
+                  <div>
+                    <Label htmlFor="contact-phone">{t("contact.phone")}</Label>
+                    <Input id="contact-phone" type="tel" value={contactPhone} onChange={(e) => setContactPhone(e.target.value)} placeholder={t("contact.phonePlaceholder")} className="mt-1" />
+                  </div>
+                </div>
+              </Card>
+            )}
           </Card>
 
           {/* Footer Navigation */}

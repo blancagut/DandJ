@@ -7,6 +7,7 @@ import { ConsultationRequestsPanel } from "./consultation-requests-panel"
 import { ChatPanel } from "./chat-panel"
 import { PetitionResultsPanel } from "./petition-results-panel"
 import { WorkScreeningPanel } from "./work-screening-panel"
+import { WaiverScreeningPanel } from "./waiver-screening-panel"
 
 // Tipos
 type WorkItemStatus = "todo" | "in_progress" | "done"
@@ -275,6 +276,11 @@ export function AdminDashboard({ user, onSignOut }: AdminDashboardProps) {
         {/* Panel de Work Visa Screening */}
         <div className="mb-8">
           <WorkScreeningPanel />
+        </div>
+
+        {/* Panel de Waiver Screening */}
+        <div className="mb-8">
+          <WaiverScreeningPanel />
         </div>
 
         {/* Crear nuevo item */}

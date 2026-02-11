@@ -39,7 +39,7 @@ import { WaiverLanguageSelector } from "@/components/waiver-language-selector"
 import { Card } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Checkbox } from "@/components/ui/checkbox"
-
+import { getSupabaseBrowserClient } from "@/lib/supabase/client"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import Link from "next/link"
 
@@ -268,6 +268,10 @@ export function WaiverWizard() {
   const [analysis, setAnalysis] = useState<WaiverAnalysis | null>(null)
   const [validationError, setValidationError] = useState<string | null>(null)
   const [isSaved, setIsSaved] = useState(false)
+  const [contactName, setContactName] = useState("")
+  const [contactEmail, setContactEmail] = useState("")
+  const [contactPhone, setContactPhone] = useState("")
+  const [contactError, setContactError] = useState<string | null>(null)
   
   const [isLoaded, setIsLoaded] = useState(false)
 
@@ -337,9 +341,14 @@ export function WaiverWizard() {
     return null
   }
   
-  const handleSave = () => {
+  const handleSave = async () => {
     // Basic verification of completed analysis
     if (!analysis) return
+    setContactError(null)
+    if (!contactName.trim() || !contactEmail.trim() || !contactPhone.trim()) {
+      setContactError(t("contact.required"))
+      return
+    }
 
     try {
       const saveData = {
@@ -383,7 +392,18 @@ export function WaiverWizard() {
           }
       }
 
-      console.log("Hypothetical Save to CRM:", saveData)
+      // Save to Supabase
+      const supabase = getSupabaseBrowserClient()
+      // @ts-expect-error - No hay tipos generados de Supabase
+      const { error } = await supabase
+        .from("waiver_screenings")
+        .insert({ data: saveData, status: "new", contact_name: contactName.trim(), contact_email: contactEmail.trim(), contact_phone: contactPhone.trim() })
+
+      if (error) {
+        console.error("Supabase insert error:", error)
+        return
+      }
+
       // Clear localStorage after successful save
       localStorage.removeItem("waiver-wizard-data")
       setIsSaved(true)
@@ -1011,6 +1031,36 @@ export function WaiverWizard() {
              </motion.div>
            </AnimatePresence>
         </Card>
+
+        {/* Contact Information */}
+        {currentStep === 7 && !isSaved && (
+          <Card className="p-5 mt-6 border-indigo-200 shadow-sm space-y-4">
+            <div>
+              <h3 className="text-lg font-semibold text-slate-900">{t("contact.title")}</h3>
+              <p className="text-sm text-slate-500">{t("contact.subtitle")}</p>
+            </div>
+            {contactError && (
+              <div className="p-3 bg-red-50 border border-red-200 rounded-lg flex items-center gap-2">
+                <AlertCircle className="w-4 h-4 text-red-600" />
+                <span className="text-sm text-red-800">{contactError}</span>
+              </div>
+            )}
+            <div className="space-y-3">
+              <div>
+                <Label htmlFor="contact-name">{t("contact.fullName")}</Label>
+                <Input id="contact-name" value={contactName} onChange={(e) => setContactName(e.target.value)} placeholder={t("contact.fullNamePlaceholder")} className="mt-1" />
+              </div>
+              <div>
+                <Label htmlFor="contact-email">{t("contact.email")}</Label>
+                <Input id="contact-email" type="email" value={contactEmail} onChange={(e) => setContactEmail(e.target.value)} placeholder={t("contact.emailPlaceholder")} className="mt-1" />
+              </div>
+              <div>
+                <Label htmlFor="contact-phone">{t("contact.phone")}</Label>
+                <Input id="contact-phone" type="tel" value={contactPhone} onChange={(e) => setContactPhone(e.target.value)} placeholder={t("contact.phonePlaceholder")} className="mt-1" />
+              </div>
+            </div>
+          </Card>
+        )}
 
         {/* Footer Navigation */}
         <div className="mt-8 flex justify-between items-center">

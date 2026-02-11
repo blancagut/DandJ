@@ -113,6 +113,17 @@
     "analyzeCase": "Analizar Caso",
     "saveResults": "Guardar Resultados en Perfil"
   },
+  "contact": {
+    "title": "Su Información de Contacto",
+    "subtitle": "Requerido para recibir sus resultados y seguimiento del abogado.",
+    "fullName": "Nombre Completo",
+    "fullNamePlaceholder": "Ingrese su nombre completo",
+    "email": "Correo Electrónico",
+    "emailPlaceholder": "usted@ejemplo.com",
+    "phone": "Número de Teléfono",
+    "phonePlaceholder": "+1 (555) 000-0000",
+    "required": "Por favor complete todos los campos de contacto antes de guardar."
+  },
   "alerts": {
     "saved": "Resultados guardados en el perfil del cliente. (Datos registrados en consola para validación)"
   },

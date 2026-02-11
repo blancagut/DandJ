@@ -130,6 +130,17 @@
     "viewResults": "View Results",
     "saveResults": "Save Results"
   },
+  "contact": {
+    "title": "Your Contact Information",
+    "subtitle": "Required to receive your results and attorney follow-up.",
+    "fullName": "Full Name",
+    "fullNamePlaceholder": "Enter your full name",
+    "email": "Email Address",
+    "emailPlaceholder": "you@example.com",
+    "phone": "Phone Number",
+    "phonePlaceholder": "+1 (555) 000-0000",
+    "required": "Please fill in all contact fields before saving."
+  },
   "alerts": {
     "saved": "Work visa screening results saved. (Data logged to console for validation)"
   },

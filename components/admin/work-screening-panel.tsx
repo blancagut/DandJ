@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect, useCallback } from "react"
 import {
   Briefcase,
   ChevronDown,
@@ -14,7 +14,8 @@ import { Badge } from "@/components/ui/badge"
 import { cn } from "@/lib/utils"
 import { useWorkScreeningTranslation } from "@/lib/work-screening-i18n"
 import { WaiverLanguageSelector } from "@/components/waiver-language-selector"
-import { demoWorkScreeningCases } from "@/components/work-screening-wizard"
+import { getSupabaseBrowserClient } from "@/lib/supabase/client"
+import type { WorkScreeningSavedData } from "@/components/work-screening-wizard"
 
 const eligibilityStyles: Record<string, { bg: string; text: string; icon: typeof CheckCircle2 }> = {
   likely_eligible: { bg: "bg-green-100", text: "text-green-800", icon: CheckCircle2 },
@@ -25,10 +26,68 @@ const eligibilityStyles: Record<string, { bg: string; text: string; icon: typeof
 export function WorkScreeningPanel() {
   const { t, ready } = useWorkScreeningTranslation()
   const [expandedCase, setExpandedCase] = useState<number | null>(null)
-  const cases = demoWorkScreeningCases
+  const [cases, setCases] = useState<(WorkScreeningSavedData & { contactName?: string; contactEmail?: string; contactPhone?: string; createdAt?: string })[]>([])
+  const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
-  if (!ready) {
-    return <div className="p-4 text-slate-400 animate-pulse">Loading…</div>
+  const loadCases = useCallback(async () => {
+    try {
+      setError(null)
+      const supabase = getSupabaseBrowserClient()
+
+      // @ts-expect-error - No hay tipos generados de Supabase
+      const { data, error: queryError } = await supabase
+        .from("work_screenings")
+        .select("id, data, status, contact_name, contact_email, contact_phone, created_at")
+        .order("created_at", { ascending: false })
+
+      if (queryError) {
+        console.error("Query error:", queryError)
+        setError("Failed to load work screening results.")
+        return
+      }
+
+      const parsed = (data || []).map((row: { data: WorkScreeningSavedData; contact_name?: string; contact_email?: string; contact_phone?: string; created_at?: string }) => ({
+        ...row.data,
+        contactName: row.contact_name,
+        contactEmail: row.contact_email,
+        contactPhone: row.contact_phone,
+        createdAt: row.created_at,
+      }))
+      setCases(parsed)
+    } catch (err) {
+      console.error("Load error:", err)
+      setError("Connection error.")
+    } finally {
+      setIsLoading(false)
+    }
+  }, [])
+
+  useEffect(() => {
+    loadCases()
+  }, [loadCases])
+
+  if (!ready || isLoading) {
+    return (
+      <div className="rounded-lg border bg-card p-6">
+        <div className="animate-pulse space-y-3">
+          <div className="h-5 w-48 bg-muted rounded" />
+          <div className="h-4 w-full bg-muted rounded" />
+          <div className="h-4 w-3/4 bg-muted rounded" />
+        </div>
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className="rounded-lg border bg-card p-6">
+        <p className="text-sm text-destructive">{error}</p>
+        <button onClick={loadCases} className="mt-2 text-xs underline text-muted-foreground">
+          Retry
+        </button>
+      </div>
+    )
   }
 
   return (
@@ -60,6 +119,7 @@ export function WorkScreeningPanel() {
                 >
                   <div className="flex items-center gap-3 flex-1 min-w-0">
                     <span className="text-sm font-mono text-slate-500">{t("admin.caseNumber")} #{idx + 1}</span>
+                    {c.contactName && <span className="text-sm font-semibold text-slate-900 truncate">{c.contactName}</span>}
                     <Badge className={cn("text-xs", style.bg, style.text)}>
                       <EligIcon className="w-3 h-3 mr-1" />
                       {t(`results.${ws.eligibilityLevel === "likely_eligible" ? "likelyEligible" : ws.eligibilityLevel === "possibly_eligible" ? "possiblyEligible" : "higherRisk"}`)}
@@ -78,6 +138,17 @@ export function WorkScreeningPanel() {
 
                 {isExpanded && (
                   <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
+                    {/* Contact Info */}
+                    {(c.contactName || c.contactEmail || c.contactPhone) && (
+                      <div className="md:col-span-2 p-3 bg-blue-50 border border-blue-200 rounded-lg mb-2">
+                        <span className="text-blue-800 font-semibold text-xs uppercase tracking-wide">Contact Info</span>
+                        <div className="mt-1 flex flex-wrap gap-4">
+                          {c.contactName && <span className="text-slate-900">{c.contactName}</span>}
+                          {c.contactEmail && <a href={`mailto:${c.contactEmail}`} className="text-blue-600 underline">{c.contactEmail}</a>}
+                          {c.contactPhone && <a href={`tel:${c.contactPhone}`} className="text-blue-600 underline">{c.contactPhone}</a>}
+                        </div>
+                      </div>
+                    )}
                     <div>
                       <span className="text-slate-500 font-medium">{t("admin.goal")}:</span>
                       <span className="ml-2 text-slate-900">{ws.goalType}</span>
