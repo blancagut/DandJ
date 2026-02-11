@@ -18,7 +18,7 @@ export async function GET() {
   let isAdmin = false
 
   try {
-    const supabase = getSupabaseServerClient()
+    const supabase = await getSupabaseServerClient()
     const {
       data: { user },
       error,

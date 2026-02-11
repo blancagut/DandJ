@@ -1,10 +1,13 @@
 "use client"
 
-import { useEffect } from "react"
-import { Button } from "@/components/ui/button"
-import { Card } from "@/components/ui/card"
-import { AlertTriangle, RefreshCw, Home, Phone } from "lucide-react"
-import Link from "next/link"
+import { useEffect, useState } from "react"
+
+// ⚠️ CRITICAL: This error boundary must NOT import any heavy components
+// (Button, Card, icons, etc.) because if the error was caused by a
+// chunk-loading failure (common on mobile with slow connections),
+// importing those components here would ALSO fail, causing a cascade
+// to global-error or a blank white screen.
+// All styling is inline to guarantee this page always renders.
 
 export default function Error({
   error,
@@ -13,45 +16,78 @@ export default function Error({
   error: Error & { digest?: string }
   reset: () => void
 }) {
+  const [showDetails, setShowDetails] = useState(false)
+
   useEffect(() => {
     console.error("[Diaz & Johnson] Client error caught by boundary:", error)
+
+    // Try to report error to our API for remote debugging
+    try {
+      fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          firstName: "ERROR_REPORT",
+          lastName: "AUTO",
+          email: "error@auto.report",
+          phone: "",
+          caseType: "error-report",
+          message: `[Auto Error Report] ${error.message}\n\nDigest: ${error.digest || "none"}\nStack: ${error.stack?.slice(0, 500) || "none"}\nURL: ${typeof window !== "undefined" ? window.location.href : "unknown"}\nUA: ${typeof navigator !== "undefined" ? navigator.userAgent : "unknown"}`,
+          language: "en",
+        }),
+      }).catch(() => { /* silent */ })
+    } catch { /* silent */ }
   }, [error])
 
   return (
-    <div className="min-h-screen bg-slate-50 flex items-center justify-center px-4">
-      <Card className="max-w-lg w-full p-8 text-center">
-        <div className="w-16 h-16 bg-amber-100 rounded-full flex items-center justify-center mx-auto mb-6">
-          <AlertTriangle className="w-8 h-8 text-amber-600" />
-        </div>
-
-        <h2 className="text-2xl font-bold text-slate-900 mb-2">
+    <div style={{ minHeight: "100vh", backgroundColor: "#f8fafc", display: "flex", alignItems: "center", justifyContent: "center", padding: "1rem", fontFamily: "system-ui, -apple-system, sans-serif" }}>
+      <div style={{ maxWidth: "32rem", width: "100%", background: "white", borderRadius: "0.75rem", padding: "2rem", textAlign: "center", boxShadow: "0 1px 3px rgba(0,0,0,0.1)" }}>
+        <div style={{ fontSize: "3rem", marginBottom: "1rem" }}>⚠️</div>
+        <h2 style={{ fontSize: "1.5rem", fontWeight: 700, color: "#0f172a", marginBottom: "0.5rem" }}>
           Something went wrong
         </h2>
-        <p className="text-slate-600 mb-2">
-          We encountered an unexpected error. Your form data has been saved locally and will be restored when you try again.
+        <p style={{ color: "#475569", marginBottom: "0.5rem" }}>
+          We encountered an unexpected error. Please try again.
         </p>
-        <p className="text-slate-600 mb-6">
-          Encontramos un error inesperado. Sus datos se guardaron localmente y se restaurarán cuando lo intente nuevamente.
+        <p style={{ color: "#475569", marginBottom: "1.5rem" }}>
+          Encontramos un error inesperado. Por favor intente de nuevo.
         </p>
 
-        <div className="flex flex-col sm:flex-row gap-3 justify-center mb-6">
-          <Button onClick={reset} className="gap-2 bg-blue-600 hover:bg-blue-700">
-            <RefreshCw className="w-4 h-4" /> Try Again / Reintentar
-          </Button>
-          <Link href="/consult">
-            <Button variant="outline" className="gap-2 w-full">
-              <Home className="w-4 h-4" /> Back to Forms / Volver
-            </Button>
-          </Link>
+        <div style={{ display: "flex", gap: "0.75rem", justifyContent: "center", flexWrap: "wrap", marginBottom: "1rem" }}>
+          <button
+            onClick={() => { reset() }}
+            style={{ padding: "0.5rem 1.5rem", background: "#2563eb", color: "white", border: "none", borderRadius: "0.5rem", cursor: "pointer", fontSize: "0.875rem", fontWeight: 600 }}
+          >
+            Try Again / Reintentar
+          </button>
+          <a
+            href="/consult"
+            style={{ padding: "0.5rem 1.5rem", background: "white", color: "#0f172a", border: "1px solid #e2e8f0", borderRadius: "0.5rem", textDecoration: "none", fontSize: "0.875rem", fontWeight: 600 }}
+          >
+            Back to Forms / Volver
+          </a>
         </div>
 
-        <div className="border-t border-slate-200 pt-4">
-          <p className="text-sm text-slate-500 flex items-center justify-center gap-2">
-            <Phone className="w-3 h-3" />
-            Need help? Call <a href="tel:+13054567890" className="text-blue-600 font-medium hover:underline">(305) 456-7890</a>
+        {/* Diagnostic info — helps remote debugging */}
+        <div style={{ borderTop: "1px solid #e2e8f0", marginTop: "1rem", paddingTop: "1rem" }}>
+          <button
+            onClick={() => setShowDetails(!showDetails)}
+            style={{ background: "none", border: "none", color: "#94a3b8", fontSize: "0.75rem", cursor: "pointer", textDecoration: "underline" }}
+          >
+            {showDetails ? "Hide details / Ocultar" : "Show error details / Ver detalles"}
+          </button>
+          {showDetails && (
+            <div style={{ marginTop: "0.5rem", padding: "0.75rem", backgroundColor: "#fef2f2", borderRadius: "0.5rem", textAlign: "left", fontSize: "0.7rem", color: "#991b1b", wordBreak: "break-word", maxHeight: "200px", overflow: "auto" }}>
+              <p><strong>Error:</strong> {error.message}</p>
+              {error.digest && <p><strong>Digest:</strong> {error.digest}</p>}
+              {error.stack && <p style={{ marginTop: "0.25rem", whiteSpace: "pre-wrap" }}>{error.stack.slice(0, 800)}</p>}
+            </div>
+          )}
+          <p style={{ fontSize: "0.75rem", color: "#94a3b8", marginTop: "0.5rem" }}>
+            Need help? Call <a href="tel:+13057280029" style={{ color: "#2563eb" }}>(305) 728-0029</a>
           </p>
         </div>
-      </Card>
+      </div>
     </div>
   )
 }

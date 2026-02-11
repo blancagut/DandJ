@@ -15,7 +15,7 @@ export async function signInWithPasswordAction(formData: FormData) {
   let supabase
 
   try {
-    supabase = getSupabaseServerClient()
+    supabase = await getSupabaseServerClient()
   } catch (e) {
     const message = e instanceof Error ? e.message : "Missing Supabase config"
     redirect(`/login?error=${encodeURIComponent(message)}&redirect=${encodeURIComponent(redirectTo)}`)
@@ -31,7 +31,7 @@ export async function signInWithPasswordAction(formData: FormData) {
 }
 
 export async function signOutAction() {
-  const supabase = getSupabaseServerClient()
+  const supabase = await getSupabaseServerClient()
   await supabase.auth.signOut()
   redirect("/login")
 }

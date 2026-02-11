@@ -14,7 +14,7 @@ import {
 export type { WorkItem, WorkItemStatus }
 
 async function requireAdmin() {
-  const supabase = getSupabaseServerClient()
+  const supabase = await getSupabaseServerClient()
   const {
     data: { user },
   } = await supabase.auth.getUser()

@@ -7,6 +7,21 @@ const nextConfig = {
     unoptimized: true,
   },
 
+  // Prevent stale cached versions on mobile browsers
+  async headers() {
+    return [
+      {
+        source: "/:path*",
+        headers: [
+          {
+            key: "Cache-Control",
+            value: "public, max-age=0, must-revalidate",
+          },
+        ],
+      },
+    ]
+  },
+
   // URLs cortas con rewrites (no cambia la URL visible)
   async rewrites() {
     return [

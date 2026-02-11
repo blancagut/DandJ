@@ -54,6 +54,13 @@ export function ContactSection() {
         message: "",
         website: "",
       })
+    } catch (err) {
+      console.error("[Contact] Submit error:", err)
+      setSubmitError(
+        language === "es"
+          ? "Error de conexión. Por favor intente de nuevo."
+          : "Connection error. Please try again."
+      )
     } finally {
       setIsSubmitting(false)
     }
