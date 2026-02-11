@@ -281,27 +281,29 @@ export function WaiverWizard() {
   // Data persistence
   useEffect(() => {
     if (typeof window !== "undefined") {
-        const saved = localStorage.getItem("waiver-wizard-data")
-        if (saved) {
-            try {
-                const parsed = JSON.parse(saved)
-                // Merge with defaults to prevent undefined array fields from stale localStorage
-                setFormData({ ...initialFormData, ...parsed,
-                  offenseCategories: Array.isArray(parsed.offenseCategories) ? parsed.offenseCategories : [],
-                  relatives: Array.isArray(parsed.relatives) ? parsed.relatives : [],
-                  hardships: Array.isArray(parsed.hardships) ? parsed.hardships : [],
-                })
-            } catch (e) {
-                console.error("Failed to load saved waiver data", e)
-            }
-        }
+        try {
+          const saved = localStorage.getItem("waiver-wizard-data")
+          if (saved) {
+              try {
+                  const parsed = JSON.parse(saved)
+                  // Merge with defaults to prevent undefined array fields from stale localStorage
+                  setFormData({ ...initialFormData, ...parsed,
+                    offenseCategories: Array.isArray(parsed.offenseCategories) ? parsed.offenseCategories : [],
+                    relatives: Array.isArray(parsed.relatives) ? parsed.relatives : [],
+                    hardships: Array.isArray(parsed.hardships) ? parsed.hardships : [],
+                  })
+              } catch (e) {
+                  console.error("Failed to load saved waiver data", e)
+              }
+          }
+        } catch { /* localStorage unavailable */ }
         setIsLoaded(true)
     }
   }, [])
 
   useEffect(() => {
     if (isLoaded && typeof window !== "undefined") {
-        localStorage.setItem("waiver-wizard-data", JSON.stringify(formData))
+        try { localStorage.setItem("waiver-wizard-data", JSON.stringify(formData)) } catch { /* localStorage unavailable */ }
     }
   }, [formData, isLoaded])
 

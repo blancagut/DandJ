@@ -22,10 +22,12 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
 
   // After mount, read the actual stored language
   useEffect(() => {
-    const stored = localStorage.getItem(LANGUAGE_STORAGE_KEY)
-    if (stored === "es") {
-      setLanguageState("es")
-    }
+    try {
+      const stored = localStorage.getItem(LANGUAGE_STORAGE_KEY)
+      if (stored === "es") {
+        setLanguageState("es")
+      }
+    } catch { /* localStorage unavailable */ }
     setMounted(true)
   }, [])
 
@@ -40,8 +42,10 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
     }
 
     const onCustom = () => {
-      const stored = localStorage.getItem(LANGUAGE_STORAGE_KEY)
-      setLanguageState(stored === "es" ? "es" : "en")
+      try {
+        const stored = localStorage.getItem(LANGUAGE_STORAGE_KEY)
+        setLanguageState(stored === "es" ? "es" : "en")
+      } catch { /* localStorage unavailable */ }
     }
 
     window.addEventListener("storage", onStorage)
@@ -53,7 +57,7 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
   }, [mounted])
 
   const setLanguage = useCallback((lang: Language) => {
-    localStorage.setItem(LANGUAGE_STORAGE_KEY, lang)
+    try { localStorage.setItem(LANGUAGE_STORAGE_KEY, lang) } catch { /* localStorage unavailable */ }
     setLanguageState(lang)
     window.dispatchEvent(new Event("language-change"))
   }, [])

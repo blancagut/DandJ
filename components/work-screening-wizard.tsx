@@ -291,20 +291,22 @@ export function WorkScreeningWizard() {
   // Data persistence
   useEffect(() => {
     if (typeof window !== "undefined") {
-      const saved = localStorage.getItem("work-screening-data")
-      if (saved) {
-        try {
-          const parsed = JSON.parse(saved)
-          setFormData({ ...initialFormData, ...parsed })
-        } catch { /* ignore */ }
-      }
+      try {
+        const saved = localStorage.getItem("work-screening-data")
+        if (saved) {
+          try {
+            const parsed = JSON.parse(saved)
+            setFormData({ ...initialFormData, ...parsed })
+          } catch { /* ignore */ }
+        }
+      } catch { /* localStorage unavailable */ }
       setIsLoaded(true)
     }
   }, [])
 
   useEffect(() => {
     if (isLoaded && typeof window !== "undefined") {
-      localStorage.setItem("work-screening-data", JSON.stringify(formData))
+      try { localStorage.setItem("work-screening-data", JSON.stringify(formData)) } catch { /* localStorage unavailable */ }
     }
   }, [formData, isLoaded])
 

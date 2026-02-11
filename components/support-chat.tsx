@@ -17,12 +17,16 @@ type ChatStatus = "idle" | "loading" | "ready" | "error"
 function getVisitorId(): string {
   if (typeof window === "undefined") return ""
   
-  let id = localStorage.getItem("chat_visitor_id")
-  if (!id) {
-    id = "v_" + Math.random().toString(36).substring(2, 15) + Date.now().toString(36)
-    localStorage.setItem("chat_visitor_id", id)
+  try {
+    let id = localStorage.getItem("chat_visitor_id")
+    if (!id) {
+      id = "v_" + Math.random().toString(36).substring(2, 15) + Date.now().toString(36)
+      localStorage.setItem("chat_visitor_id", id)
+    }
+    return id
+  } catch {
+    return "v_" + Math.random().toString(36).substring(2, 15) + Date.now().toString(36)
   }
-  return id
 }
 
 export function SupportChat() {

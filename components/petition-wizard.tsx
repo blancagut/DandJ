@@ -102,25 +102,27 @@ export function PetitionWizard() {
 
   // Data persistence
   useEffect(() => {
-    const saved = localStorage.getItem("petition-wizard-data")
-    if (saved) {
-      try {
-        const parsed = JSON.parse(saved)
-        // Merge with defaults to prevent undefined array fields from stale localStorage
-        setFormData({ ...initialPetitionFormData, ...parsed,
-          offenseTypes: Array.isArray(parsed.offenseTypes) ? parsed.offenseTypes : [],
-          evidenceOfRelationship: Array.isArray(parsed.evidenceOfRelationship) ? parsed.evidenceOfRelationship : [],
-        })
-      } catch (e) {
-        console.error("Failed to load saved petition data", e)
+    try {
+      const saved = localStorage.getItem("petition-wizard-data")
+      if (saved) {
+        try {
+          const parsed = JSON.parse(saved)
+          // Merge with defaults to prevent undefined array fields from stale localStorage
+          setFormData({ ...initialPetitionFormData, ...parsed,
+            offenseTypes: Array.isArray(parsed.offenseTypes) ? parsed.offenseTypes : [],
+            evidenceOfRelationship: Array.isArray(parsed.evidenceOfRelationship) ? parsed.evidenceOfRelationship : [],
+          })
+        } catch (e) {
+          console.error("Failed to load saved petition data", e)
+        }
       }
-    }
+    } catch { /* localStorage unavailable */ }
     setIsLoaded(true)
   }, [])
 
   useEffect(() => {
     if (isLoaded && typeof window !== "undefined") {
-      localStorage.setItem("petition-wizard-data", JSON.stringify(formData))
+      try { localStorage.setItem("petition-wizard-data", JSON.stringify(formData)) } catch { /* localStorage unavailable */ }
     }
   }, [formData, isLoaded])
 
