@@ -174,7 +174,11 @@ export function TasksTab() {
     if (!deleteConfirm) return
     try {
       const supabase = getSupabaseBrowserClient()
-      await supabase.from("work_items").delete().eq("id", deleteConfirm)
+      const { error: e } = await supabase.from("work_items").delete().eq("id", deleteConfirm)
+      if (e) { alert("Error deleting: " + e.message); setDeleteConfirm(null); return }
+      // Verify deletion actually happened (RLS may silently block)
+      const { data: check } = await supabase.from("work_items").select("id").eq("id", deleteConfirm).maybeSingle()
+      if (check) { alert("Delete failed — check database permissions (RLS policies). Run the add-delete-policies.sql migration in Supabase SQL Editor."); setDeleteConfirm(null); return }
       setItems(items.filter((i) => i.id !== deleteConfirm))
     } catch {}
     setDeleteConfirm(null)

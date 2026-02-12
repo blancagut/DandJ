@@ -163,8 +163,13 @@ export function ChatTab({ adminEmail }: ChatTabProps) {
     try {
       const supabase = getSupabaseBrowserClient()
       // Delete messages first, then conversation
-      await supabase.from("chat_messages").delete().eq("conversation_id", convId)
-      await supabase.from("chat_conversations").delete().eq("id", convId)
+      const { error: msgErr } = await supabase.from("chat_messages").delete().eq("conversation_id", convId)
+      if (msgErr) { alert("Error deleting messages: " + msgErr.message); setDeleteConfirm(null); return }
+      const { error: convErr } = await supabase.from("chat_conversations").delete().eq("id", convId)
+      if (convErr) { alert("Error deleting conversation: " + convErr.message); setDeleteConfirm(null); return }
+      // Verify deletion actually happened (RLS may silently block)
+      const { data: check } = await supabase.from("chat_conversations").select("id").eq("id", convId).maybeSingle()
+      if (check) { alert("Delete failed — check database permissions (RLS policies). Run the add-delete-policies.sql migration in Supabase SQL Editor."); setDeleteConfirm(null); return }
       setConversations((prev) => prev.filter((c) => c.id !== convId))
       if (selectedConvId === convId) { setSelectedConvId(null); setMessages([]) }
     } catch {}

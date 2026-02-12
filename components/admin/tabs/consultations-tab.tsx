@@ -310,7 +310,10 @@ export function ConsultationsTab() {
     const supabase = getSupabaseBrowserClient()
     // @ts-expect-error - No generated types
     const { error: e } = await supabase.from("consultation_requests").delete().eq("id", id)
-    if (e) { alert("Error: " + e.message); return }
+    if (e) { alert("Error deleting: " + e.message); return }
+    // Verify deletion actually happened (RLS may silently block)
+    const { data: check } = await supabase.from("consultation_requests").select("id").eq("id", id).maybeSingle()
+    if (check) { alert("Delete failed — check database permissions (RLS policies). Run the add-delete-policies.sql migration in Supabase SQL Editor."); return }
     setData((prev) => prev.filter((r) => r.id !== id))
   }
 
@@ -318,7 +321,10 @@ export function ConsultationsTab() {
     const supabase = getSupabaseBrowserClient()
     // @ts-expect-error - No generated types
     const { error: e } = await supabase.from("consultation_requests").delete().in("id", ids)
-    if (e) { alert("Error: " + e.message); return }
+    if (e) { alert("Error deleting: " + e.message); return }
+    // Verify deletion actually happened (RLS may silently block)
+    const { data: check } = await supabase.from("consultation_requests").select("id").in("id", ids)
+    if (check && check.length > 0) { alert("Some deletes failed — check database permissions (RLS policies). Run the add-delete-policies.sql migration in Supabase SQL Editor."); return }
     setData((prev) => prev.filter((r) => !ids.includes(r.id)))
   }
 

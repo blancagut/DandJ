@@ -186,14 +186,20 @@ export function ContactsTab() {
   const handleDelete = async (id: string) => {
     const supabase = getSupabaseBrowserClient()
     const { error: e } = await supabase.from("leads").delete().eq("id", id)
-    if (e) { alert("Error: " + e.message); return }
+    if (e) { alert("Error deleting: " + e.message); return }
+    // Verify deletion actually happened (RLS may silently block)
+    const { data: check } = await supabase.from("leads").select("id").eq("id", id).maybeSingle()
+    if (check) { alert("Delete failed — check database permissions (RLS policies). Run the add-delete-policies.sql migration in Supabase SQL Editor."); return }
     setData((prev) => prev.filter((r) => r.id !== id))
   }
 
   const handleBulkDelete = async (ids: string[]) => {
     const supabase = getSupabaseBrowserClient()
     const { error: e } = await supabase.from("leads").delete().in("id", ids)
-    if (e) { alert("Error: " + e.message); return }
+    if (e) { alert("Error deleting: " + e.message); return }
+    // Verify deletion actually happened (RLS may silently block)
+    const { data: check } = await supabase.from("leads").select("id").in("id", ids)
+    if (check && check.length > 0) { alert("Some deletes failed — check database permissions (RLS policies). Run the add-delete-policies.sql migration in Supabase SQL Editor."); return }
     setData((prev) => prev.filter((r) => !ids.includes(r.id)))
   }
 
