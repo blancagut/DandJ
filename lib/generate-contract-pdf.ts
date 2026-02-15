@@ -37,43 +37,53 @@ function drawCarlosDiazSignature(
   w: number,
   h: number
 ) {
-  // New SVG viewbox: 600 x 300
-  const sx = w / 600
-  const sy = h / 300
+  // Matches SVG viewBox: 800 x 780
+  const sx = w / 800
+  const sy = h / 780
   const tx = (px: number) => x + px * sx
   const ty = (py: number) => y + py * sy
 
-  doc.setDrawColor(17, 24, 39) // #111827
+  doc.setDrawColor(26, 26, 46) // #1a1a2e
   doc.setLineCap(1) // round
   doc.setLineJoin(1) // round
 
-  // C + start of name
+  // Outer C sweep — bold oval loop
+  doc.setLineWidth(1.0)
+  doc.moveTo(tx(590), ty(110))
+  doc.curveTo(tx(460), ty(25), tx(200), ty(5), tx(70), ty(170))
+  doc.curveTo(tx(15), ty(270), tx(10), ty(430), tx(120), ty(530))
+  doc.curveTo(tx(210), ty(610), tx(400), ty(520), tx(470), ty(385))
+  doc.stroke()
+
+  // Inner C crossover
+  doc.setLineWidth(0.45)
+  doc.moveTo(tx(555), ty(145))
+  doc.curveTo(tx(445), ty(70), tx(245), ty(50), tx(140), ty(190))
+  doc.curveTo(tx(65), ty(285), tx(60), ty(410), tx(145), ty(490))
+  doc.curveTo(tx(220), ty(555), tx(375), ty(495), tx(440), ty(400))
+  doc.stroke()
+
+  // Zigzag cursive strokes
+  doc.setLineWidth(0.75)
+  doc.moveTo(tx(470), ty(385))
+  doc.curveTo(tx(460), ty(435), tx(445), ty(500), tx(452), ty(530))
+  doc.curveTo(tx(460), ty(490), tx(478), ty(430), tx(486), ty(418))
+  doc.curveTo(tx(492), ty(460), tx(498), ty(520), tx(508), ty(548))
+  doc.curveTo(tx(516), ty(510), tx(528), ty(455), tx(536), ty(435))
+  doc.curveTo(tx(542), ty(472), tx(552), ty(530), tx(562), ty(560))
+  doc.stroke()
+
+  // Long diagonal underline
   doc.setLineWidth(0.6)
-  doc.moveTo(tx(120), ty(100))
-  doc.curveTo(tx(60), ty(60), tx(30), ty(180), tx(110), ty(200))
-  doc.curveTo(tx(130), ty(205), tx(150), ty(170), tx(170), ty(180))
-  doc.curveTo(tx(180), ty(185), tx(190), ty(175), tx(200), ty(180))
-  doc.curveTo(tx(210), ty(190), tx(215), ty(130), tx(225), ty(210))
-  doc.curveTo(tx(235), ty(220), tx(250), ty(190), tx(260), ty(200))
+  doc.moveTo(tx(450), ty(415))
+  doc.curveTo(tx(510), ty(475), tx(600), ty(580), tx(720), ty(715))
   doc.stroke()
 
-  // D Stem
-  doc.setLineWidth(0.7)
-  doc.moveTo(tx(320), ty(80))
-  doc.lineTo(tx(310), ty(210))
-  doc.stroke()
-
-  // D Loop
-  doc.setLineWidth(0.6)
-  doc.moveTo(tx(310), ty(90))
-  doc.curveTo(tx(400), ty(60), tx(440), ty(230), tx(310), ty(210))
-  doc.stroke()
-
-  // iaz + Underscore
-  doc.setLineWidth(0.5)
-  doc.moveTo(tx(450), ty(200))
-  doc.curveTo(tx(470), ty(200), tx(480), ty(190), tx(490), ty(195))
-  doc.curveTo(tx(500), ty(200), tx(520), ty(230), tx(350), ty(240))
+  // End flourish
+  doc.setLineWidth(0.35)
+  doc.moveTo(tx(720), ty(715))
+  doc.curveTo(tx(730), ty(708), tx(738), ty(714), tx(746), ty(708))
+  doc.curveTo(tx(753), ty(704), tx(760), ty(708), tx(768), ty(706))
   doc.stroke()
 }
 

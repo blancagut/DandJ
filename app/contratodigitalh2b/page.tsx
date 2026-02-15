@@ -106,29 +106,34 @@ function GoldDivider() {
   )
 }
 
-/* ── Carlos Díaz real signature (traced from original) ── */
+/* ── Carlos Díaz real signature (traced from original image) ── */
 function CarlosDiazSignature({ className }: { className?: string }) {
   return (
-    <svg viewBox="0 0 600 300" fill="none" xmlns="http://www.w3.org/2000/svg" className={className}>
-      {/* C + start of name - Fluid stroke */}
+    <svg viewBox="0 0 800 780" fill="none" xmlns="http://www.w3.org/2000/svg" className={className}>
+      {/* Outer C sweep — large bold oval loop, heavy pressure */}
       <path
-        d="M 120 100 C 60 60 30 180 110 200 C 130 205 150 170 170 180 C 180 185 190 175 200 180 C 210 190 215 130 225 210 C 235 220 250 190 260 200"
-        stroke="#111827" strokeWidth="6" strokeLinecap="round" strokeLinejoin="round"
+        d="M 590,110 C 460,25 200,5 70,170 C 15,270 10,430 120,530 C 210,610 400,520 470,385"
+        stroke="#1a1a2e" strokeWidth="16" strokeLinecap="round" strokeLinejoin="round"
       />
-      {/* D Stem - Strong vertical */}
+      {/* Inner C crossover — visible where the top stroke overlaps the return */}
       <path
-        d="M 320 80 L 310 210"
-        stroke="#111827" strokeWidth="7" strokeLinecap="round" strokeLinejoin="round"
+        d="M 555,145 C 445,70 245,50 140,190 C 65,285 60,410 145,490 C 220,555 375,495 440,400"
+        stroke="#1a1a2e" strokeWidth="7" strokeLinecap="round" strokeLinejoin="round" opacity="0.55"
       />
-      {/* D Loop - Expressive curve */}
+      {/* Zigzag cursive strokes — rapid angular arlos */}
       <path
-        d="M 310 90 C 400 60 440 230 310 210"
-        stroke="#111827" strokeWidth="6" strokeLinecap="round" strokeLinejoin="round"
+        d="M 470,385 C 460,435 445,500 452,530 C 460,490 478,430 486,418 C 492,460 498,520 508,548 C 516,510 528,455 536,435 C 542,472 552,530 562,560"
+        stroke="#1a1a2e" strokeWidth="12" strokeLinecap="round" strokeLinejoin="round"
       />
-      {/* iaz + Underscore flourish */}
+      {/* Long diagonal underline — sweeping to bottom-right */}
       <path
-        d="M 450 200 C 470 200 480 190 490 195 C 500 200 520 230 350 240"
-        stroke="#111827" strokeWidth="5" strokeLinecap="round" strokeLinejoin="round"
+        d="M 450,415 C 510,475 600,580 720,715"
+        stroke="#1a1a2e" strokeWidth="9" strokeLinecap="round"
+      />
+      {/* End flourish — light, tiny waves */}
+      <path
+        d="M 720,715 C 730,708 738,714 746,708 C 753,704 760,708 768,706"
+        stroke="#1a1a2e" strokeWidth="5" strokeLinecap="round"
       />
     </svg>
   )
