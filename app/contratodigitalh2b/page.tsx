@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useCallback, type ReactNode } from "react"
+import { useState, useCallback, useEffect, type ReactNode } from "react"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
 import { SignaturePad } from "@/components/signature-pad"
@@ -34,6 +34,7 @@ import {
   FileSignature,
 } from "lucide-react"
 import Link from "next/link"
+import Image from "next/image"
 import { generateContractPDF } from "@/lib/generate-contract-pdf"
 
 /* ── Design tokens ── */
@@ -106,36 +107,18 @@ function GoldDivider() {
   )
 }
 
-/* ── Carlos Díaz real signature (traced from original image) ── */
+/* ── Carlos Díaz real signature (actual image) ── */
 function CarlosDiazSignature({ className }: { className?: string }) {
   return (
-    <svg viewBox="0 0 800 780" fill="none" xmlns="http://www.w3.org/2000/svg" className={className}>
-      {/* Outer C sweep — large bold oval loop, heavy pressure */}
-      <path
-        d="M 590,110 C 460,25 200,5 70,170 C 15,270 10,430 120,530 C 210,610 400,520 470,385"
-        stroke="#1a1a2e" strokeWidth="16" strokeLinecap="round" strokeLinejoin="round"
-      />
-      {/* Inner C crossover — visible where the top stroke overlaps the return */}
-      <path
-        d="M 555,145 C 445,70 245,50 140,190 C 65,285 60,410 145,490 C 220,555 375,495 440,400"
-        stroke="#1a1a2e" strokeWidth="7" strokeLinecap="round" strokeLinejoin="round" opacity="0.55"
-      />
-      {/* Zigzag cursive strokes — rapid angular arlos */}
-      <path
-        d="M 470,385 C 460,435 445,500 452,530 C 460,490 478,430 486,418 C 492,460 498,520 508,548 C 516,510 528,455 536,435 C 542,472 552,530 562,560"
-        stroke="#1a1a2e" strokeWidth="12" strokeLinecap="round" strokeLinejoin="round"
-      />
-      {/* Long diagonal underline — sweeping to bottom-right */}
-      <path
-        d="M 450,415 C 510,475 600,580 720,715"
-        stroke="#1a1a2e" strokeWidth="9" strokeLinecap="round"
-      />
-      {/* End flourish — light, tiny waves */}
-      <path
-        d="M 720,715 C 730,708 738,714 746,708 C 753,704 760,708 768,706"
-        stroke="#1a1a2e" strokeWidth="5" strokeLinecap="round"
-      />
-    </svg>
+    <Image
+      src="/team/carlos-signature.jpg"
+      alt="Firma de Carlos Roberto Díaz"
+      width={280}
+      height={140}
+      className={className}
+      style={{ objectFit: "contain" }}
+      priority
+    />
   )
 }
 
@@ -160,8 +143,21 @@ export default function ContratoDigitalH2B() {
   const [contractId, setContractId] = useState("")
   const [signedAt, setSignedAt] = useState("")
   const [errorMsg, setErrorMsg] = useState("")
+  const [lawyerSigBase64, setLawyerSigBase64] = useState<string | null>(null)
 
   const lawyer = LAWYERS.find((l) => l.id === selectedLawyer)
+
+  // Load Carlos Díaz signature image as base64 for PDF
+  useEffect(() => {
+    fetch("/team/carlos-signature.jpg")
+      .then((r) => r.blob())
+      .then((blob) => {
+        const reader = new FileReader()
+        reader.onloadend = () => setLawyerSigBase64(reader.result as string)
+        reader.readAsDataURL(blob)
+      })
+      .catch(() => {})
+  }, [])
 
   const isFormValid =
     clientName.trim().length >= 2 &&
@@ -217,9 +213,10 @@ export default function ContratoDigitalH2B() {
       lawyerBarNumber: lawyer.barNumber, contractDay, contractMonth, contractYear, contractId,
       signedAt: signedAt || new Date().toISOString(),
       clientSignature,
+      lawyerSignature: selectedLawyer === "carlos-diaz" ? lawyerSigBase64 : null,
     })
     doc.save(`Contrato-H2B-${clientName.replace(/\s+/g, "-")}-${contractId.slice(0, 8)}.pdf`)
-  }, [clientName, clientDob, clientPassport, clientCountry, clientCity, clientEmail, clientPhone, lawyer, contractDay, contractMonth, contractYear, contractId, signedAt, clientSignature])
+  }, [clientName, clientDob, clientPassport, clientCountry, clientCity, clientEmail, clientPhone, lawyer, contractDay, contractMonth, contractYear, contractId, signedAt, clientSignature, selectedLawyer, lawyerSigBase64])
 
   /* ═════════════════════════════════════════════════ */
   /*  SUCCESS SCREEN                                  */
