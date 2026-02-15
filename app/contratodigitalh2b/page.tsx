@@ -73,6 +73,68 @@ function Blank({
   )
 }
 
+/* ── Date input with DD/MM/YYYY auto-formatting ── */
+function DateInput({
+  value,
+  onChange,
+  placeholder = "DD/MM/AAAA",
+  w = "min-w-[155px]",
+}: {
+  value: string
+  onChange: (v: string) => void
+  placeholder?: string
+  w?: string
+}) {
+  // Display value is DD/MM/YYYY, stored value is YYYY-MM-DD for consistency
+  const [displayValue, setDisplayValue] = useState(() => {
+    if (value && value.includes("-")) {
+      const [y, m, d] = value.split("-")
+      return `${d}/${m}/${y}`
+    }
+    return value || ""
+  })
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    let raw = e.target.value.replace(/[^0-9]/g, "")
+    // Limit to 8 digits
+    if (raw.length > 8) raw = raw.slice(0, 8)
+    // Auto-insert slashes
+    let formatted = ""
+    if (raw.length > 0) formatted = raw.slice(0, 2)
+    if (raw.length > 2) formatted += "/" + raw.slice(2, 4)
+    if (raw.length > 4) formatted += "/" + raw.slice(4, 8)
+    setDisplayValue(formatted)
+    // Convert to YYYY-MM-DD when complete
+    if (raw.length === 8) {
+      const dd = raw.slice(0, 2)
+      const mm = raw.slice(2, 4)
+      const yyyy = raw.slice(4, 8)
+      const day = parseInt(dd, 10)
+      const month = parseInt(mm, 10)
+      const year = parseInt(yyyy, 10)
+      if (day >= 1 && day <= 31 && month >= 1 && month <= 12 && year >= 1900 && year <= 2025) {
+        onChange(`${yyyy}-${mm}-${dd}`)
+      } else {
+        onChange("")
+      }
+    } else {
+      onChange("")
+    }
+  }
+
+  return (
+    <input
+      type="text"
+      inputMode="numeric"
+      value={displayValue}
+      onChange={handleChange}
+      placeholder={placeholder}
+      maxLength={10}
+      className={`inline-block border-b-2 border-[${NAVY}]/30 bg-[#f0f3fa] focus:border-[${GOLD}] focus:bg-white outline-none px-2 py-0.5 text-[${NAVY}] font-semibold ${w} max-w-full rounded-sm transition-all text-[15px] font-[family-name:var(--font-playfair)]`}
+    />
+  )
+}
+
 /* ── Clause section heading with icon badge ── */
 function ClauseHeading({ num, title, icon }: { num: string; title: string; icon: ReactNode }) {
   return (
@@ -399,8 +461,8 @@ export default function ContratoDigitalH2B() {
               <div className="flex flex-wrap gap-x-3 gap-y-2 items-baseline">
                 <Blank value={clientName} onChange={setClientName} placeholder="Nombre completo" w="w-full sm:min-w-[220px] sm:w-auto" />
                 <div className="w-full sm:w-auto">
-                  <span className="block text-xs text-gray-400 uppercase tracking-wide mb-0.5 sm:hidden">Fecha de nacimiento</span>
-                  <Blank value={clientDob} onChange={setClientDob} placeholder="Fecha nacimiento" type="date" w="w-full sm:min-w-[155px] sm:w-auto" />
+                  <span className="block text-xs text-gray-400 uppercase tracking-wide mb-0.5">Fecha de nacimiento</span>
+                  <DateInput value={clientDob} onChange={setClientDob} placeholder="DD/MM/AAAA" w="w-full sm:min-w-[155px] sm:w-auto" />
                 </div>
               </div>
               <p className="text-left">PORTADOR(A) DEL PASAPORTE</p>
