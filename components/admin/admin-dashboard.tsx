@@ -17,6 +17,8 @@ import {
   CheckSquare,
   Bell,
   LogOut,
+  Scale,
+  Send,
 } from "lucide-react"
 
 import { ConsultationsTab } from "./tabs/consultations-tab"
@@ -26,6 +28,8 @@ import { WaiversTab } from "./tabs/waivers-tab"
 import { WorkVisasTab } from "./tabs/work-visas-tab"
 import { ChatTab } from "./tabs/chat-tab"
 import { TasksTab } from "./tabs/tasks-tab"
+import { ContractsTab } from "./tabs/contracts-tab"
+import { EmailTab } from "./tabs/email-tab"
 
 interface AdminDashboardProps {
   user: User
@@ -40,6 +44,7 @@ type TabCounts = {
   workVisas: number
   chat: number
   tasks: number
+  contracts: number
 }
 
 export function AdminDashboard({ user, onSignOut }: AdminDashboardProps) {
@@ -51,12 +56,13 @@ export function AdminDashboard({ user, onSignOut }: AdminDashboardProps) {
     workVisas: 0,
     chat: 0,
     tasks: 0,
+    contracts: 0,
   })
   const [unreadNotifications, setUnreadNotifications] = useState(0)
 
   const loadCounts = useCallback(async () => {
     const supabase = getSupabaseBrowserClient()
-    const [c1, c2, c3, c4, c5, c6, c7] = await Promise.all([
+    const [c1, c2, c3, c4, c5, c6, c7, c8] = await Promise.all([
       supabase.from("consultation_requests").select("id", { count: "exact", head: true }),
       supabase.from("leads").select("id", { count: "exact", head: true }),
       supabase.from("petition_screenings").select("id", { count: "exact", head: true }),
@@ -64,6 +70,7 @@ export function AdminDashboard({ user, onSignOut }: AdminDashboardProps) {
       supabase.from("work_screenings").select("id", { count: "exact", head: true }),
       supabase.from("chat_conversations").select("id", { count: "exact", head: true }),
       supabase.from("work_items").select("id", { count: "exact", head: true }).neq("status", "done"),
+      supabase.from("h2b_contracts").select("id", { count: "exact", head: true }),
     ])
     setCounts({
       consultations: c1.count ?? 0,
@@ -73,6 +80,7 @@ export function AdminDashboard({ user, onSignOut }: AdminDashboardProps) {
       workVisas: c5.count ?? 0,
       chat: c6.count ?? 0,
       tasks: c7.count ?? 0,
+      contracts: c8.count ?? 0,
     })
   }, [])
 
@@ -88,6 +96,7 @@ export function AdminDashboard({ user, onSignOut }: AdminDashboardProps) {
       "waiver_screenings",
       "work_screenings",
       "chat_conversations",
+      "h2b_contracts",
     ]
 
     const channel = supabase
@@ -116,6 +125,10 @@ export function AdminDashboard({ user, onSignOut }: AdminDashboardProps) {
         setUnreadNotifications((n) => n + 1)
         loadCounts()
       })
+      .on("postgres_changes", { event: "INSERT", schema: "public", table: tables[6] }, () => {
+        setUnreadNotifications((n) => n + 1)
+        loadCounts()
+      })
       .subscribe()
 
     return () => {
@@ -131,6 +144,8 @@ export function AdminDashboard({ user, onSignOut }: AdminDashboardProps) {
     { value: "work-visas", label: "Work Visas", icon: Briefcase, count: counts.workVisas },
     { value: "chat", label: "Chat", icon: MessageSquare, count: counts.chat },
     { value: "tasks", label: "Tasks", icon: CheckSquare, count: counts.tasks },
+    { value: "contracts", label: "Contracts", icon: Scale, count: counts.contracts },
+    { value: "email", label: "Email", icon: Send },
   ]
 
   return (
@@ -175,9 +190,11 @@ export function AdminDashboard({ user, onSignOut }: AdminDashboardProps) {
               >
                 <tab.icon className="h-4 w-4" />
                 <span className="hidden sm:inline">{tab.label}</span>
-                <Badge variant="secondary" className="ml-1 text-[10px] px-1.5 py-0">
-                  {tab.count}
-                </Badge>
+                {"count" in tab && (
+                  <Badge variant="secondary" className="ml-1 text-[10px] px-1.5 py-0">
+                    {tab.count}
+                  </Badge>
+                )}
               </TabsTrigger>
             ))}
           </TabsList>
@@ -235,6 +252,22 @@ export function AdminDashboard({ user, onSignOut }: AdminDashboardProps) {
               <Card>
                 <CardContent className="p-4">
                   <TasksTab />
+                </CardContent>
+              </Card>
+            </TabsContent>
+
+            <TabsContent value="contracts">
+              <Card>
+                <CardContent className="p-4">
+                  <ContractsTab />
+                </CardContent>
+              </Card>
+            </TabsContent>
+
+            <TabsContent value="email">
+              <Card>
+                <CardContent className="p-4">
+                  <EmailTab />
                 </CardContent>
               </Card>
             </TabsContent>

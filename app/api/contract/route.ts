@@ -81,6 +81,8 @@ export async function POST(request: NextRequest) {
       success: true,
       contractId: data.id,
       signedAt: data.signed_at,
+      ipAddress: ip,
+      userAgent: userAgent,
       message: "Contrato firmado exitosamente / Contract signed successfully",
     })
   } catch (err) {

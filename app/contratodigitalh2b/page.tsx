@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useCallback, type ReactNode } from "react"
+import { useState, useCallback, useEffect, useRef, type ReactNode } from "react"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
 import { SignaturePad } from "@/components/signature-pad"
@@ -143,6 +143,11 @@ export default function ContratoDigitalH2B() {
   const [contractId, setContractId] = useState("")
   const [signedAt, setSignedAt] = useState("")
   const [errorMsg, setErrorMsg] = useState("")
+  const [ipAddress, setIpAddress] = useState("")
+  const [userAgent, setUserAgent] = useState("")
+  const [emailSent, setEmailSent] = useState(false)
+  const [pdfDownloaded, setPdfDownloaded] = useState(false)
+  const autoDownloadTriggered = useRef(false)
 
   const lawyer = LAWYERS.find((l) => l.id === selectedLawyer)
 
@@ -185,6 +190,8 @@ export default function ContratoDigitalH2B() {
       if (!res.ok) { setErrorMsg(data.error || "Error"); setStatus("error"); return }
       setContractId(data.contractId)
       setSignedAt(data.signedAt || new Date().toISOString())
+      setIpAddress(data.ipAddress || "")
+      setUserAgent(data.userAgent || "")
       setStatus("success")
     } catch {
       setErrorMsg("Error de conexión. Intente de nuevo.")
@@ -192,17 +199,68 @@ export default function ContratoDigitalH2B() {
     }
   }
 
-  const handleDownloadPDF = useCallback(async () => {
-    if (!clientSignature || !lawyer) return
-    const doc = await generateContractPDF({
+  const buildPDFData = useCallback(() => {
+    if (!clientSignature || !lawyer) return null
+    return {
       clientName, clientDob, clientPassport, clientCountry, clientCity,
       clientEmail, clientPhone, lawyerName: lawyer.name,
       lawyerBarNumber: lawyer.barNumber, contractDay, contractMonth, contractYear, contractId,
       signedAt: signedAt || new Date().toISOString(),
       clientSignature,
-    })
-    doc.save(`Contrato-H2B-${clientName.replace(/\s+/g, "-")}-${contractId.slice(0, 8)}.pdf`)
-  }, [clientName, clientDob, clientPassport, clientCountry, clientCity, clientEmail, clientPhone, lawyer, contractDay, contractMonth, contractYear, contractId, signedAt, clientSignature])
+      ipAddress: ipAddress || undefined,
+      userAgent: userAgent || undefined,
+    }
+  }, [clientName, clientDob, clientPassport, clientCountry, clientCity, clientEmail, clientPhone, lawyer, contractDay, contractMonth, contractYear, contractId, signedAt, clientSignature, ipAddress, userAgent])
+
+  const handleDownloadPDF = useCallback(async () => {
+    const pdfData = buildPDFData()
+    if (!pdfData) return
+    await generateContractPDF(pdfData)
+    setPdfDownloaded(true)
+  }, [buildPDFData])
+
+  // Auto-download PDF and send email on success
+  useEffect(() => {
+    if (status !== "success" || autoDownloadTriggered.current) return
+    autoDownloadTriggered.current = true
+
+    const run = async () => {
+      const pdfData = buildPDFData()
+      if (!pdfData) return
+
+      try {
+        const result = await generateContractPDF(pdfData)
+        setPdfDownloaded(true)
+
+        // Convert blob to base64 for email
+        const reader = new FileReader()
+        reader.onloadend = async () => {
+          const base64 = (reader.result as string).split(",")[1]
+          try {
+            await fetch("/api/contract/email", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                contractId,
+                clientEmail: pdfData.clientEmail,
+                clientName: pdfData.clientName,
+                lawyerName: pdfData.lawyerName,
+                signedAt: pdfData.signedAt,
+                pdfBase64: base64,
+              }),
+            })
+            setEmailSent(true)
+          } catch {
+            console.error("Failed to send contract email")
+          }
+        }
+        reader.readAsDataURL(result.blob)
+      } catch (err) {
+        console.error("Auto-download failed:", err)
+      }
+    }
+    run()
+  }, [status, buildPDFData, contractId])
 
   /* ═════════════════════════════════════════════════ */
   /*  SUCCESS SCREEN                                  */
@@ -233,10 +291,14 @@ export default function ContratoDigitalH2B() {
                 <p className="text-gray-700"><span className="text-gray-400 text-xs uppercase tracking-wide">Firmado</span><br /><strong>{new Date(signedAt).toLocaleString("es-ES")}</strong></p>
               </div>
             </div>
-            <p className="text-xs text-gray-500">Una copia será enviada a <strong>{clientEmail}</strong>.</p>
+            {emailSent ? (
+              <p className="text-xs text-green-600 flex items-center justify-center gap-1"><CheckCircle2 className="w-3 h-3" /> Copia enviada a <strong>{clientEmail}</strong></p>
+            ) : (
+              <p className="text-xs text-gray-500">Enviando copia a <strong>{clientEmail}</strong>...</p>
+            )}
             <div className="flex flex-col sm:flex-row gap-3 justify-center pt-2">
               <Button onClick={handleDownloadPDF} className="gap-2 shadow-lg" style={{ background: GOLD }} size="lg">
-                <Download className="w-4 h-4" /> Descargar Contrato PDF
+                <Download className="w-4 h-4" /> {pdfDownloaded ? "Descargar de Nuevo" : "Descargando..."}
               </Button>
               <Link href="/"><Button variant="outline">Volver al Inicio</Button></Link>
             </div>
