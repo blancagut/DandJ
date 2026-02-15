@@ -27,12 +27,16 @@ export function SignaturePad({
     const ctx = canvas.getContext("2d")
     if (!ctx) return
 
+    // Use the container width if it's smaller than the requested width
+    const container = canvas.parentElement
+    const effectiveWidth = container ? Math.min(width, container.clientWidth) : width
+
     // Set up canvas for high-DPI displays
     const dpr = window.devicePixelRatio || 1
-    canvas.width = width * dpr
+    canvas.width = effectiveWidth * dpr
     canvas.height = height * dpr
     ctx.scale(dpr, dpr)
-    canvas.style.width = `${width}px`
+    canvas.style.width = `${effectiveWidth}px`
     canvas.style.height = `${height}px`
 
     // Set drawing style
@@ -46,7 +50,7 @@ export function SignaturePad({
     ctx.strokeStyle = "#d1d5db"
     ctx.lineWidth = 1
     ctx.moveTo(20, height - 40)
-    ctx.lineTo(width - 20, height - 40)
+    ctx.lineTo(effectiveWidth - 20, height - 40)
     ctx.stroke()
 
     // Reset for drawing
@@ -125,8 +129,9 @@ export function SignaturePad({
     ctx.beginPath()
     ctx.strokeStyle = "#d1d5db"
     ctx.lineWidth = 1
+    const effectiveWidth = canvas.style.width ? parseInt(canvas.style.width) : width
     ctx.moveTo(20, height - 40)
-    ctx.lineTo(width - 20, height - 40)
+    ctx.lineTo(effectiveWidth - 20, height - 40)
     ctx.stroke()
 
     ctx.strokeStyle = "#1a1a2e"
@@ -142,7 +147,7 @@ export function SignaturePad({
       <div className="relative border-2 border-dashed border-gray-300 rounded-lg bg-white overflow-hidden">
         <canvas
           ref={canvasRef}
-          className="cursor-crosshair touch-none"
+          className="cursor-crosshair touch-none max-w-full"
           onMouseDown={startDrawing}
           onMouseMove={draw}
           onMouseUp={stopDrawing}

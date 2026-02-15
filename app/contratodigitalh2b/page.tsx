@@ -67,7 +67,7 @@ function Blank({
       value={value}
       onChange={(e) => onChange(e.target.value)}
       placeholder={placeholder}
-      className={`inline-block border-b-2 border-[${NAVY}]/30 bg-[#f0f3fa] focus:border-[${GOLD}] focus:bg-white outline-none px-2 py-0.5 text-[${NAVY}] font-semibold ${w} rounded-sm transition-all text-[15px] font-[family-name:var(--font-playfair)]`}
+      className={`inline-block border-b-2 border-[${NAVY}]/30 bg-[#f0f3fa] focus:border-[${GOLD}] focus:bg-white outline-none px-2 py-0.5 text-[${NAVY}] font-semibold ${w} max-w-full rounded-sm transition-all text-[15px] font-[family-name:var(--font-playfair)]`}
     />
   )
 }
@@ -75,16 +75,16 @@ function Blank({
 /* ── Clause section heading with icon badge ── */
 function ClauseHeading({ num, title, icon }: { num: string; title: string; icon: ReactNode }) {
   return (
-    <div className="flex items-center gap-3 mt-10 mb-3">
+    <div className="flex items-center gap-2 sm:gap-3 mt-8 sm:mt-10 mb-3">
       <div
-        className="shrink-0 w-10 h-10 rounded-full flex items-center justify-center shadow-sm"
+        className="shrink-0 w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center shadow-sm"
         style={{ background: `linear-gradient(135deg, ${NAVY}, ${NAVY}dd)` }}
       >
-        {icon}
+        <span className="[&>svg]:w-4 [&>svg]:h-4 sm:[&>svg]:w-5 sm:[&>svg]:h-5">{icon}</span>
       </div>
-      <div className="flex-1">
+      <div className="flex-1 min-w-0">
         <h3
-          className="font-bold text-base tracking-wide font-[family-name:var(--font-playfair)]"
+          className="font-bold text-sm sm:text-base tracking-wide font-[family-name:var(--font-playfair)] text-left"
           style={{ color: NAVY }}
         >
           {num} — {title}
@@ -284,7 +284,7 @@ export default function ContratoDigitalH2B() {
         <div className="bg-white rounded-2xl shadow-2xl border border-gray-200/80 overflow-hidden">
 
           {/* ── Letterhead ── */}
-          <div className="relative text-white px-8 md:px-14 py-10 text-center" style={{ background: `linear-gradient(160deg, ${NAVY}, #132d52)` }}>
+          <div className="relative text-white px-4 sm:px-8 md:px-14 py-8 sm:py-10 text-center" style={{ background: `linear-gradient(160deg, ${NAVY}, #132d52)` }}>
             {/* subtle pattern overlay */}
             <div className="absolute inset-0 opacity-[0.03]" style={{ backgroundImage: "url(\"data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23ffffff' fill-opacity='1'%3E%3Cpath d='M20 20h20v20H20zM0 0h20v20H0z'/%3E%3C/g%3E%3C/svg%3E\")" }} />
             <div className="relative">
@@ -303,13 +303,13 @@ export default function ContratoDigitalH2B() {
           <div className="h-1" style={{ background: `linear-gradient(to right, ${GOLD}, ${GOLD}88, ${GOLD})` }} />
 
           {/* ── CONTRACT BODY ── */}
-          <div className="px-8 md:px-14 py-12 font-[family-name:var(--font-playfair)] text-[15px] leading-[2] text-gray-800">
+          <div className="px-4 sm:px-8 md:px-14 py-8 sm:py-12 font-[family-name:var(--font-playfair)] text-[14px] sm:text-[15px] leading-relaxed sm:leading-[2] text-gray-800 text-justify">
 
             {/* Title block */}
             <div className="text-center mb-10">
               <p className="text-xs uppercase tracking-[0.25em] font-medium font-sans mb-3" style={{ color: GOLD }}>Contrato Electrónico &middot; Electronic Contract</p>
-              <h1 className="text-xl md:text-2xl font-bold mb-1" style={{ color: NAVY }}>CONTRATO DE PRESTACIÓN DE SERVICIOS LEGALES</h1>
-              <h2 className="text-lg font-semibold" style={{ color: `${NAVY}aa` }}>PARA TRÁMITE DE VISA H-2B</h2>
+              <h1 className="text-base sm:text-xl md:text-2xl font-bold mb-1" style={{ color: NAVY }}>CONTRATO DE PRESTACIÓN DE SERVICIOS LEGALES</h1>
+              <h2 className="text-sm sm:text-lg font-semibold" style={{ color: `${NAVY}aa` }}>PARA TRÁMITE DE VISA H-2B</h2>
               <div className="flex items-center justify-center gap-3 mt-4">
                 <div className="w-12 h-px" style={{ background: `${GOLD}66` }} />
                 <FileSignature className="w-4 h-4" style={{ color: GOLD }} />
@@ -319,16 +319,20 @@ export default function ContratoDigitalH2B() {
             </div>
 
             {/* ── Comparecencia ── */}
-            <p>En la ciudad de Miami, a los <Blank value={contractDay} onChange={setContractDay} placeholder="__" w="w-14 text-center" /> días del mes de{" "}
-              <Select value={contractMonth} onValueChange={setContractMonth}>
-                <SelectTrigger className="inline-flex w-auto min-w-[140px] border-b-2 bg-[#f0f3fa] rounded-none border-x-0 border-t-0 font-semibold shadow-none focus:ring-0 text-[15px] font-[family-name:var(--font-playfair)] align-baseline" style={{ borderColor: `${NAVY}40`, color: NAVY }}>
-                  <SelectValue placeholder="Mes" />
-                </SelectTrigger>
-                <SelectContent>
-                  {MONTHS.map((m) => (<SelectItem key={m} value={m}>{m}</SelectItem>))}
-                </SelectContent>
-              </Select>{" "}
-              del año <Blank value={contractYear} onChange={setContractYear} placeholder="Año" w="w-20 text-center" />, comparecen:</p>
+            <p className="text-left">En la ciudad de Miami, a los{" "}
+              <Blank value={contractDay} onChange={setContractDay} placeholder="__" w="w-14 text-center" />{" "}
+              días del mes de{" "}
+              <span className="inline-flex align-baseline">
+                <Select value={contractMonth} onValueChange={setContractMonth}>
+                  <SelectTrigger className="inline-flex w-auto min-w-[120px] sm:min-w-[140px] border-b-2 bg-[#f0f3fa] rounded-none border-x-0 border-t-0 font-semibold shadow-none focus:ring-0 text-[14px] sm:text-[15px] font-[family-name:var(--font-playfair)] h-auto py-0.5" style={{ borderColor: `${NAVY}40`, color: NAVY }}>
+                    <SelectValue placeholder="Mes" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {MONTHS.map((m) => (<SelectItem key={m} value={m}>{m}</SelectItem>))}
+                  </SelectContent>
+                </Select>
+              </span>{" "}
+              del año <Blank value={contractYear} onChange={setContractYear} placeholder="Año" w="w-16 sm:w-20 text-center" />, comparecen:</p>
 
             <p className="mt-4">De una parte, el estudio jurídico <strong style={{ color: NAVY }}>Díaz and Johnson Attorneys at Law PLLC</strong>, ubicado en 1680 Michigan Avenue, Suite 700, Miami Beach, Florida 33139, representado por el abogado</p>
 
@@ -345,18 +349,27 @@ export default function ContratoDigitalH2B() {
 
             <p>{lawyer ? (<>titular de la licencia profesional del Colegio de Abogados de Florida (Florida Bar) número <strong style={{ color: NAVY }}>{lawyer.barNumber}</strong></>) : <>titular de la licencia profesional del Colegio de Abogados de Florida (Florida Bar) número ______</>}, en adelante denominado &quot;EL ESTUDIO&quot;,</p>
 
-            <p className="mt-4">
-              Y <Blank value={clientName} onChange={setClientName} placeholder="Nombre completo" w="min-w-[240px]" />,{" "}
-              <Blank value={clientDob} onChange={setClientDob} placeholder="Fecha nacimiento" type="date" w="min-w-[155px]" />, PORTADOR(A) DEL PASAPORTE{" "}
-              <Blank value={clientPassport} onChange={setClientPassport} placeholder="Nº pasaporte" w="min-w-[150px]" />, NATURAL DE{" "}
-              <Blank value={clientCity} onChange={setClientCity} placeholder="Ciudad" w="min-w-[130px]" />{" "}
-              (<Blank value={clientCountry} onChange={setClientCountry} placeholder="País" w="min-w-[130px]" />){" "}
-              EN ADELANTE DENOMINADO &quot;EL CLIENTE&quot; (INDEPENDIENTEMENTE DEL GÉNERO).
-            </p>
+            <div className="mt-4 space-y-2">
+              <p className="text-left">Y</p>
+              <div className="flex flex-wrap gap-x-3 gap-y-2 items-baseline">
+                <Blank value={clientName} onChange={setClientName} placeholder="Nombre completo" w="w-full sm:min-w-[220px] sm:w-auto" />
+                <Blank value={clientDob} onChange={setClientDob} placeholder="Fecha nacimiento" type="date" w="w-full sm:min-w-[155px] sm:w-auto" />
+              </div>
+              <p className="text-left">PORTADOR(A) DEL PASAPORTE</p>
+              <div className="flex flex-wrap gap-x-3 gap-y-2 items-baseline">
+                <Blank value={clientPassport} onChange={setClientPassport} placeholder="Nº pasaporte" w="w-full sm:min-w-[150px] sm:w-auto" />
+              </div>
+              <p className="text-left">NATURAL DE</p>
+              <div className="flex flex-wrap gap-x-3 gap-y-2 items-baseline">
+                <Blank value={clientCity} onChange={setClientCity} placeholder="Ciudad" w="w-full sm:min-w-[130px] sm:w-auto" />
+                <Blank value={clientCountry} onChange={setClientCountry} placeholder="País" w="w-full sm:min-w-[130px] sm:w-auto" />
+              </div>
+              <p>EN ADELANTE DENOMINADO &quot;EL CLIENTE&quot; (INDEPENDIENTEMENTE DEL GÉNERO).</p>
+            </div>
 
-            <div className="mt-3 mb-4 flex flex-wrap gap-x-6 gap-y-2 text-sm font-sans">
-              <span className="flex items-center gap-1.5 text-gray-400"><Mail className="w-3.5 h-3.5" style={{ color: GOLD }} /><Blank value={clientEmail} onChange={setClientEmail} placeholder="Correo electrónico *" type="email" w="min-w-[220px]" /></span>
-              <span className="flex items-center gap-1.5 text-gray-400"><Phone className="w-3.5 h-3.5" style={{ color: GOLD }} /><Blank value={clientPhone} onChange={setClientPhone} placeholder="Teléfono (opcional)" type="tel" w="min-w-[170px]" /></span>
+            <div className="mt-3 mb-4 flex flex-col sm:flex-row flex-wrap gap-x-6 gap-y-2 text-sm font-sans">
+              <span className="flex items-center gap-1.5 text-gray-400 w-full sm:w-auto"><Mail className="w-3.5 h-3.5 shrink-0" style={{ color: GOLD }} /><Blank value={clientEmail} onChange={setClientEmail} placeholder="Correo electrónico *" type="email" w="w-full sm:min-w-[220px] sm:w-auto" /></span>
+              <span className="flex items-center gap-1.5 text-gray-400 w-full sm:w-auto"><Phone className="w-3.5 h-3.5 shrink-0" style={{ color: GOLD }} /><Blank value={clientPhone} onChange={setClientPhone} placeholder="Teléfono (opcional)" type="tel" w="w-full sm:min-w-[170px] sm:w-auto" /></span>
             </div>
 
             <p>Ambas partes, reconociéndose mutuamente capacidad legal suficiente para contratar, acuerdan celebrar el presente Contrato de Prestación de Servicios Legales, conforme a las siguientes cláusulas:</p>
@@ -459,15 +472,15 @@ export default function ContratoDigitalH2B() {
             <p className="text-sm">Toda comunicación entre las partes deberá realizarse por escrito y podrá ser enviada por correo electrónico, servicio postal certificado o cualquier medio que permita verificar su recepción.</p>
             <p className="text-sm mt-2">Correos de notificación:</p>
             <div className="mt-2 mb-2 rounded-lg border text-sm overflow-hidden font-sans" style={{ borderColor: `${NAVY}15` }}>
-              <div className="flex items-center gap-3 px-4 py-2.5 border-b" style={{ borderColor: `${NAVY}10`, background: `${NAVY}04` }}>
+              <div className="flex flex-wrap items-center gap-x-3 gap-y-1 px-3 sm:px-4 py-2.5 border-b" style={{ borderColor: `${NAVY}10`, background: `${NAVY}04` }}>
                 <Mail className="w-3.5 h-3.5 shrink-0" style={{ color: GOLD }} />
                 <span className="text-gray-500">EL ESTUDIO:</span>
-                <strong style={{ color: NAVY }}>contratos@diazandjohnson.online</strong>
+                <strong className="break-all text-xs sm:text-sm" style={{ color: NAVY }}>contratos@diazandjohnson.online</strong>
               </div>
-              <div className="flex items-center gap-3 px-4 py-2.5">
+              <div className="flex flex-wrap items-center gap-x-3 gap-y-1 px-3 sm:px-4 py-2.5">
                 <Mail className="w-3.5 h-3.5 shrink-0" style={{ color: GOLD }} />
                 <span className="text-gray-500">EL CLIENTE:</span>
-                {clientEmail ? <strong style={{ color: NAVY }}>{clientEmail}</strong> : <span className="italic text-gray-400">(completar arriba)</span>}
+                {clientEmail ? <strong className="break-all text-xs sm:text-sm" style={{ color: NAVY }}>{clientEmail}</strong> : <span className="italic text-gray-400">(completar arriba)</span>}
               </div>
             </div>
             <p className="text-sm mt-2">Las partes acuerdan que el presente contrato podrá ser firmado mediante firma electrónica conforme al <strong style={{ color: NAVY }}>E-SIGN Act (15 U.S.C. § 7001 et seq.)</strong> y la <strong style={{ color: NAVY }}>Florida Electronic Signature Act (Fla. Stat. § 668.001 y ss.)</strong>, con la misma validez jurídica que una firma manuscrita.</p>
@@ -481,7 +494,7 @@ export default function ContratoDigitalH2B() {
             {/* ══════ SIGNATURES ══════ */}
             <div className="pt-6">
               <p className="text-center text-xs uppercase tracking-[0.2em] font-semibold font-sans mb-6" style={{ color: GOLD }}>Firmas de las Partes</p>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8">
                 {/* Attorney */}
                 <div className="space-y-2">
                   <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider font-sans flex items-center gap-1.5"><Scale className="w-3 h-3" style={{ color: GOLD }} /> Firma del Abogado</p>
@@ -500,7 +513,9 @@ export default function ContratoDigitalH2B() {
                 {/* Client */}
                 <div className="space-y-2">
                   <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider font-sans flex items-center gap-1.5"><FileSignature className="w-3 h-3" style={{ color: GOLD }} /> Firma del Cliente</p>
-                  <SignaturePad onSignatureChange={setClientSignature} label="" width={380} height={160} />
+                  <div className="w-full max-w-[380px]">
+                    <SignaturePad onSignatureChange={setClientSignature} label="" width={340} height={160} />
+                  </div>
                   <p className="text-xs text-gray-500 font-sans">{clientName || "(Nombre del Cliente)"} — EL CLIENTE</p>
                 </div>
               </div>
@@ -544,7 +559,7 @@ export default function ContratoDigitalH2B() {
 
           {/* Document footer */}
           <div className="h-1" style={{ background: `linear-gradient(to right, ${GOLD}, ${GOLD}88, ${GOLD})` }} />
-          <div className="text-center text-[11px] px-8 py-5 text-white/50" style={{ background: NAVY }}>
+          <div className="text-center text-[10px] sm:text-[11px] px-4 sm:px-8 py-5 text-white/50" style={{ background: NAVY }}>
             <p className="font-semibold text-white/70 tracking-wide">Díaz and Johnson Attorneys at Law PLLC</p>
             <p className="mt-1">1680 Michigan Ave Suite 700, Miami Beach, FL 33139</p>
             <p className="mt-2 text-white/30">Protegido conforme al E-SIGN Act (15 U.S.C. § 7001) y Florida Electronic Signature Act (Fla. Stat. § 668.001)</p>
