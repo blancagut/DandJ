@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Badge } from "@/components/ui/badge"
+import { Checkbox } from "@/components/ui/checkbox"
 import {
   Select,
   SelectContent,
@@ -36,11 +37,6 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from "@/components/ui/collapsible"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { toast } from "sonner"
 import {
@@ -63,9 +59,11 @@ import {
   Send,
   Loader2,
   Users,
-  ChevronDown,
-  X,
+  Search,
+  Plus,
   Mail,
+  CheckSquare,
+  Square,
 } from "lucide-react"
 
 // ─── Types ───────────────────────────────────────────────────
@@ -86,25 +84,28 @@ const SOURCES = [
   { value: "chat", label: "Chat Visitors" },
 ]
 
-// ─── Source colors ───────────────────────────────────────────
 const SOURCE_COLORS: Record<string, string> = {
-  Consultation: "bg-blue-100 text-blue-800",
-  Contact: "bg-green-100 text-green-800",
-  Petition: "bg-purple-100 text-purple-800",
-  Waiver: "bg-orange-100 text-orange-800",
-  "Work Visa": "bg-teal-100 text-teal-800",
-  Contract: "bg-pink-100 text-pink-800",
-  Chat: "bg-yellow-100 text-yellow-800",
+  Consultation: "bg-blue-100 text-blue-700",
+  Contact: "bg-green-100 text-green-700",
+  Petition: "bg-purple-100 text-purple-700",
+  Waiver: "bg-orange-100 text-orange-700",
+  "Work Visa": "bg-teal-100 text-teal-700",
+  Contract: "bg-pink-100 text-pink-700",
+  Chat: "bg-yellow-100 text-yellow-700",
+  Manual: "bg-gray-100 text-gray-700",
 }
 
 // ─── Component ───────────────────────────────────────────────
 export function EmailComposer({ onSent }: { onSent?: () => void }) {
+  // Recipients
   const [source, setSource] = useState("all")
-  const [recipients, setRecipients] = useState<Recipient[]>([])
+  const [allRecipients, setAllRecipients] = useState<Recipient[]>([])
+  const [selectedEmails, setSelectedEmails] = useState<Set<string>>(new Set())
   const [loadingRecipients, setLoadingRecipients] = useState(false)
-  const [recipientsOpen, setRecipientsOpen] = useState(false)
-  const [removedEmails, setRemovedEmails] = useState<Set<string>>(new Set())
+  const [recipientSearch, setRecipientSearch] = useState("")
+  const [manualEmail, setManualEmail] = useState("")
 
+  // Email content
   const [subject, setSubject] = useState("")
   const [sending, setSending] = useState(false)
   const [previewOpen, setPreviewOpen] = useState(false)
@@ -114,8 +115,9 @@ export function EmailComposer({ onSent }: { onSent?: () => void }) {
   const [linkDialogOpen, setLinkDialogOpen] = useState(false)
   const [linkUrl, setLinkUrl] = useState("")
 
-  // Tiptap editor
+  // Tiptap editor — immediatelyRender: false is REQUIRED for Next.js SSR
   const editor = useEditor({
+    immediatelyRender: false,
     extensions: [
       StarterKit.configure({
         heading: { levels: [2, 3] },
@@ -134,21 +136,21 @@ export function EmailComposer({ onSent }: { onSent?: () => void }) {
     ],
     editorProps: {
       attributes: {
-        class:
-          "prose prose-sm sm:prose max-w-none focus:outline-none min-h-[280px] px-4 py-3",
+        class: "tiptap-editor",
       },
     },
   })
 
-  // Fetch recipients when source changes
+  // ── Fetch recipients ───────────────────────────────────────
   const loadRecipients = useCallback(async (src: string) => {
     setLoadingRecipients(true)
-    setRemovedEmails(new Set())
     try {
       const res = await fetch(`/api/admin/recipients?source=${src}`)
       const data = await res.json()
       if (data.recipients) {
-        setRecipients(data.recipients)
+        setAllRecipients(data.recipients)
+        // Auto-select all by default
+        setSelectedEmails(new Set(data.recipients.map((r: Recipient) => r.email)))
       }
     } catch {
       toast.error("Failed to load recipients")
@@ -161,23 +163,65 @@ export function EmailComposer({ onSent }: { onSent?: () => void }) {
     loadRecipients(source)
   }, [source, loadRecipients])
 
-  const activeRecipients = recipients.filter((r) => !removedEmails.has(r.email))
+  // ── Filtered list for search ───────────────────────────────
+  const filteredRecipients = allRecipients.filter((r) => {
+    if (!recipientSearch) return true
+    const q = recipientSearch.toLowerCase()
+    return (
+      r.email.toLowerCase().includes(q) ||
+      r.name.toLowerCase().includes(q) ||
+      r.source.toLowerCase().includes(q)
+    )
+  })
 
-  // Remove a individual recipient
-  const removeRecipient = (email: string) => {
-    setRemovedEmails((prev) => new Set(prev).add(email))
-  }
-
-  // Restore a removed recipient
-  const restoreRecipient = (email: string) => {
-    setRemovedEmails((prev) => {
+  // ── Select/deselect helpers ────────────────────────────────
+  const toggleEmail = (email: string) => {
+    setSelectedEmails((prev) => {
       const next = new Set(prev)
-      next.delete(email)
+      if (next.has(email)) next.delete(email)
+      else next.add(email)
       return next
     })
   }
 
-  // Preview
+  const selectAll = () => {
+    setSelectedEmails(new Set(allRecipients.map((r) => r.email)))
+  }
+
+  const deselectAll = () => {
+    setSelectedEmails(new Set())
+  }
+
+  const selectFiltered = () => {
+    setSelectedEmails((prev) => {
+      const next = new Set(prev)
+      filteredRecipients.forEach((r) => next.add(r.email))
+      return next
+    })
+  }
+
+  // ── Add manual email ───────────────────────────────────────
+  const addManualEmail = () => {
+    const email = manualEmail.trim().toLowerCase()
+    if (!email || !email.includes("@") || !email.includes(".")) {
+      toast.error("Please enter a valid email address")
+      return
+    }
+    if (allRecipients.some((r) => r.email === email)) {
+      setSelectedEmails((prev) => new Set(prev).add(email))
+      setManualEmail("")
+      toast.success("Email already in list — selected it")
+      return
+    }
+    setAllRecipients((prev) => [...prev, { email, name: "", source: "Manual" }])
+    setSelectedEmails((prev) => new Set(prev).add(email))
+    setManualEmail("")
+    toast.success("Email added")
+  }
+
+  const selectedCount = selectedEmails.size
+
+  // ── Preview ────────────────────────────────────────────────
   const handlePreview = async () => {
     if (!editor) return
     const bodyHtml = editor.getHTML()
@@ -189,7 +233,6 @@ export function EmailComposer({ onSent }: { onSent?: () => void }) {
       toast.error("Please write some email content")
       return
     }
-
     setLoadingPreview(true)
     try {
       const res = await fetch("/api/admin/email-preview", {
@@ -207,14 +250,14 @@ export function EmailComposer({ onSent }: { onSent?: () => void }) {
     }
   }
 
-  // Send
+  // ── Send ───────────────────────────────────────────────────
   const handleSend = async () => {
     if (!editor) return
     setConfirmOpen(false)
     setSending(true)
 
     const bodyHtml = editor.getHTML()
-    const emails = activeRecipients.map((r) => r.email)
+    const emails = Array.from(selectedEmails)
 
     try {
       const res = await fetch("/api/admin/send-email", {
@@ -231,12 +274,10 @@ export function EmailComposer({ onSent }: { onSent?: () => void }) {
 
       if (data.success) {
         toast.success(
-          `Email sent successfully to ${data.sentCount} recipient${data.sentCount !== 1 ? "s" : ""}`,
+          `Email sent to ${data.sentCount} recipient${data.sentCount !== 1 ? "s" : ""}!`,
         )
-        // Reset form
         setSubject("")
         editor.commands.clearContent()
-        setRemovedEmails(new Set())
         onSent?.()
       } else {
         toast.error(data.errorMessage || "Failed to send emails")
@@ -248,16 +289,11 @@ export function EmailComposer({ onSent }: { onSent?: () => void }) {
     }
   }
 
-  // Link dialog
+  // ── Link dialog ────────────────────────────────────────────
   const handleSetLink = () => {
     if (!editor) return
     if (linkUrl) {
-      editor
-        .chain()
-        .focus()
-        .extendMarkRange("link")
-        .setLink({ href: linkUrl })
-        .run()
+      editor.chain().focus().extendMarkRange("link").setLink({ href: linkUrl }).run()
     } else {
       editor.chain().focus().extendMarkRange("link").unsetLink().run()
     }
@@ -272,17 +308,23 @@ export function EmailComposer({ onSent }: { onSent?: () => void }) {
     setLinkDialogOpen(true)
   }
 
-  if (!editor) return null
-
   return (
     <div className="space-y-6">
-      {/* ─── Recipients Section ────────────────────────────────── */}
-      <div className="space-y-3">
-        <div className="flex items-center justify-between">
-          <Label className="text-sm font-semibold">Recipients</Label>
-          <div className="flex items-center gap-3">
+      {/* ═══════════════════════════════════════════════════════════
+          STEP 1: RECIPIENTS
+          ═══════════════════════════════════════════════════════════ */}
+      <div className="space-y-3 border rounded-lg p-4 bg-muted/20">
+        <div className="flex items-center gap-2 mb-1">
+          <Mail className="h-5 w-5 text-[#0B1E3A]" />
+          <h3 className="font-semibold text-base">Step 1: Select Recipients</h3>
+        </div>
+
+        {/* Source picker + select/deselect buttons */}
+        <div className="flex items-center gap-3 flex-wrap">
+          <div className="flex items-center gap-2">
+            <Label className="text-sm whitespace-nowrap">Source:</Label>
             <Select value={source} onValueChange={setSource}>
-              <SelectTrigger className="w-[200px] h-9">
+              <SelectTrigger className="w-[180px] h-9">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -294,280 +336,318 @@ export function EmailComposer({ onSent }: { onSent?: () => void }) {
               </SelectContent>
             </Select>
           </div>
-        </div>
 
-        <div className="flex items-center gap-3">
-          <div className="flex items-center gap-2 px-3 py-2 bg-muted/50 rounded-lg">
-            <Users className="h-4 w-4 text-muted-foreground" />
-            {loadingRecipients ? (
-              <span className="text-sm text-muted-foreground flex items-center gap-2">
-                <Loader2 className="h-3 w-3 animate-spin" />
-                Loading...
-              </span>
-            ) : (
-              <span className="text-sm font-medium">
-                {activeRecipients.length} recipient{activeRecipients.length !== 1 ? "s" : ""}
-                {removedEmails.size > 0 && (
-                  <span className="text-muted-foreground ml-1">
-                    ({removedEmails.size} removed)
-                  </span>
-                )}
-              </span>
-            )}
+          <div className="flex items-center gap-2">
+            <Button variant="outline" size="sm" onClick={selectAll} className="h-8 text-xs">
+              <CheckSquare className="h-3.5 w-3.5 mr-1" />
+              Select All
+            </Button>
+            <Button variant="outline" size="sm" onClick={deselectAll} className="h-8 text-xs">
+              <Square className="h-3.5 w-3.5 mr-1" />
+              Deselect All
+            </Button>
           </div>
 
-          {removedEmails.size > 0 && (
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => setRemovedEmails(new Set())}
-              className="text-xs"
-            >
-              Restore all
-            </Button>
-          )}
+          <Badge variant="secondary" className="h-7 px-3 text-sm font-semibold">
+            <Users className="h-3.5 w-3.5 mr-1.5" />
+            {selectedCount} selected
+          </Badge>
         </div>
 
-        {/* Collapsible recipient list */}
-        <Collapsible open={recipientsOpen} onOpenChange={setRecipientsOpen}>
-          <CollapsibleTrigger asChild>
-            <Button variant="ghost" size="sm" className="text-xs text-muted-foreground gap-1">
-              <ChevronDown className={`h-3 w-3 transition-transform ${recipientsOpen ? "rotate-180" : ""}`} />
-              {recipientsOpen ? "Hide" : "View"} recipient list
-            </Button>
-          </CollapsibleTrigger>
-          <CollapsibleContent>
-            <ScrollArea className="h-[200px] mt-2 rounded-lg border">
-              <div className="p-3 space-y-1">
-                {activeRecipients.map((r) => (
-                  <div
-                    key={r.email}
-                    className="flex items-center justify-between py-1.5 px-2 rounded hover:bg-muted/50 group"
-                  >
-                    <div className="flex items-center gap-2 min-w-0">
-                      <Mail className="h-3 w-3 text-muted-foreground flex-shrink-0" />
-                      <span className="text-sm truncate">{r.email}</span>
-                      {r.name && (
-                        <span className="text-xs text-muted-foreground truncate">
-                          ({r.name})
+        {/* Search bar */}
+        <div className="relative">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Input
+            value={recipientSearch}
+            onChange={(e) => setRecipientSearch(e.target.value)}
+            placeholder="Search emails by name, email, or source..."
+            className="pl-9 h-9"
+          />
+        </div>
+
+        {/* Recipient list with checkboxes */}
+        {loadingRecipients ? (
+          <div className="flex items-center justify-center py-8">
+            <Loader2 className="h-5 w-5 animate-spin mr-2" />
+            <span className="text-sm text-muted-foreground">Loading recipients...</span>
+          </div>
+        ) : (
+          <>
+            {recipientSearch && (
+              <div className="flex items-center gap-2">
+                <span className="text-xs text-muted-foreground">
+                  Showing {filteredRecipients.length} of {allRecipients.length}
+                </span>
+                <Button variant="ghost" size="sm" onClick={selectFiltered} className="h-7 text-xs">
+                  Select all filtered
+                </Button>
+              </div>
+            )}
+            <ScrollArea className="h-[220px] rounded-lg border bg-background">
+              <div className="divide-y">
+                {filteredRecipients.map((r) => {
+                  const isSelected = selectedEmails.has(r.email)
+                  return (
+                    <label
+                      key={r.email}
+                      className={`flex items-center gap-3 px-3 py-2.5 cursor-pointer transition-colors ${
+                        isSelected
+                          ? "bg-primary/5 hover:bg-primary/10"
+                          : "hover:bg-muted/50"
+                      }`}
+                    >
+                      <Checkbox
+                        checked={isSelected}
+                        onCheckedChange={() => toggleEmail(r.email)}
+                      />
+                      <div className="flex items-center gap-2 min-w-0 flex-1">
+                        <span className={`text-sm ${isSelected ? "font-medium" : ""}`}>
+                          {r.email}
                         </span>
-                      )}
-                      <Badge variant="secondary" className={`text-[10px] px-1.5 py-0 ${SOURCE_COLORS[r.source] ?? ""}`}>
+                        {r.name && (
+                          <span className="text-xs text-muted-foreground">
+                            — {r.name}
+                          </span>
+                        )}
+                      </div>
+                      <Badge
+                        variant="secondary"
+                        className={`text-[10px] px-1.5 py-0 flex-shrink-0 ${SOURCE_COLORS[r.source] ?? ""}`}
+                      >
                         {r.source}
                       </Badge>
-                    </div>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity"
-                      onClick={() => removeRecipient(r.email)}
-                    >
-                      <X className="h-3 w-3" />
-                    </Button>
+                    </label>
+                  )
+                })}
+                {filteredRecipients.length === 0 && (
+                  <div className="flex flex-col items-center justify-center py-8 text-muted-foreground">
+                    <Users className="h-8 w-8 mb-2 opacity-40" />
+                    <p className="text-sm">
+                      {recipientSearch ? "No emails match your search" : "No recipients found for this source"}
+                    </p>
                   </div>
-                ))}
-                {activeRecipients.length === 0 && (
-                  <p className="text-sm text-muted-foreground text-center py-4">
-                    No recipients available
-                  </p>
                 )}
               </div>
             </ScrollArea>
-            {/* Show removed recipients */}
-            {removedEmails.size > 0 && (
-              <div className="mt-2 p-2 border rounded-lg bg-muted/30">
-                <p className="text-xs font-medium text-muted-foreground mb-1">
-                  Removed ({removedEmails.size}):
-                </p>
-                <div className="flex flex-wrap gap-1">
-                  {Array.from(removedEmails).map((email) => (
-                    <Badge
-                      key={email}
-                      variant="outline"
-                      className="text-[10px] cursor-pointer hover:bg-muted"
-                      onClick={() => restoreRecipient(email)}
-                    >
-                      {email} ✕
-                    </Badge>
-                  ))}
-                </div>
-              </div>
-            )}
-          </CollapsibleContent>
-        </Collapsible>
+          </>
+        )}
+
+        {/* Add manual email */}
+        <div className="flex items-center gap-2 pt-1">
+          <Input
+            value={manualEmail}
+            onChange={(e) => setManualEmail(e.target.value)}
+            placeholder="Or type an email address to add manually..."
+            className="h-9 flex-1"
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                e.preventDefault()
+                addManualEmail()
+              }
+            }}
+          />
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={addManualEmail}
+            className="h-9"
+          >
+            <Plus className="h-4 w-4 mr-1" />
+            Add
+          </Button>
+        </div>
       </div>
 
-      {/* ─── Subject ──────────────────────────────────────────── */}
+      {/* ═══════════════════════════════════════════════════════════
+          STEP 2: SUBJECT LINE
+          ═══════════════════════════════════════════════════════════ */}
       <div className="space-y-2">
-        <Label htmlFor="email-subject" className="text-sm font-semibold">
-          Subject
-        </Label>
+        <div className="flex items-center gap-2">
+          <h3 className="font-semibold text-base">Step 2: Subject Line</h3>
+        </div>
         <Input
           id="email-subject"
           value={subject}
           onChange={(e) => setSubject(e.target.value)}
-          placeholder="Enter email subject..."
-          className="h-10"
+          placeholder="Enter the email subject..."
+          className="h-11 text-base"
         />
       </div>
 
-      {/* ─── Rich Text Editor ─────────────────────────────────── */}
+      {/* ═══════════════════════════════════════════════════════════
+          STEP 3: EMAIL BODY (Rich Text Editor)
+          ═══════════════════════════════════════════════════════════ */}
       <div className="space-y-2">
-        <Label className="text-sm font-semibold">Message</Label>
-        <div className="border rounded-lg overflow-hidden">
-          {/* Toolbar */}
-          <div className="flex flex-wrap items-center gap-0.5 p-2 border-b bg-muted/30">
-            {/* Text formatting */}
-            <ToolbarButton
-              active={editor.isActive("bold")}
-              onClick={() => editor.chain().focus().toggleBold().run()}
-              title="Bold"
-            >
-              <Bold className="h-4 w-4" />
-            </ToolbarButton>
-            <ToolbarButton
-              active={editor.isActive("italic")}
-              onClick={() => editor.chain().focus().toggleItalic().run()}
-              title="Italic"
-            >
-              <Italic className="h-4 w-4" />
-            </ToolbarButton>
-            <ToolbarButton
-              active={editor.isActive("underline")}
-              onClick={() => editor.chain().focus().toggleUnderline().run()}
-              title="Underline"
-            >
-              <UnderlineIcon className="h-4 w-4" />
-            </ToolbarButton>
-            <ToolbarButton
-              active={editor.isActive("strike")}
-              onClick={() => editor.chain().focus().toggleStrike().run()}
-              title="Strikethrough"
-            >
-              <Strikethrough className="h-4 w-4" />
-            </ToolbarButton>
-
-            <ToolbarSeparator />
-
-            {/* Headings */}
-            <ToolbarButton
-              active={editor.isActive("heading", { level: 2 })}
-              onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
-              title="Heading 2"
-            >
-              <Heading2 className="h-4 w-4" />
-            </ToolbarButton>
-            <ToolbarButton
-              active={editor.isActive("heading", { level: 3 })}
-              onClick={() => editor.chain().focus().toggleHeading({ level: 3 }).run()}
-              title="Heading 3"
-            >
-              <Heading3 className="h-4 w-4" />
-            </ToolbarButton>
-
-            <ToolbarSeparator />
-
-            {/* Lists */}
-            <ToolbarButton
-              active={editor.isActive("bulletList")}
-              onClick={() => editor.chain().focus().toggleBulletList().run()}
-              title="Bullet list"
-            >
-              <List className="h-4 w-4" />
-            </ToolbarButton>
-            <ToolbarButton
-              active={editor.isActive("orderedList")}
-              onClick={() => editor.chain().focus().toggleOrderedList().run()}
-              title="Numbered list"
-            >
-              <ListOrdered className="h-4 w-4" />
-            </ToolbarButton>
-
-            <ToolbarSeparator />
-
-            {/* Alignment */}
-            <ToolbarButton
-              active={editor.isActive({ textAlign: "left" })}
-              onClick={() => editor.chain().focus().setTextAlign("left").run()}
-              title="Align left"
-            >
-              <AlignLeft className="h-4 w-4" />
-            </ToolbarButton>
-            <ToolbarButton
-              active={editor.isActive({ textAlign: "center" })}
-              onClick={() => editor.chain().focus().setTextAlign("center").run()}
-              title="Align center"
-            >
-              <AlignCenter className="h-4 w-4" />
-            </ToolbarButton>
-            <ToolbarButton
-              active={editor.isActive({ textAlign: "right" })}
-              onClick={() => editor.chain().focus().setTextAlign("right").run()}
-              title="Align right"
-            >
-              <AlignRight className="h-4 w-4" />
-            </ToolbarButton>
-
-            <ToolbarSeparator />
-
-            {/* Link */}
-            <ToolbarButton
-              active={editor.isActive("link")}
-              onClick={openLinkDialog}
-              title="Insert link"
-            >
-              <LinkIcon className="h-4 w-4" />
-            </ToolbarButton>
-
-            {/* Horizontal rule */}
-            <ToolbarButton
-              onClick={() => editor.chain().focus().setHorizontalRule().run()}
-              title="Horizontal rule"
-            >
-              <Minus className="h-4 w-4" />
-            </ToolbarButton>
-
-            <div className="flex-1" />
-
-            {/* Undo / Redo */}
-            <ToolbarButton
-              onClick={() => editor.chain().focus().undo().run()}
-              disabled={!editor.can().undo()}
-              title="Undo"
-            >
-              <Undo className="h-4 w-4" />
-            </ToolbarButton>
-            <ToolbarButton
-              onClick={() => editor.chain().focus().redo().run()}
-              disabled={!editor.can().redo()}
-              title="Redo"
-            >
-              <Redo className="h-4 w-4" />
-            </ToolbarButton>
-          </div>
-
-          {/* Editor content */}
-          <EditorContent editor={editor} />
+        <div className="flex items-center gap-2">
+          <h3 className="font-semibold text-base">Step 3: Write Your Message</h3>
         </div>
+        <div className="border rounded-lg overflow-hidden bg-background">
+          {/* Toolbar */}
+          {editor && (
+            <div className="flex flex-wrap items-center gap-0.5 p-2 border-b bg-muted/30">
+              <ToolbarButton
+                active={editor.isActive("bold")}
+                onClick={() => editor.chain().focus().toggleBold().run()}
+                title="Bold"
+              >
+                <Bold className="h-4 w-4" />
+              </ToolbarButton>
+              <ToolbarButton
+                active={editor.isActive("italic")}
+                onClick={() => editor.chain().focus().toggleItalic().run()}
+                title="Italic"
+              >
+                <Italic className="h-4 w-4" />
+              </ToolbarButton>
+              <ToolbarButton
+                active={editor.isActive("underline")}
+                onClick={() => editor.chain().focus().toggleUnderline().run()}
+                title="Underline"
+              >
+                <UnderlineIcon className="h-4 w-4" />
+              </ToolbarButton>
+              <ToolbarButton
+                active={editor.isActive("strike")}
+                onClick={() => editor.chain().focus().toggleStrike().run()}
+                title="Strikethrough"
+              >
+                <Strikethrough className="h-4 w-4" />
+              </ToolbarButton>
+
+              <ToolbarSep />
+
+              <ToolbarButton
+                active={editor.isActive("heading", { level: 2 })}
+                onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
+                title="Heading 2"
+              >
+                <Heading2 className="h-4 w-4" />
+              </ToolbarButton>
+              <ToolbarButton
+                active={editor.isActive("heading", { level: 3 })}
+                onClick={() => editor.chain().focus().toggleHeading({ level: 3 }).run()}
+                title="Heading 3"
+              >
+                <Heading3 className="h-4 w-4" />
+              </ToolbarButton>
+
+              <ToolbarSep />
+
+              <ToolbarButton
+                active={editor.isActive("bulletList")}
+                onClick={() => editor.chain().focus().toggleBulletList().run()}
+                title="Bullet list"
+              >
+                <List className="h-4 w-4" />
+              </ToolbarButton>
+              <ToolbarButton
+                active={editor.isActive("orderedList")}
+                onClick={() => editor.chain().focus().toggleOrderedList().run()}
+                title="Numbered list"
+              >
+                <ListOrdered className="h-4 w-4" />
+              </ToolbarButton>
+
+              <ToolbarSep />
+
+              <ToolbarButton
+                active={editor.isActive({ textAlign: "left" })}
+                onClick={() => editor.chain().focus().setTextAlign("left").run()}
+                title="Align left"
+              >
+                <AlignLeft className="h-4 w-4" />
+              </ToolbarButton>
+              <ToolbarButton
+                active={editor.isActive({ textAlign: "center" })}
+                onClick={() => editor.chain().focus().setTextAlign("center").run()}
+                title="Align center"
+              >
+                <AlignCenter className="h-4 w-4" />
+              </ToolbarButton>
+              <ToolbarButton
+                active={editor.isActive({ textAlign: "right" })}
+                onClick={() => editor.chain().focus().setTextAlign("right").run()}
+                title="Align right"
+              >
+                <AlignRight className="h-4 w-4" />
+              </ToolbarButton>
+
+              <ToolbarSep />
+
+              <ToolbarButton
+                active={editor.isActive("link")}
+                onClick={openLinkDialog}
+                title="Insert link"
+              >
+                <LinkIcon className="h-4 w-4" />
+              </ToolbarButton>
+              <ToolbarButton
+                onClick={() => editor.chain().focus().setHorizontalRule().run()}
+                title="Horizontal rule"
+              >
+                <Minus className="h-4 w-4" />
+              </ToolbarButton>
+
+              <div className="flex-1" />
+
+              <ToolbarButton
+                onClick={() => editor.chain().focus().undo().run()}
+                disabled={!editor.can().undo()}
+                title="Undo"
+              >
+                <Undo className="h-4 w-4" />
+              </ToolbarButton>
+              <ToolbarButton
+                onClick={() => editor.chain().focus().redo().run()}
+                disabled={!editor.can().redo()}
+                title="Redo"
+              >
+                <Redo className="h-4 w-4" />
+              </ToolbarButton>
+            </div>
+          )}
+
+          {/* Editor content area */}
+          <div className="min-h-[280px]">
+            {editor ? (
+              <EditorContent editor={editor} />
+            ) : (
+              <div className="flex items-center justify-center h-[280px] text-muted-foreground">
+                <Loader2 className="h-5 w-5 animate-spin mr-2" />
+                Loading editor...
+              </div>
+            )}
+          </div>
+        </div>
+        <p className="text-xs text-muted-foreground">
+          Click inside the white area above to start typing. Use the toolbar buttons for formatting.
+        </p>
       </div>
 
-      {/* ─── Actions ──────────────────────────────────────────── */}
-      <div className="flex items-center justify-between pt-2">
+      {/* ═══════════════════════════════════════════════════════════
+          ACTIONS
+          ═══════════════════════════════════════════════════════════ */}
+      <div className="flex items-center justify-between pt-2 border-t">
         <Button
           variant="outline"
           onClick={handlePreview}
           disabled={loadingPreview || sending}
+          className="h-10"
         >
           {loadingPreview ? (
             <Loader2 className="h-4 w-4 mr-2 animate-spin" />
           ) : (
             <Eye className="h-4 w-4 mr-2" />
           )}
-          Preview
+          Preview Email
         </Button>
 
         <Button
           onClick={() => {
+            if (selectedCount === 0) {
+              toast.error("Please select at least one recipient")
+              return
+            }
             if (!subject.trim()) {
               toast.error("Please enter a subject line")
               return
@@ -576,21 +656,17 @@ export function EmailComposer({ onSent }: { onSent?: () => void }) {
               toast.error("Please write some email content")
               return
             }
-            if (activeRecipients.length === 0) {
-              toast.error("No recipients selected")
-              return
-            }
             setConfirmOpen(true)
           }}
-          disabled={sending || activeRecipients.length === 0}
-          className="bg-[#0B1E3A] hover:bg-[#0B1E3A]/90"
+          disabled={sending || selectedCount === 0}
+          className="h-10 bg-[#0B1E3A] hover:bg-[#0B1E3A]/90 px-6"
         >
           {sending ? (
             <Loader2 className="h-4 w-4 mr-2 animate-spin" />
           ) : (
             <Send className="h-4 w-4 mr-2" />
           )}
-          {sending ? "Sending..." : "Send Email"}
+          {sending ? "Sending..." : `Send to ${selectedCount} Recipient${selectedCount !== 1 ? "s" : ""}`}
         </Button>
       </div>
 
@@ -653,12 +729,19 @@ export function EmailComposer({ onSent }: { onSent?: () => void }) {
       <AlertDialog open={confirmOpen} onOpenChange={setConfirmOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Send Email?</AlertDialogTitle>
-            <AlertDialogDescription>
-              You are about to send &ldquo;{subject}&rdquo; to{" "}
-              <strong>{activeRecipients.length}</strong> recipient
-              {activeRecipients.length !== 1 ? "s" : ""}. This action cannot be
-              undone.
+            <AlertDialogTitle>Confirm Send</AlertDialogTitle>
+            <AlertDialogDescription asChild>
+              <div className="space-y-3">
+                <p>
+                  You are about to send <strong>&ldquo;{subject}&rdquo;</strong> to{" "}
+                  <strong>{selectedCount}</strong> recipient
+                  {selectedCount !== 1 ? "s" : ""}.
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  This action cannot be undone. All recipients will receive the email with
+                  your firm&apos;s branded template.
+                </p>
+              </div>
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -668,8 +751,7 @@ export function EmailComposer({ onSent }: { onSent?: () => void }) {
               className="bg-[#0B1E3A] hover:bg-[#0B1E3A]/90"
             >
               <Send className="h-4 w-4 mr-2" />
-              Send to {activeRecipients.length} recipient
-              {activeRecipients.length !== 1 ? "s" : ""}
+              Yes, Send Email
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
@@ -679,7 +761,6 @@ export function EmailComposer({ onSent }: { onSent?: () => void }) {
 }
 
 // ─── Toolbar Helpers ─────────────────────────────────────────
-
 function ToolbarButton({
   active,
   disabled,
@@ -709,6 +790,6 @@ function ToolbarButton({
   )
 }
 
-function ToolbarSeparator() {
+function ToolbarSep() {
   return <div className="w-px h-5 bg-border mx-1" />
 }
