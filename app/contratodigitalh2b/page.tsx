@@ -398,7 +398,10 @@ export default function ContratoDigitalH2B() {
               <p className="text-left">Y</p>
               <div className="flex flex-wrap gap-x-3 gap-y-2 items-baseline">
                 <Blank value={clientName} onChange={setClientName} placeholder="Nombre completo" w="w-full sm:min-w-[220px] sm:w-auto" />
-                <Blank value={clientDob} onChange={setClientDob} placeholder="Fecha nacimiento" type="date" w="w-full sm:min-w-[155px] sm:w-auto" />
+                <div className="w-full sm:w-auto">
+                  <span className="block text-xs text-gray-400 uppercase tracking-wide mb-0.5 sm:hidden">Fecha de nacimiento</span>
+                  <Blank value={clientDob} onChange={setClientDob} placeholder="Fecha nacimiento" type="date" w="w-full sm:min-w-[155px] sm:w-auto" />
+                </div>
               </div>
               <p className="text-left">PORTADOR(A) DEL PASAPORTE</p>
               <div className="flex flex-wrap gap-x-3 gap-y-2 items-baseline">

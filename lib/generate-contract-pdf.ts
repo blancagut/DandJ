@@ -122,6 +122,18 @@ async function loadSignatureBase64(): Promise<string> {
   })
 }
 
+/* ── Load firm logo as base64 ── */
+async function loadLogoBase64(): Promise<string> {
+  const res = await fetch("/logo.png")
+  const blob = await res.blob()
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader()
+    reader.onloadend = () => resolve(reader.result as string)
+    reader.onerror = reject
+    reader.readAsDataURL(blob)
+  })
+}
+
 /* ═══════════════════════════════════════════════════════════════
    MAIN PDF GENERATOR
    ═══════════════════════════════════════════════════════════════ */
@@ -256,16 +268,19 @@ export async function generateContractPDF(data: ContractData): Promise<ContractP
   }
 
   // ══════════════════════════════════════════
-  // PAGE 1 — HEADER
+  // PAGE 1 — HEADER (logo + subtitle)
   // ══════════════════════════════════════════
   addLetterhead()
 
-  y = 15
-  doc.setFontSize(20)
-  doc.setFont("helvetica", "bold")
-  doc.setTextColor(...navy)
-  doc.text("DÍAZ & JOHNSON", pageW / 2, y, { align: "center" })
-  y += 5.5
+  // Load logo and place it centered
+  const logoBase64 = await loadLogoBase64()
+  const logoH = 18          // mm tall
+  const logoW = logoH * 3.2 // approximate aspect ratio — adjust if needed
+  const logoX = (pageW - logoW) / 2
+  y = 10
+  doc.addImage(logoBase64, "PNG", logoX, y, logoW, logoH)
+  y += logoH + 3
+
   doc.setFontSize(8)
   doc.setFont("helvetica", "normal")
   doc.setTextColor(...gold)
