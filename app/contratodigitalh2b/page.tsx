@@ -106,6 +106,39 @@ function GoldDivider() {
   )
 }
 
+/* ── Carlos Díaz real signature (traced from original) ── */
+function CarlosDiazSignature({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 800 780" fill="none" xmlns="http://www.w3.org/2000/svg" className={className}>
+      {/* Large C loop — heavy pressure */}
+      <path
+        d="M 590,155 C 520,70 280,18 148,108 C 48,180 28,338 92,442 C 158,542 335,512 410,428"
+        stroke="#111827" strokeWidth="10" strokeLinecap="round" strokeLinejoin="round"
+      />
+      {/* Inner loop echo for depth */}
+      <path
+        d="M 560,165 C 500,95 310,50 190,125 C 85,195 68,330 118,418 C 170,505 310,495 385,430"
+        stroke="#111827" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round" opacity="0.25"
+      />
+      {/* Cursive angular strokes — medium pressure */}
+      <path
+        d="M 410,428 C 432,396 452,355 440,382 C 428,410 418,445 448,420 C 478,395 465,428 488,410 C 511,392 502,420 525,405 C 548,390 542,412 562,400"
+        stroke="#111827" strokeWidth="8" strokeLinecap="round" strokeLinejoin="round"
+      />
+      {/* Long diagonal tail — decreasing pressure */}
+      <path
+        d="M 562,400 C 592,430 655,535 718,658"
+        stroke="#111827" strokeWidth="6.5" strokeLinecap="round"
+      />
+      {/* End flourish — light pressure */}
+      <path
+        d="M 718,658 C 726,652 734,658 742,652 C 750,646 757,652 764,650"
+        stroke="#111827" strokeWidth="4" strokeLinecap="round"
+      />
+    </svg>
+  )
+}
+
 export default function ContratoDigitalH2B() {
   const [clientName, setClientName] = useState("")
   const [clientDob, setClientDob] = useState("")
@@ -440,9 +473,13 @@ export default function ContratoDigitalH2B() {
                 {/* Attorney */}
                 <div className="space-y-2">
                   <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider font-sans flex items-center gap-1.5"><Scale className="w-3 h-3" style={{ color: GOLD }} /> Firma del Abogado</p>
-                  <div className="border rounded-xl p-6 text-center min-h-40 flex flex-col items-center justify-center" style={{ borderColor: `${NAVY}20`, background: `${NAVY}03` }}>
-                    <p className="text-xl italic font-[family-name:var(--font-playfair)]" style={{ color: NAVY }}>{lawyer?.name || "Seleccione un abogado arriba"}</p>
-                    <div className="w-3/4 h-px mt-4 mb-2" style={{ background: `${GOLD}55` }} />
+                  <div className="border rounded-xl p-5 text-center min-h-40 flex flex-col items-center justify-center" style={{ borderColor: `${NAVY}20`, background: `${NAVY}03` }}>
+                    {selectedLawyer === "carlos-diaz" ? (
+                      <CarlosDiazSignature className="h-24 w-auto" />
+                    ) : (
+                      <p className="text-xl italic font-[family-name:var(--font-playfair)]" style={{ color: NAVY }}>{lawyer?.name || "Seleccione un abogado arriba"}</p>
+                    )}
+                    <div className="w-3/4 h-px mt-3 mb-2" style={{ background: `${GOLD}55` }} />
                     <p className="text-xs text-gray-500 font-sans">{lawyer ? lawyer.name : "Pendiente"}</p>
                     <p className="text-xs text-gray-400 font-sans">{lawyer ? `Florida Bar Nº ${lawyer.barNumber}` : ""}</p>
                     <p className="text-xs text-gray-400 font-sans">En nombre de Díaz and Johnson Attorneys</p>

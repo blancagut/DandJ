@@ -27,6 +27,56 @@ function generateVerificationHash(data: ContractData): string {
   return Math.abs(hash).toString(16).toUpperCase().padStart(8, "0")
 }
 
+/* ── Draw Carlos Díaz's real signature as PDF vector curves ── */
+function drawCarlosDiazSignature(
+  doc: import("jspdf").jsPDF,
+  x: number,
+  y: number,
+  w: number,
+  h: number
+) {
+  // Original SVG viewbox: 800 x 780
+  const sx = w / 800
+  const sy = h / 780
+  const tx = (px: number) => x + px * sx
+  const ty = (py: number) => y + py * sy
+
+  doc.setDrawColor(17, 24, 39) // #111827
+  doc.setLineCap(1) // round
+  doc.setLineJoin(1) // round
+
+  // Large C loop — heavy stroke
+  doc.setLineWidth(0.8)
+  doc.moveTo(tx(590), ty(155))
+  doc.curveTo(tx(520), ty(70), tx(280), ty(18), tx(148), ty(108))
+  doc.curveTo(tx(48), ty(180), tx(28), ty(338), tx(92), ty(442))
+  doc.curveTo(tx(158), ty(542), tx(335), ty(512), tx(410), ty(428))
+  doc.stroke()
+
+  // Cursive angular strokes — medium stroke
+  doc.setLineWidth(0.6)
+  doc.moveTo(tx(410), ty(428))
+  doc.curveTo(tx(432), ty(396), tx(452), ty(355), tx(440), ty(382))
+  doc.curveTo(tx(428), ty(410), tx(418), ty(445), tx(448), ty(420))
+  doc.curveTo(tx(478), ty(395), tx(465), ty(428), tx(488), ty(410))
+  doc.curveTo(tx(511), ty(392), tx(502), ty(420), tx(525), ty(405))
+  doc.curveTo(tx(548), ty(390), tx(542), ty(412), tx(562), ty(400))
+  doc.stroke()
+
+  // Long diagonal tail — thinner
+  doc.setLineWidth(0.5)
+  doc.moveTo(tx(562), ty(400))
+  doc.curveTo(tx(592), ty(430), tx(655), ty(535), tx(718), ty(658))
+  doc.stroke()
+
+  // End flourish — lightest
+  doc.setLineWidth(0.35)
+  doc.moveTo(tx(718), ty(658))
+  doc.curveTo(tx(726), ty(652), tx(734), ty(658), tx(742), ty(652))
+  doc.curveTo(tx(750), ty(646), tx(757), ty(652), tx(764), ty(650))
+  doc.stroke()
+}
+
 export function generateContractPDF(data: ContractData) {
   const doc = new jsPDF({ orientation: "portrait", unit: "mm", format: "letter" })
   const pageW = doc.internal.pageSize.getWidth()
@@ -321,11 +371,16 @@ export function generateContractPDF(data: ContractData) {
   doc.text("EL CLIENTE:", sigBlockRight, y)
   y += 8
 
-  // Attorney signature (italic name)
-  doc.setFontSize(16)
-  doc.setFont("helvetica", "bolditalic")
-  doc.setTextColor(...navy)
-  doc.text(data.lawyerName, sigBlockLeft, y)
+  // Attorney signature
+  if (data.lawyerName === "Carlos Roberto Díaz") {
+    // Draw Carlos Díaz's real signature as vector curves
+    drawCarlosDiazSignature(doc, sigBlockLeft, y - 14, sigBlockW - 5, 22)
+  } else {
+    doc.setFontSize(16)
+    doc.setFont("helvetica", "bolditalic")
+    doc.setTextColor(...navy)
+    doc.text(data.lawyerName, sigBlockLeft, y)
+  }
 
   // Client signature (image)
   if (data.clientSignature) {
