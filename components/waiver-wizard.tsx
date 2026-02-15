@@ -35,6 +35,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { cn } from "@/lib/utils"
 import { useWaiverTranslation } from "@/lib/waiver-i18n"
+import { useLanguage } from "@/lib/language-context"
 import { WaiverLanguageSelector } from "@/components/waiver-language-selector"
 import { Card } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -262,6 +263,7 @@ function analyzeWaiverCase(data: WaiverFormData): WaiverAnalysis {
 
 export function WaiverWizard() {
   const { t, ready } = useWaiverTranslation()
+  const { language } = useLanguage()
   const [currentStep, setCurrentStep] = useState(1)
   const [formData, setFormData] = useState<WaiverFormData>(initialFormData)
   const [direction, setDirection] = useState(0)
@@ -403,6 +405,9 @@ export function WaiverWizard() {
 
       if (error) {
         console.error("Supabase insert error:", error)
+        setContactError(language === "es"
+          ? "Error al guardar. Por favor intente de nuevo."
+          : "Error saving your results. Please try again.")
         return
       }
 
@@ -411,6 +416,9 @@ export function WaiverWizard() {
       setIsSaved(true)
     } catch (e) {
       console.error("Waiver save failed:", e)
+      setContactError(language === "es"
+        ? "Error de conexión. Por favor intente de nuevo."
+        : "Connection error. Please try again.")
     }
   }
 

@@ -15,8 +15,9 @@ export function ConsultForm() {
   const [errorMsg, setErrorMsg] = useState("")
 
   // Validación simple
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
   const isValid = nombre.trim().length >= 2 && 
-                  email.includes("@") && 
+                  emailRegex.test(email) && 
                   mensaje.trim().length >= 10
 
   const handleSubmit = async (e: React.FormEvent) => {

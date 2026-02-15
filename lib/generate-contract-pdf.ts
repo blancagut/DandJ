@@ -11,6 +11,8 @@ interface ContractData {
   lawyerName: string
   lawyerBarNumber: string
   contractDay: string
+  contractMonth: string
+  contractYear: string
   contractId: string
   signedAt: string
   clientSignature: string // base64 PNG
@@ -234,7 +236,7 @@ export function generateContractPDF(data: ContractData) {
   y += 10
 
   // ── Comparecencia ──
-  writeParagraph(`En la ciudad de Miami, a los ${data.contractDay} días del mes de Febrero del año 2026, comparecen:`)
+  writeParagraph(`En la ciudad de Miami, a los ${data.contractDay} días del mes de ${data.contractMonth} del año ${data.contractYear}, comparecen:`)
 
   writeParagraph(`De una parte, el estudio jurídico Díaz and Johnson Attorneys at Law PLLC, ubicado en 1680 Michigan Avenue, Suite 700, Miami Beach, Florida 33139, representado por el abogado ${data.lawyerName}, titular de la licencia profesional del Colegio de Abogados de Florida (Florida Bar) número ${data.lawyerBarNumber}, en adelante denominado "EL ESTUDIO",`)
 

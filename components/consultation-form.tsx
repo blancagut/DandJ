@@ -24,6 +24,7 @@ import {
 import { Card } from "@/components/ui/card"
 import { getSupabaseBrowserClient } from "@/lib/supabase/client"
 import { cn } from "@/lib/utils"
+import { useLanguage } from "@/lib/language-context"
 
 // ============================================
 // TRANSLATIONS
@@ -572,7 +573,8 @@ type ConsultationFormValues = z.infer<typeof consultationFormSchema>
 // COMPONENT
 // ============================================
 export function ConsultationForm() {
-  const t = translations.es
+  const { language } = useLanguage()
+  const t = language === "en" ? translations.en : translations.es
   
   const [uploadedFiles, setUploadedFiles] = useState<File[]>([])
   const [selectedDocTypes, setSelectedDocTypes] = useState<string[]>([])
@@ -698,7 +700,7 @@ export function ConsultationForm() {
           referral_source: data.referralSource || null,
           document_types: selectedDocTypes,
           files: uploadedFiles.map((f) => ({ name: f.name, size: f.size, type: f.type })),
-          language: "es",
+          language: language,
           status: "new",
         })
 
@@ -709,19 +711,18 @@ export function ConsultationForm() {
       }
 
       setSubmitSuccess(true)
+      setTimeout(() => {
+        form.reset()
+        setUploadedFiles([])
+        setSelectedDocTypes([])
+        setSubmitSuccess(false)
+      }, 5000)
     } catch (err) {
       console.error("Submit error:", err)
       setSubmitError(t.errorConnection)
     } finally {
       setIsSubmitting(false)
     }
-
-    setTimeout(() => {
-      form.reset()
-      setUploadedFiles([])
-      setSelectedDocTypes([])
-      setSubmitSuccess(false)
-    }, 5000)
   }
 
   // Success Screen
@@ -1084,7 +1085,7 @@ export function ConsultationForm() {
                                           }
                                         }}
                                         className={cn(
-                                          "px-3 py-1.5 rounded-full text-xs font-medium transition-all duration-200",
+                                          "px-4 py-2.5 rounded-full text-sm font-medium transition-all duration-200",
                                           isSelected
                                             ? "bg-accent text-accent-foreground shadow-sm"
                                             : "bg-secondary/70 text-muted-foreground hover:bg-secondary"
@@ -1223,7 +1224,7 @@ export function ConsultationForm() {
                               whileTap={{ scale: 0.95 }}
                               onClick={() => toggleDocType(doc.id)}
                               className={cn(
-                                "px-3 py-1.5 rounded-full text-xs font-medium transition-all duration-200 flex items-center gap-1",
+                                "px-4 py-2.5 rounded-full text-sm font-medium transition-all duration-200 flex items-center gap-1",
                                 isSelected
                                   ? "bg-green-500 text-white shadow-sm"
                                   : "bg-secondary/70 text-muted-foreground hover:bg-secondary"

@@ -149,7 +149,10 @@ export default function ContratoDigitalH2B() {
   const [clientPhone, setClientPhone] = useState("")
   const [selectedLawyer, setSelectedLawyer] = useState("")
   const today = new Date()
+  const MONTHS = ["Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"]
   const [contractDay, setContractDay] = useState(today.getDate().toString())
+  const [contractMonth, setContractMonth] = useState(MONTHS[today.getMonth()])
+  const [contractYear, setContractYear] = useState(today.getFullYear().toString())
   const [clientSignature, setClientSignature] = useState<string | null>(null)
   const [acceptedTerms, setAcceptedTerms] = useState(false)
   const [acceptedEsign, setAcceptedEsign] = useState(false)
@@ -190,8 +193,8 @@ export default function ContratoDigitalH2B() {
           clientPhone: clientPhone.trim(),
           lawyerName: lawyer?.name || selectedLawyer,
           contractDay: parseInt(contractDay),
-          contractMonth: "Febrero",
-          contractYear: 2026,
+          contractMonth,
+          contractYear: parseInt(contractYear),
           clientSignature,
         }),
       })
@@ -211,12 +214,12 @@ export default function ContratoDigitalH2B() {
     const doc = generateContractPDF({
       clientName, clientDob, clientPassport, clientCountry, clientCity,
       clientEmail, clientPhone, lawyerName: lawyer.name,
-      lawyerBarNumber: lawyer.barNumber, contractDay, contractId,
+      lawyerBarNumber: lawyer.barNumber, contractDay, contractMonth, contractYear, contractId,
       signedAt: signedAt || new Date().toISOString(),
       clientSignature,
     })
     doc.save(`Contrato-H2B-${clientName.replace(/\s+/g, "-")}-${contractId.slice(0, 8)}.pdf`)
-  }, [clientName, clientDob, clientPassport, clientCountry, clientCity, clientEmail, clientPhone, lawyer, contractDay, contractId, signedAt, clientSignature])
+  }, [clientName, clientDob, clientPassport, clientCountry, clientCity, clientEmail, clientPhone, lawyer, contractDay, contractMonth, contractYear, contractId, signedAt, clientSignature])
 
   /* ═════════════════════════════════════════════════ */
   /*  SUCCESS SCREEN                                  */
@@ -243,7 +246,7 @@ export default function ContratoDigitalH2B() {
               <div className="grid grid-cols-2 gap-3 pt-2">
                 <p className="text-gray-700"><span className="text-gray-400 text-xs uppercase tracking-wide">Cliente</span><br /><strong>{clientName}</strong></p>
                 <p className="text-gray-700"><span className="text-gray-400 text-xs uppercase tracking-wide">Abogado</span><br /><strong>{lawyer?.name}</strong></p>
-                <p className="text-gray-700"><span className="text-gray-400 text-xs uppercase tracking-wide">Fecha</span><br /><strong>{contractDay} de Febrero de 2026</strong></p>
+                <p className="text-gray-700"><span className="text-gray-400 text-xs uppercase tracking-wide">Fecha</span><br /><strong>{contractDay} de {contractMonth} de {contractYear}</strong></p>
                 <p className="text-gray-700"><span className="text-gray-400 text-xs uppercase tracking-wide">Firmado</span><br /><strong>{new Date(signedAt).toLocaleString("es-ES")}</strong></p>
               </div>
             </div>
@@ -316,7 +319,16 @@ export default function ContratoDigitalH2B() {
             </div>
 
             {/* ── Comparecencia ── */}
-            <p>En la ciudad de Miami, a los <Blank value={contractDay} onChange={setContractDay} placeholder="__" w="w-14 text-center" /> días del mes de Febrero del año 2026, comparecen:</p>
+            <p>En la ciudad de Miami, a los <Blank value={contractDay} onChange={setContractDay} placeholder="__" w="w-14 text-center" /> días del mes de{" "}
+              <Select value={contractMonth} onValueChange={setContractMonth}>
+                <SelectTrigger className="inline-flex w-auto min-w-[140px] border-b-2 bg-[#f0f3fa] rounded-none border-x-0 border-t-0 font-semibold shadow-none focus:ring-0 text-[15px] font-[family-name:var(--font-playfair)] align-baseline" style={{ borderColor: `${NAVY}40`, color: NAVY }}>
+                  <SelectValue placeholder="Mes" />
+                </SelectTrigger>
+                <SelectContent>
+                  {MONTHS.map((m) => (<SelectItem key={m} value={m}>{m}</SelectItem>))}
+                </SelectContent>
+              </Select>{" "}
+              del año <Blank value={contractYear} onChange={setContractYear} placeholder="Año" w="w-20 text-center" />, comparecen:</p>
 
             <p className="mt-4">De una parte, el estudio jurídico <strong style={{ color: NAVY }}>Díaz and Johnson Attorneys at Law PLLC</strong>, ubicado en 1680 Michigan Avenue, Suite 700, Miami Beach, Florida 33139, representado por el abogado</p>
 

@@ -15,6 +15,7 @@ export function ContactSection() {
   const { t, language } = useLanguage()
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [submitError, setSubmitError] = useState<string | null>(null)
+  const [submitSuccess, setSubmitSuccess] = useState(false)
   const [fieldErrors, setFieldErrors] = useState<Record<string, string[]>>({})
   const [formValues, setFormValues] = useState({
     firstName: "",
@@ -44,7 +45,8 @@ export function ContactSection() {
         return
       }
 
-      alert(t("contact.form.success"))
+      setSubmitSuccess(true)
+      setTimeout(() => setSubmitSuccess(false), 6000)
       setFormValues({
         firstName: "",
         lastName: "",
@@ -279,6 +281,12 @@ export function ContactSection() {
                   <p className="text-sm text-destructive">{fieldErrors.message[0]}</p>
                 ) : null}
               </div>
+
+              {submitSuccess ? (
+                <div className="rounded-lg border border-green-200 bg-green-50 p-4 text-center">
+                  <p className="text-green-800 font-medium">{t("contact.form.success")}</p>
+                </div>
+              ) : null}
 
               {submitError ? <p className="text-sm text-destructive text-center">{submitError}</p> : null}
 

@@ -29,6 +29,7 @@ import { Label } from "@/components/ui/label"
 import { cn } from "@/lib/utils"
 import { getSupabaseBrowserClient } from "@/lib/supabase/client"
 import { useWorkScreeningTranslation } from "@/lib/work-screening-i18n"
+import { useLanguage } from "@/lib/language-context"
 import { WaiverLanguageSelector } from "@/components/waiver-language-selector"
 import Link from "next/link"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
@@ -275,6 +276,7 @@ const stepKeys = ["profile", "immigration", "criminal", "qualifications"]
 
 export function WorkScreeningWizard() {
   const { t, ready } = useWorkScreeningTranslation()
+  const { language } = useLanguage()
   const [currentStep, setCurrentStep] = useState(1)
   const [formData, setFormData] = useState<WorkScreeningData>(initialFormData)
   const [direction, setDirection] = useState(0)
@@ -402,6 +404,9 @@ export function WorkScreeningWizard() {
 
       if (error) {
         console.error("Supabase insert error:", error)
+        setContactError(language === "es"
+          ? "Error al guardar. Por favor intente de nuevo."
+          : "Error saving your results. Please try again.")
         return
       }
 
@@ -410,6 +415,9 @@ export function WorkScreeningWizard() {
       setIsSaved(true)
     } catch (e) {
       console.error("Work screening save failed:", e)
+      setContactError(language === "es"
+        ? "Error de conexión. Por favor intente de nuevo."
+        : "Connection error. Please try again.")
     }
   }
 
