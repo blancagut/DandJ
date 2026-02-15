@@ -16,7 +16,6 @@ interface ContractData {
   contractId: string
   signedAt: string
   clientSignature: string // base64 PNG
-  lawyerSignature?: string | null // base64 JPG for Carlos Díaz
 }
 
 function generateVerificationHash(data: ContractData): string {
@@ -30,31 +29,19 @@ function generateVerificationHash(data: ContractData): string {
   return Math.abs(hash).toString(16).toUpperCase().padStart(8, "0")
 }
 
-/* ── Draw Carlos Díaz's real signature as PDF image ── */
-function drawCarlosDiazSignature(
-  doc: import("jspdf").jsPDF,
-  x: number,
-  y: number,
-  w: number,
-  h: number,
-  base64?: string | null
-) {
-  if (base64) {
-    try {
-      doc.addImage(base64, "JPEG", x, y, w, h)
-      return
-    } catch {
-      // fallback to text
-    }
-  }
-  // Fallback: italicized name
-  doc.setFontSize(16)
-  doc.setFont("helvetica", "bolditalic")
-  doc.setTextColor(26, 26, 46)
-  doc.text("Carlos Roberto D\u00edaz", x, y + h / 2)
+/* ── Load signature image as base64 ── */
+async function loadSignatureBase64(): Promise<string> {
+  const res = await fetch("/signature.png")
+  const blob = await res.blob()
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader()
+    reader.onloadend = () => resolve(reader.result as string)
+    reader.onerror = reject
+    reader.readAsDataURL(blob)
+  })
 }
 
-export function generateContractPDF(data: ContractData) {
+export async function generateContractPDF(data: ContractData) {
   const doc = new jsPDF({ orientation: "portrait", unit: "mm", format: "letter" })
   const pageW = doc.internal.pageSize.getWidth()
   const pageH = doc.internal.pageSize.getHeight()
@@ -350,8 +337,15 @@ export function generateContractPDF(data: ContractData) {
 
   // Attorney signature
   if (data.lawyerName === "Carlos Roberto Díaz") {
-    // Draw Carlos Díaz's real signature as image
-    drawCarlosDiazSignature(doc, sigBlockLeft, y - 14, sigBlockW - 5, 22, data.lawyerSignature)
+    try {
+      const sigBase64 = await loadSignatureBase64()
+      doc.addImage(sigBase64, "PNG", sigBlockLeft, y - 16, sigBlockW - 10, 22)
+    } catch {
+      doc.setFontSize(16)
+      doc.setFont("helvetica", "bolditalic")
+      doc.setTextColor(...navy)
+      doc.text(data.lawyerName, sigBlockLeft, y)
+    }
   } else {
     doc.setFontSize(16)
     doc.setFont("helvetica", "bolditalic")

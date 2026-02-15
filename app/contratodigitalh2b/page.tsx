@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useCallback, useEffect, type ReactNode } from "react"
+import { useState, useCallback, type ReactNode } from "react"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
 import { SignaturePad } from "@/components/signature-pad"
@@ -107,16 +107,16 @@ function GoldDivider() {
   )
 }
 
-/* ── Carlos Díaz real signature (actual image) ── */
-function CarlosDiazSignature({ className }: { className?: string }) {
+/* ── Carlos Díaz signature (actual image) ── */
+function CarlosDiazSignature() {
   return (
     <Image
-      src="/team/carlos-signature.jpg"
+      src="/signature.png"
       alt="Firma de Carlos Roberto Díaz"
-      width={280}
-      height={140}
-      className={className}
-      style={{ objectFit: "contain" }}
+      width={240}
+      height={120}
+      className="h-24 w-auto mx-auto"
+      draggable={false}
       priority
     />
   )
@@ -143,21 +143,8 @@ export default function ContratoDigitalH2B() {
   const [contractId, setContractId] = useState("")
   const [signedAt, setSignedAt] = useState("")
   const [errorMsg, setErrorMsg] = useState("")
-  const [lawyerSigBase64, setLawyerSigBase64] = useState<string | null>(null)
 
   const lawyer = LAWYERS.find((l) => l.id === selectedLawyer)
-
-  // Load Carlos Díaz signature image as base64 for PDF
-  useEffect(() => {
-    fetch("/team/carlos-signature.jpg")
-      .then((r) => r.blob())
-      .then((blob) => {
-        const reader = new FileReader()
-        reader.onloadend = () => setLawyerSigBase64(reader.result as string)
-        reader.readAsDataURL(blob)
-      })
-      .catch(() => {})
-  }, [])
 
   const isFormValid =
     clientName.trim().length >= 2 &&
@@ -205,18 +192,17 @@ export default function ContratoDigitalH2B() {
     }
   }
 
-  const handleDownloadPDF = useCallback(() => {
+  const handleDownloadPDF = useCallback(async () => {
     if (!clientSignature || !lawyer) return
-    const doc = generateContractPDF({
+    const doc = await generateContractPDF({
       clientName, clientDob, clientPassport, clientCountry, clientCity,
       clientEmail, clientPhone, lawyerName: lawyer.name,
       lawyerBarNumber: lawyer.barNumber, contractDay, contractMonth, contractYear, contractId,
       signedAt: signedAt || new Date().toISOString(),
       clientSignature,
-      lawyerSignature: selectedLawyer === "carlos-diaz" ? lawyerSigBase64 : null,
     })
     doc.save(`Contrato-H2B-${clientName.replace(/\s+/g, "-")}-${contractId.slice(0, 8)}.pdf`)
-  }, [clientName, clientDob, clientPassport, clientCountry, clientCity, clientEmail, clientPhone, lawyer, contractDay, contractMonth, contractYear, contractId, signedAt, clientSignature, selectedLawyer, lawyerSigBase64])
+  }, [clientName, clientDob, clientPassport, clientCountry, clientCity, clientEmail, clientPhone, lawyer, contractDay, contractMonth, contractYear, contractId, signedAt, clientSignature])
 
   /* ═════════════════════════════════════════════════ */
   /*  SUCCESS SCREEN                                  */
@@ -497,7 +483,7 @@ export default function ContratoDigitalH2B() {
                   <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider font-sans flex items-center gap-1.5"><Scale className="w-3 h-3" style={{ color: GOLD }} /> Firma del Abogado</p>
                   <div className="border rounded-xl p-5 text-center min-h-40 flex flex-col items-center justify-center" style={{ borderColor: `${NAVY}20`, background: `${NAVY}03` }}>
                     {selectedLawyer === "carlos-diaz" ? (
-                      <CarlosDiazSignature className="h-24 w-auto" />
+                      <CarlosDiazSignature />
                     ) : (
                       <p className="text-xl italic font-[family-name:var(--font-playfair)]" style={{ color: NAVY }}>{lawyer?.name || "Seleccione un abogado arriba"}</p>
                     )}
