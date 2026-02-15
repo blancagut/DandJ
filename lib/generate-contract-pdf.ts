@@ -37,9 +37,9 @@ function drawCarlosDiazSignature(
   w: number,
   h: number
 ) {
-  // Original SVG viewbox: 800 x 780
-  const sx = w / 800
-  const sy = h / 780
+  // New SVG viewbox: 600 x 300
+  const sx = w / 600
+  const sy = h / 300
   const tx = (px: number) => x + px * sx
   const ty = (py: number) => y + py * sy
 
@@ -47,35 +47,33 @@ function drawCarlosDiazSignature(
   doc.setLineCap(1) // round
   doc.setLineJoin(1) // round
 
-  // Large C loop — heavy stroke
-  doc.setLineWidth(0.8)
-  doc.moveTo(tx(590), ty(155))
-  doc.curveTo(tx(520), ty(70), tx(280), ty(18), tx(148), ty(108))
-  doc.curveTo(tx(48), ty(180), tx(28), ty(338), tx(92), ty(442))
-  doc.curveTo(tx(158), ty(542), tx(335), ty(512), tx(410), ty(428))
-  doc.stroke()
-
-  // Cursive angular strokes — medium stroke
+  // C + start of name
   doc.setLineWidth(0.6)
-  doc.moveTo(tx(410), ty(428))
-  doc.curveTo(tx(432), ty(396), tx(452), ty(355), tx(440), ty(382))
-  doc.curveTo(tx(428), ty(410), tx(418), ty(445), tx(448), ty(420))
-  doc.curveTo(tx(478), ty(395), tx(465), ty(428), tx(488), ty(410))
-  doc.curveTo(tx(511), ty(392), tx(502), ty(420), tx(525), ty(405))
-  doc.curveTo(tx(548), ty(390), tx(542), ty(412), tx(562), ty(400))
+  doc.moveTo(tx(120), ty(100))
+  doc.curveTo(tx(60), ty(60), tx(30), ty(180), tx(110), ty(200))
+  doc.curveTo(tx(130), ty(205), tx(150), ty(170), tx(170), ty(180))
+  doc.curveTo(tx(180), ty(185), tx(190), ty(175), tx(200), ty(180))
+  doc.curveTo(tx(210), ty(190), tx(215), ty(130), tx(225), ty(210))
+  doc.curveTo(tx(235), ty(220), tx(250), ty(190), tx(260), ty(200))
   doc.stroke()
 
-  // Long diagonal tail — thinner
+  // D Stem
+  doc.setLineWidth(0.7)
+  doc.moveTo(tx(320), ty(80))
+  doc.lineTo(tx(310), ty(210))
+  doc.stroke()
+
+  // D Loop
+  doc.setLineWidth(0.6)
+  doc.moveTo(tx(310), ty(90))
+  doc.curveTo(tx(400), ty(60), tx(440), ty(230), tx(310), ty(210))
+  doc.stroke()
+
+  // iaz + Underscore
   doc.setLineWidth(0.5)
-  doc.moveTo(tx(562), ty(400))
-  doc.curveTo(tx(592), ty(430), tx(655), ty(535), tx(718), ty(658))
-  doc.stroke()
-
-  // End flourish — lightest
-  doc.setLineWidth(0.35)
-  doc.moveTo(tx(718), ty(658))
-  doc.curveTo(tx(726), ty(652), tx(734), ty(658), tx(742), ty(652))
-  doc.curveTo(tx(750), ty(646), tx(757), ty(652), tx(764), ty(650))
+  doc.moveTo(tx(450), ty(200))
+  doc.curveTo(tx(470), ty(200), tx(480), ty(190), tx(490), ty(195))
+  doc.curveTo(tx(500), ty(200), tx(520), ty(230), tx(350), ty(240))
   doc.stroke()
 }
 
