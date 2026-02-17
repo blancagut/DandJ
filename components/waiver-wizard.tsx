@@ -121,6 +121,69 @@ const steps = [
 ]
 
 // ==========================================
+function TypedDateInput({
+    isoValue,
+    onIsoChange,
+    placeholder,
+}: {
+    isoValue: string
+    onIsoChange: (value: string) => void
+    placeholder: string
+}) {
+    const [displayValue, setDisplayValue] = useState("")
+
+    useEffect(() => {
+        if (!isoValue) {
+            setDisplayValue("")
+            return
+        }
+        const parts = isoValue.split("-")
+        if (parts.length === 3) {
+            const [year, month, day] = parts
+            setDisplayValue(`${day}/${month}/${year}`)
+        }
+    }, [isoValue])
+
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        let raw = e.target.value.replace(/[^0-9]/g, "")
+        if (raw.length > 8) raw = raw.slice(0, 8)
+
+        let formatted = ""
+        if (raw.length > 0) formatted = raw.slice(0, 2)
+        if (raw.length > 2) formatted += "/" + raw.slice(2, 4)
+        if (raw.length > 4) formatted += "/" + raw.slice(4, 8)
+        setDisplayValue(formatted)
+
+        if (raw.length === 8) {
+            const dd = raw.slice(0, 2)
+            const mm = raw.slice(2, 4)
+            const yyyy = raw.slice(4, 8)
+            const day = parseInt(dd, 10)
+            const month = parseInt(mm, 10)
+            const year = parseInt(yyyy, 10)
+            if (day >= 1 && day <= 31 && month >= 1 && month <= 12 && year >= 1900 && year <= 2030) {
+                onIsoChange(`${yyyy}-${mm}-${dd}`)
+            } else {
+                onIsoChange("")
+            }
+        } else {
+            onIsoChange("")
+        }
+    }
+
+    return (
+        <Input
+            type="text"
+            inputMode="numeric"
+            className="mt-2 text-base"
+            value={displayValue}
+            onChange={handleChange}
+            placeholder={placeholder}
+            maxLength={10}
+        />
+    )
+}
+
 // LOGIC ENGINE
 // ==========================================
 
@@ -574,7 +637,7 @@ export function WaiverWizard() {
         </div>
 
         {/* Content Card */}
-        <Card className="p-6 md:p-8 min-h-100 relative overflow-hidden shadow-lg border-t-4 border-t-blue-600">
+        <Card className="p-6 md:p-8 min-h-100 relative shadow-lg border-t-4 border-t-blue-600">
            <AnimatePresence custom={direction} mode="wait">
              <motion.div
                 key={currentStep}
@@ -781,12 +844,11 @@ export function WaiverWizard() {
                         {formData.removalHistory && (
                              <div className="mt-4">
                                  <Label>{t("step3.lastRemovalDate")}</Label>
-                                 <Input 
-                                    type="date" 
-                                    className="mt-2 text-base"
-                                    value={formData.lastRemovalDate}
-                                    onChange={(e) => updateField('lastRemovalDate', e.target.value)}
-                                 />
+                                            <TypedDateInput
+                                                isoValue={formData.lastRemovalDate}
+                                                onIsoChange={(value) => updateField('lastRemovalDate', value)}
+                                                placeholder="DD/MM/YYYY"
+                                            />
                              </div>
                         )}
                     </div>
@@ -812,8 +874,8 @@ export function WaiverWizard() {
                                      <div key={item.id} className="flex items-center space-x-3 p-3 border rounded-md">
                                          <Checkbox 
                                             id={item.id}
-                                            checked={formData[item.id as keyof WaiverFormData] as boolean}
-                                            onCheckedChange={(checked) => updateField(item.id as keyof WaiverFormData, checked)}
+                                            checked={formData[item.id as keyof WaiverFormData] === true}
+                                            onCheckedChange={(checked) => updateField(item.id as keyof WaiverFormData, checked === true)}
                                          />
                                          <label htmlFor={item.id} className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer w-full py-2">
                                              {item.label}
@@ -838,11 +900,18 @@ export function WaiverWizard() {
                                 <Label className="text-lg">{t("step5.arrestQuestion")}</Label>
                                 <div className="flex gap-4">
                                     <Button 
-                                        variant={formData.arrestHistory ? "destructive" : "secondary"}
-                                        onClick={() => updateField('arrestHistory', !formData.arrestHistory)}
-                                        className="w-full h-12 text-lg"
+                                        variant={formData.arrestHistory === true ? "destructive" : "outline"}
+                                        onClick={() => updateField('arrestHistory', true)}
+                                        className="w-full h-12 text-base"
                                     >
-                                        {formData.arrestHistory ? t("step5.yesHistory") : t("step5.noClean")}
+                                        {t("step5.yesHistory")}
+                                    </Button>
+                                    <Button
+                                        variant={formData.arrestHistory === false ? "secondary" : "outline"}
+                                        onClick={() => updateField('arrestHistory', false)}
+                                        className="w-full h-12 text-base"
+                                    >
+                                        {t("step5.noClean")}
                                     </Button>
                                 </div>
                             </div>

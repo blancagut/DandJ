@@ -1,6 +1,5 @@
 "use client"
 
-import { ValeriaChat } from "@/components/valeria-chat"
 import { Card } from "@/components/ui/card"
 import { FileText, Briefcase, ShieldAlert, ArrowLeft, ChevronRight, Users } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -191,7 +190,6 @@ export default function ConsultationPage() {
         </div>
 
       </div>
-      <ValeriaChat />
     </div>
   )
 }

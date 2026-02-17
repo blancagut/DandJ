@@ -20,6 +20,7 @@ CREATE TABLE IF NOT EXISTS consultation_requests (
   
   -- Case Information  
   case_type TEXT NOT NULL,
+  case_sub_type TEXT,
   urgency TEXT NOT NULL,
   case_description TEXT NOT NULL,
   previous_attorney TEXT,
@@ -29,6 +30,7 @@ CREATE TABLE IF NOT EXISTS consultation_requests (
   preferred_contact_method TEXT NOT NULL,
   preferred_consultation_time TEXT,
   referral_source TEXT,
+  document_types JSONB DEFAULT '[]'::jsonb,
   
   -- Files (stored as JSON array)
   files JSONB DEFAULT '[]'::jsonb,
@@ -231,6 +233,137 @@ CREATE POLICY "lead_files_public_insert" ON lead_files
 DROP POLICY IF EXISTS "lead_files_auth_read" ON lead_files;
 CREATE POLICY "lead_files_auth_read" ON lead_files
   FOR SELECT TO authenticated USING (true);
+
+-- =====================================================
+-- 8. TABLAS: screening forms (petition/waiver/work)
+-- =====================================================
+CREATE TABLE IF NOT EXISTS work_screenings (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  contact_name TEXT NOT NULL,
+  contact_email TEXT NOT NULL,
+  contact_phone TEXT NOT NULL,
+  data JSONB NOT NULL,
+  status TEXT DEFAULT 'new' CHECK (status IN ('new', 'reviewing', 'contacted', 'completed', 'archived')),
+  notes TEXT,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_work_screenings_created ON work_screenings(created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_work_screenings_status ON work_screenings(status);
+
+ALTER TABLE work_screenings ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "work_screenings_public_insert" ON work_screenings;
+CREATE POLICY "work_screenings_public_insert" ON work_screenings
+  FOR INSERT TO anon, authenticated WITH CHECK (true);
+
+DROP POLICY IF EXISTS "work_screenings_auth_read" ON work_screenings;
+CREATE POLICY "work_screenings_auth_read" ON work_screenings
+  FOR SELECT TO authenticated USING (true);
+
+DROP POLICY IF EXISTS "work_screenings_auth_update" ON work_screenings;
+CREATE POLICY "work_screenings_auth_update" ON work_screenings
+  FOR UPDATE TO authenticated USING (true);
+
+CREATE TABLE IF NOT EXISTS waiver_screenings (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  contact_name TEXT NOT NULL,
+  contact_email TEXT NOT NULL,
+  contact_phone TEXT NOT NULL,
+  data JSONB NOT NULL,
+  status TEXT DEFAULT 'new' CHECK (status IN ('new', 'reviewing', 'contacted', 'completed', 'archived')),
+  notes TEXT,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_waiver_screenings_created ON waiver_screenings(created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_waiver_screenings_status ON waiver_screenings(status);
+
+ALTER TABLE waiver_screenings ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "waiver_screenings_public_insert" ON waiver_screenings;
+CREATE POLICY "waiver_screenings_public_insert" ON waiver_screenings
+  FOR INSERT TO anon, authenticated WITH CHECK (true);
+
+DROP POLICY IF EXISTS "waiver_screenings_auth_read" ON waiver_screenings;
+CREATE POLICY "waiver_screenings_auth_read" ON waiver_screenings
+  FOR SELECT TO authenticated USING (true);
+
+DROP POLICY IF EXISTS "waiver_screenings_auth_update" ON waiver_screenings;
+CREATE POLICY "waiver_screenings_auth_update" ON waiver_screenings
+  FOR UPDATE TO authenticated USING (true);
+
+CREATE TABLE IF NOT EXISTS petition_screenings (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  contact_name TEXT NOT NULL,
+  contact_email TEXT NOT NULL,
+  contact_phone TEXT NOT NULL,
+  data JSONB NOT NULL,
+  status TEXT DEFAULT 'new' CHECK (status IN ('new', 'reviewing', 'contacted', 'completed', 'archived')),
+  notes TEXT,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_petition_screenings_created ON petition_screenings(created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_petition_screenings_status ON petition_screenings(status);
+
+ALTER TABLE petition_screenings ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "petition_screenings_public_insert" ON petition_screenings;
+CREATE POLICY "petition_screenings_public_insert" ON petition_screenings
+  FOR INSERT TO anon, authenticated WITH CHECK (true);
+
+DROP POLICY IF EXISTS "petition_screenings_auth_read" ON petition_screenings;
+CREATE POLICY "petition_screenings_auth_read" ON petition_screenings
+  FOR SELECT TO authenticated USING (true);
+
+DROP POLICY IF EXISTS "petition_screenings_auth_update" ON petition_screenings;
+CREATE POLICY "petition_screenings_auth_update" ON petition_screenings
+  FOR UPDATE TO authenticated USING (true);
+
+-- =====================================================
+-- 9. TABLA: h2b_contracts (Digital contracts)
+-- =====================================================
+CREATE TABLE IF NOT EXISTS h2b_contracts (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  client_name TEXT NOT NULL,
+  client_dob DATE NOT NULL,
+  client_passport TEXT NOT NULL,
+  client_country TEXT NOT NULL,
+  client_city TEXT NOT NULL,
+  client_email TEXT NOT NULL,
+  client_phone TEXT,
+  lawyer_name TEXT NOT NULL DEFAULT 'Carlos Roberto Díaz',
+  contract_day INTEGER NOT NULL,
+  contract_month TEXT NOT NULL DEFAULT 'Febrero',
+  contract_year INTEGER NOT NULL DEFAULT 2026,
+  client_signature TEXT NOT NULL,
+  ip_address TEXT,
+  user_agent TEXT,
+  signed_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  status TEXT NOT NULL DEFAULT 'signed' CHECK (status IN ('signed', 'voided', 'expired'))
+);
+
+CREATE INDEX IF NOT EXISTS idx_h2b_contracts_signed_at ON h2b_contracts(signed_at DESC);
+CREATE INDEX IF NOT EXISTS idx_h2b_contracts_email ON h2b_contracts(client_email);
+
+ALTER TABLE h2b_contracts ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "h2b_contracts_public_insert" ON h2b_contracts;
+CREATE POLICY "h2b_contracts_public_insert" ON h2b_contracts
+  FOR INSERT TO anon, authenticated WITH CHECK (true);
+
+DROP POLICY IF EXISTS "h2b_contracts_auth_read" ON h2b_contracts;
+CREATE POLICY "h2b_contracts_auth_read" ON h2b_contracts
+  FOR SELECT TO authenticated USING (true);
+
+DROP POLICY IF EXISTS "h2b_contracts_auth_update" ON h2b_contracts;
+CREATE POLICY "h2b_contracts_auth_update" ON h2b_contracts
+  FOR UPDATE TO authenticated USING (true);
 
 -- =====================================================
 -- HABILITAR REALTIME PARA CHAT

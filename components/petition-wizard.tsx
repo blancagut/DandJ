@@ -68,6 +68,69 @@ const allStepDefs = [
 // Helper: capitalize first letter for translation key lookup (e.g. "high" → "High")
 const capFirst = (s: string) => s.charAt(0).toUpperCase() + s.slice(1)
 
+function TypedDateInput({
+  isoValue,
+  onIsoChange,
+  placeholder,
+}: {
+  isoValue: string
+  onIsoChange: (value: string) => void
+  placeholder: string
+}) {
+  const [displayValue, setDisplayValue] = useState("")
+
+  useEffect(() => {
+    if (!isoValue) {
+      setDisplayValue("")
+      return
+    }
+    const parts = isoValue.split("-")
+    if (parts.length === 3) {
+      const [year, month, day] = parts
+      setDisplayValue(`${day}/${month}/${year}`)
+    }
+  }, [isoValue])
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    let raw = e.target.value.replace(/[^0-9]/g, "")
+    if (raw.length > 8) raw = raw.slice(0, 8)
+
+    let formatted = ""
+    if (raw.length > 0) formatted = raw.slice(0, 2)
+    if (raw.length > 2) formatted += "/" + raw.slice(2, 4)
+    if (raw.length > 4) formatted += "/" + raw.slice(4, 8)
+    setDisplayValue(formatted)
+
+    if (raw.length === 8) {
+      const dd = raw.slice(0, 2)
+      const mm = raw.slice(2, 4)
+      const yyyy = raw.slice(4, 8)
+      const day = parseInt(dd, 10)
+      const month = parseInt(mm, 10)
+      const year = parseInt(yyyy, 10)
+      if (day >= 1 && day <= 31 && month >= 1 && month <= 12 && year >= 1900 && year <= 2030) {
+        onIsoChange(`${yyyy}-${mm}-${dd}`)
+      } else {
+        onIsoChange("")
+      }
+    } else {
+      onIsoChange("")
+    }
+  }
+
+  return (
+    <Input
+      type="text"
+      inputMode="numeric"
+      value={displayValue}
+      onChange={handleChange}
+      placeholder={placeholder}
+      className="text-base"
+      maxLength={10}
+    />
+  )
+}
+
 // ==========================================
 // COMPONENT
 // ==========================================
@@ -804,7 +867,11 @@ export function PetitionWizard() {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="space-y-2">
                       <Label>{t("step8.marriageDateLabel")}</Label>
-                      <Input type="date" value={formData.marriageDate} onChange={(e) => updateField("marriageDate", e.target.value)} className="text-base" />
+                      <TypedDateInput
+                        isoValue={formData.marriageDate}
+                        onIsoChange={(value) => updateField("marriageDate", value)}
+                        placeholder="DD/MM/YYYY"
+                      />
                     </div>
                     <div className="space-y-2">
                       <Label>{t("step8.marriageLocationLabel")}</Label>

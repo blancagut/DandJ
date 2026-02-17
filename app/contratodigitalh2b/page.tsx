@@ -299,7 +299,7 @@ export default function ContratoDigitalH2B() {
         reader.onloadend = async () => {
           const base64 = (reader.result as string).split(",")[1]
           try {
-            await fetch("/api/contract/email", {
+            const emailRes = await fetch("/api/contract/email", {
               method: "POST",
               headers: { "Content-Type": "application/json" },
               body: JSON.stringify({
@@ -311,7 +311,11 @@ export default function ContratoDigitalH2B() {
                 pdfBase64: base64,
               }),
             })
-            setEmailSent(true)
+            if (emailRes.ok) {
+              setEmailSent(true)
+            } else {
+              console.error("Contract email endpoint returned non-OK response")
+            }
           } catch {
             console.error("Failed to send contract email")
           }

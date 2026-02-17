@@ -1,7 +1,6 @@
 "use client"
 
 import { WaiverWizard } from "@/components/waiver-wizard"
-import { ValeriaChat } from "@/components/valeria-chat"
 import { ArrowLeft } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
@@ -21,7 +20,6 @@ export default function WaiverScreeningPage() {
         </Link>
         <WaiverWizard />
       </div>
-      <ValeriaChat />
     </div>
   )
 }

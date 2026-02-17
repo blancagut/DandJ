@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import {
   User,
@@ -22,11 +22,9 @@ import {
   Calendar,
   Scale,
   Shield,
-  Users,
   Briefcase,
   Heart,
   GraduationCap,
-  DollarSign,
   Home,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -399,35 +397,44 @@ export function ConsultationForm() {
   const { language } = useLanguage()
   const t = translations[language] || translations.en
   const [currentStep, setCurrentStep] = useState(1)
-  const [formData, setFormData] = useState<FormData>(initialFormData)
+  const [formData, setFormData] = useState<FormData>(() => {
+    if (typeof window === "undefined") return initialFormData
+    try {
+      const saved = localStorage.getItem("consultation-form-data")
+      if (!saved) return initialFormData
+      const parsed = JSON.parse(saved)
+      return { ...initialFormData, ...parsed, agreeToTerms: false }
+    } catch {
+      return initialFormData
+    }
+  })
   const [direction, setDirection] = useState(0)
   const [validationError, setValidationError] = useState<string | null>(null)
-  const [isLoaded, setIsLoaded] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isSubmitted, setIsSubmitted] = useState(false)
   const [submitError, setSubmitError] = useState<string | null>(null)
-  const [showOtherNationality, setShowOtherNationality] = useState(false)
-
-  // Data persistence
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      try {
-        const saved = localStorage.getItem("consultation-form-data")
-        if (saved) {
-          const parsed = JSON.parse(saved)
-          setFormData({ ...initialFormData, ...parsed, agreeToTerms: false })
-          if (parsed.customNationality) setShowOtherNationality(true)
-        }
-      } catch { /* ignore */ }
-      setIsLoaded(true)
+  const [showOtherNationality, setShowOtherNationality] = useState(() => {
+    if (typeof window === "undefined") return false
+    try {
+      const saved = localStorage.getItem("consultation-form-data")
+      if (!saved) return false
+      const parsed = JSON.parse(saved)
+      return Boolean(parsed.customNationality)
+    } catch {
+      return false
     }
-  }, [])
+  })
+  const didMountRef = useRef(false)
 
   useEffect(() => {
-    if (isLoaded && typeof window !== "undefined") {
+    if (!didMountRef.current) {
+      didMountRef.current = true
+      return
+    }
+    if (typeof window !== "undefined") {
       try { localStorage.setItem("consultation-form-data", JSON.stringify(formData)) } catch { /* ignore */ }
     }
-  }, [formData, isLoaded])
+  }, [formData])
 
   const updateField = <K extends keyof FormData>(field: K, value: FormData[K]) => {
     setFormData((prev) => ({ ...prev, [field]: value }))

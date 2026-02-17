@@ -18,6 +18,7 @@ CREATE TABLE IF NOT EXISTS consultation_requests (
   
   -- Case Information  
   case_type TEXT NOT NULL,
+  case_sub_type TEXT,
   urgency TEXT NOT NULL,
   case_description TEXT NOT NULL,
   previous_attorney TEXT,
@@ -27,6 +28,7 @@ CREATE TABLE IF NOT EXISTS consultation_requests (
   preferred_contact_method TEXT NOT NULL,
   preferred_consultation_time TEXT,
   referral_source TEXT,
+  document_types JSONB DEFAULT '[]'::jsonb,
   
   -- Files (stored as JSON array)
   files JSONB DEFAULT '[]'::jsonb,
