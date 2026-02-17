@@ -1,1510 +1,963 @@
 "use client"
 
-import type React from "react"
-import { useState } from "react"
-import { useForm } from "react-hook-form"
-import { zodResolver } from "@hookform/resolvers/zod"
-import * as z from "zod"
+import { useState, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import Link from "next/link"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Textarea } from "@/components/ui/textarea"
-import { Label } from "@/components/ui/label"
-import { Checkbox } from "@/components/ui/checkbox"
-import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
-import { 
-  Upload, X, FileText, CheckCircle2, Phone, Mail, MapPin, Clock,
-  Globe, FileCheck, Scale, Shield, Users, Briefcase, Heart,
-  AlertCircle, Calendar, TrendingUp, Check, Building2,
-  GraduationCap, DollarSign, Home, Baby, UserPlus, Gavel,
-  HandHelping, TreePine, Utensils, HardHat, Warehouse, Factory,
-  Wrench, Hotel, Fish, Leaf, ArrowLeft
+import {
+  User,
+  Globe,
+  FileText,
+  MessageSquare,
+  ChevronLeft,
+  ChevronRight,
+  CheckCircle2,
+  AlertCircle,
+  Save,
+  Phone,
+  Mail,
+  Video,
+  MapPin,
+  Clock,
+  AlertTriangle,
+  Zap,
+  Calendar,
+  Scale,
+  Shield,
+  Users,
+  Briefcase,
+  Heart,
+  GraduationCap,
+  DollarSign,
+  Home,
 } from "lucide-react"
+import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
-import { getSupabaseBrowserClient } from "@/lib/supabase/client"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Textarea } from "@/components/ui/textarea"
+import { Checkbox } from "@/components/ui/checkbox"
 import { cn } from "@/lib/utils"
+import { getSupabaseBrowserClient } from "@/lib/supabase/client"
 import { useLanguage } from "@/lib/language-context"
+import { WaiverLanguageSelector } from "@/components/waiver-language-selector"
+import Link from "next/link"
 
-// ============================================
+// ==========================================
 // TRANSLATIONS
-// ============================================
+// ==========================================
+
 const translations = {
   en: {
-    // Header
-    caseEvaluation: "Case Evaluation",
-    freeConsultation: "Free Consultation Request",
-    headerSubtitle: "Tell us about your case and we will help you find the best solution. All information is confidential.",
-    
-    // Case Types Section
-    whatHelpNeeded: "What do you need help with?",
-    selectCaseType: "Select the type of case that best describes your situation",
-    
-    // Case Types
-    h2bWorkVisa: "Work Visa",
-    h2bWorkVisaDesc: "Employment-based work visa screening",
-    familyPetitions: "Family Petitions",
-    familyPetitionsDesc: "Reunite with your loved ones",
-    greenCard: "Green Card",
-    greenCardDesc: "Permanent residence applications",
-    citizenship: "Citizenship",
-    citizenshipDesc: "Naturalization process",
-    deportationDefense: "Deportation Defense",
-    deportationDefenseDesc: "Protection from removal",
-    asylum: "Asylum",
-    asylumDesc: "Protection for those fleeing persecution",
-    criminalDefense: "Criminal Defense",
-    criminalDefenseDesc: "Defense against criminal charges",
-    businessImmigration: "Business Immigration",
-    businessImmigrationDesc: "Investor & business visas",
-    
-    // Sub-options titles
-    selectIndustry: "Select Industry",
-    petitionType: "Petition Type",
-    greenCardCategory: "Green Card Category",
-    visaType: "Visa Type",
-    
-    // H2B Industries
-    agriculture: "Agriculture",
-    landscaping: "Landscaping",
-    construction: "Construction",
-    hospitality: "Hospitality",
-    foodProcessing: "Food Processing",
-    seafood: "Seafood Processing",
-    warehouse: "Warehouse",
-    manufacturing: "Manufacturing",
-    maintenance: "Maintenance",
-    housekeeping: "Housekeeping",
-    
-    // Family Petition Types
-    spouse: "Spouse",
-    parent: "Parent",
-    child: "Child",
-    sibling: "Sibling",
-    fiance: "Fiance(e)",
-    
-    // Green Card Categories
-    familyBased: "Family-Based",
-    employmentBased: "Employment-Based",
-    diversityLottery: "Diversity Lottery",
-    vawa: "VAWA",
-    specialImmigrant: "Special Immigrant",
-    
-    // Visa Types
-    studentF1: "Student (F-1)",
-    workH1b: "Work (H-1B)",
-    investorE2: "Investor (E-2)",
-    intracompanyL1: "Intracompany (L-1)",
-    religiousR1: "Religious (R-1)",
-    extraordinaryO1: "Extraordinary (O-1)",
-    
-    // Urgency Section
-    howUrgent: "How urgent is your case?",
-    immediate: "Immediate",
-    immediateDesc: "Within 24 hours",
-    urgent: "Urgent",
-    urgentDesc: "Within 1 week",
-    normal: "Normal",
-    normalDesc: "Within 2 weeks",
-    planning: "Planning",
-    planningDesc: "No rush",
-    
-    // Personal Information Section
-    personalInfo: "Personal Information",
-    firstName: "First Name",
-    lastName: "Last Name",
-    email: "Email Address",
-    phone: "Phone Number",
-    dateOfBirth: "Date of Birth",
-    nationality: "Nationality",
-    currentLocation: "Current Location",
-    locationPlaceholder: "City, State, Country",
-    enterNationality: "Enter your nationality",
-    other: "Other",
-    
-    // Case Details Section
-    caseDetails: "Case Details",
-    describeYourSituation: "Describe Your Situation",
-    situationPlaceholder: "Please provide details about your case, including relevant dates, circumstances, and what outcome you are hoping for...",
-    beDetailed: "Be as detailed as possible to help us understand your situation.",
-    previousAttorney: "Previous Attorney (if any)",
-    attorneyPlaceholder: "Attorney name or firm",
-    upcomingCourtDate: "Upcoming Court Date",
-    
-    // Documents Section
-    documents: "Documents",
-    documentsSubtitle: "Select which documents you have available and upload them if possible",
-    availableDocuments: "Available Documents",
-    passport: "Passport",
-    currentVisa: "Current Visa",
-    i94: "I-94",
-    birthCertificate: "Birth Certificate",
-    marriageCertificate: "Marriage Certificate",
-    policeRecord: "Police Record",
-    employmentLetter: "Employment Letter",
-    taxReturns: "Tax Returns",
-    courtDocuments: "Court Documents",
-    medicalRecords: "Medical Records",
-    clickToUpload: "Click to upload files",
-    fileTypes: "PDF, JPG, PNG, DOC (Max 10MB)",
-    uploadedFiles: "Uploaded Files",
-    
-    // Contact Preferences Section
-    contactPreferences: "Contact Preferences",
-    preferredContactMethod: "Preferred Contact Method",
-    phoneCall: "Phone Call",
-    emailMethod: "Email",
-    videoCall: "Video Call",
-    inPerson: "In-Person",
-    preferredTime: "Preferred Time",
-    morning: "Morning",
-    morningTime: "8 AM - 12 PM",
-    afternoon: "Afternoon",
-    afternoonTime: "12 PM - 5 PM",
-    evening: "Evening",
-    eveningTime: "5 PM - 7 PM",
-    weekend: "Weekend",
-    weekendTime: "Sat/Sun",
-    
-    // Terms & Submit
-    agreeToTerms: "I agree to the terms and conditions",
-    termsDescription: "Your information is protected by attorney-client privilege. We will only use it to evaluate and respond to your consultation request.",
-    submitting: "Submitting...",
-    submitButton: "Submit Consultation Request",
-    
-    // Success Screen
-    successTitle: "Consultation Request Submitted!",
-    successMessage: "Thank you for choosing Diaz & Johnson. Our attorneys will review your case and contact you within 24 hours.",
-    returnHome: "Return to Home",
-    
-    // Navigation
-    backToHome: "Back to Home",
-    
-    // Sidebar
-    whatHappensNext: "What Happens Next?",
-    step1Title: "Case Review",
-    step1Desc: "Our attorneys review your information within 24 hours.",
-    step2Title: "Initial Contact",
-    step2Desc: "We will reach out to schedule your consultation.",
-    step3Title: "Consultation",
-    step3Desc: "Meet with an attorney to discuss your case in detail.",
-    step4Title: "Action Plan",
-    step4Desc: "Receive a clear strategy and next steps.",
-    
-    needImmediateHelp: "Need Immediate Help?",
-    callUsNow: "Call us now",
-    emailUs: "Email us",
-    officeHours: "Office Hours",
-    officeHoursValue: "Mon-Fri: 8 AM - 6 PM",
-    location: "Location",
-    emergencyLine: "24/7 Emergency Line for Urgent Cases",
-    
-    confidential: "100% Confidential",
-    confidentialDesc: "Your information is protected by attorney-client privilege and encrypted using industry-standard security.",
-    
-    // Errors
-    errorSubmit: "Error submitting. Please try again.",
-    errorConnection: "Connection error. Please try again.",
+    title: "General Consultation",
+    subtitle: "Tell us about your case — we'll review and reach out within 24 hours.",
+    steps: {
+      personal: { title: "Personal", desc: "Your Info" },
+      caseInfo: { title: "Case", desc: "Details" },
+      description: { title: "Details", desc: "Your Story" },
+      review: { title: "Review", desc: "Confirm" },
+    },
+    step1: {
+      heading: "Personal Information",
+      firstName: "First Name",
+      firstNamePh: "e.g. María",
+      lastName: "Last Name",
+      lastNamePh: "e.g. García",
+      email: "Email",
+      emailPh: "email@example.com",
+      phone: "Phone",
+      phonePh: "+1 (555) 000-0000",
+      nationality: "Nationality",
+      nationalityOther: "Other nationality",
+      nationalityOtherPh: "Type your nationality",
+      location: "Current Location",
+      locationPh: "City, State or Country",
+    },
+    step2: {
+      heading: "Case Details",
+      caseType: "What type of case do you need help with?",
+      urgency: "How urgent is your situation?",
+      urgencyImmediate: "Immediate",
+      urgencyImmediateDesc: "Court date or deadline within days",
+      urgencyUrgent: "Urgent",
+      urgencyUrgentDesc: "Need help within 1-2 weeks",
+      urgencyNormal: "Normal",
+      urgencyNormalDesc: "Planning ahead, no rush",
+      urgencyPlanning: "Planning",
+      urgencyPlanningDesc: "Future immigration plans",
+    },
+    step3: {
+      heading: "Tell Us Your Story",
+      description: "Describe your situation",
+      descriptionPh: "Please describe your immigration situation, any deadlines, previous filings, or concerns you have...",
+      descriptionHelp: "The more detail you provide, the better we can prepare for your consultation.",
+      previousAttorney: "Previous Attorney (optional)",
+      previousAttorneyPh: "Name of previous attorney, if any",
+      courtDate: "Upcoming Court Date (optional)",
+      courtDatePh: "DD/MM/YYYY",
+      contactMethod: "Preferred Contact Method",
+      contactTime: "Preferred Time (optional)",
+      timeMorning: "Morning",
+      timeAfternoon: "Afternoon",
+      timeEvening: "Evening",
+      timeFlexible: "Flexible",
+    },
+    step4: {
+      heading: "Review & Submit",
+      personalInfo: "Personal Information",
+      caseDetails: "Case Details",
+      yourStory: "Your Story",
+      preferences: "Preferences",
+      contact: "Contact",
+      time: "Time",
+      terms: "I agree that my information will be used to evaluate my case and contact me regarding legal services. This does not create an attorney-client relationship.",
+      submit: "Submit Consultation Request",
+      submitting: "Submitting...",
+    },
+    caseTypes: {
+      "h2b-work-visa": "H-2B Work Visa",
+      "family-petition": "Family Petition",
+      "immigration-greencard": "Green Card",
+      "immigration-citizenship": "Citizenship",
+      "immigration-deportation": "Deportation Defense",
+      "immigration-asylum": "Asylum",
+      "criminal-defense": "Criminal Defense",
+      "business-immigration": "Business Immigration",
+    },
+    contactMethods: { phone: "Phone", email: "Email", video: "Video Call", "in-person": "In Person" },
+    nationalities: ["Mexican", "Honduran", "Guatemalan", "Salvadoran", "Colombian", "Venezuelan", "Cuban", "Haitian", "Brazilian"],
+    validation: {
+      firstNameReq: "First name is required (min 2 characters)",
+      lastNameReq: "Last name is required (min 2 characters)",
+      emailReq: "Valid email is required",
+      phoneReq: "Phone number is required (min 10 digits)",
+      nationalityReq: "Nationality is required",
+      locationReq: "Current location is required",
+      caseTypeReq: "Please select a case type",
+      urgencyReq: "Please select urgency level",
+      descriptionReq: "Please describe your situation (min 20 characters)",
+      contactMethodReq: "Please select a contact method",
+      termsReq: "You must agree to the terms",
+    },
+    confirmation: {
+      title: "Consultation Request Submitted!",
+      message: "Thank you for reaching out. Our team will review your case and contact you within 24 hours.",
+      followUp: "Check your email for a confirmation.",
+      backToForms: "Back to Forms",
+      backToHome: "Back to Home",
+    },
+    nav: { back: "Back", next: "Continue", analyze: "Review" },
   },
   es: {
-    // Header
-    caseEvaluation: "Evaluación de Caso",
-    freeConsultation: "Solicitud de Consulta Gratuita",
-    headerSubtitle: "Cuéntenos sobre su caso y le ayudaremos a encontrar la mejor solución. Toda la información es confidencial.",
-    
-    // Case Types Section
-    whatHelpNeeded: "¿En qué necesita ayuda?",
-    selectCaseType: "Seleccione el tipo de caso que mejor describe su situación",
-    
-    // Case Types
-    h2bWorkVisa: "Visa de Trabajo",
-    h2bWorkVisaDesc: "Evaluación de visa de trabajo basada en empleo",
-    familyPetitions: "Peticiones Familiares",
-    familyPetitionsDesc: "Reúnase con sus seres queridos",
-    greenCard: "Residencia Permanente",
-    greenCardDesc: "Solicitudes de Green Card",
-    citizenship: "Ciudadanía",
-    citizenshipDesc: "Proceso de naturalización",
-    deportationDefense: "Defensa de Deportación",
-    deportationDefenseDesc: "Protección contra la remoción",
-    asylum: "Asilo",
-    asylumDesc: "Protección para quienes huyen de persecución",
-    criminalDefense: "Defensa Criminal",
-    criminalDefenseDesc: "Defensa contra cargos criminales",
-    businessImmigration: "Inmigración de Negocios",
-    businessImmigrationDesc: "Visas de inversionista y negocios",
-    
-    // Sub-options titles
-    selectIndustry: "Seleccione Industria",
-    petitionType: "Tipo de Petición",
-    greenCardCategory: "Categoría de Green Card",
-    visaType: "Tipo de Visa",
-    
-    // H2B Industries
-    agriculture: "Agricultura",
-    landscaping: "Jardinería",
-    construction: "Construcción",
-    hospitality: "Hospitalidad",
-    foodProcessing: "Procesamiento de Alimentos",
-    seafood: "Procesamiento de Mariscos",
-    warehouse: "Almacén",
-    manufacturing: "Manufactura",
-    maintenance: "Mantenimiento",
-    housekeeping: "Limpieza",
-    
-    // Family Petition Types
-    spouse: "Cónyuge",
-    parent: "Padre/Madre",
-    child: "Hijo(a)",
-    sibling: "Hermano(a)",
-    fiance: "Prometido(a)",
-    
-    // Green Card Categories
-    familyBased: "Basada en Familia",
-    employmentBased: "Basada en Empleo",
-    diversityLottery: "Lotería de Diversidad",
-    vawa: "VAWA",
-    specialImmigrant: "Inmigrante Especial",
-    
-    // Visa Types
-    studentF1: "Estudiante (F-1)",
-    workH1b: "Trabajo (H-1B)",
-    investorE2: "Inversionista (E-2)",
-    intracompanyL1: "Intracompañía (L-1)",
-    religiousR1: "Religioso (R-1)",
-    extraordinaryO1: "Habilidad Extraordinaria (O-1)",
-    
-    // Urgency Section
-    howUrgent: "¿Qué tan urgente es su caso?",
-    immediate: "Inmediato",
-    immediateDesc: "Dentro de 24 horas",
-    urgent: "Urgente",
-    urgentDesc: "Dentro de 1 semana",
-    normal: "Normal",
-    normalDesc: "Dentro de 2 semanas",
-    planning: "Planificación",
-    planningDesc: "Sin prisa",
-    
-    // Personal Information Section
-    personalInfo: "Información Personal",
-    firstName: "Nombre",
-    lastName: "Apellido",
-    email: "Correo Electrónico",
-    phone: "Número de Teléfono",
-    dateOfBirth: "Fecha de Nacimiento",
-    nationality: "Nacionalidad",
-    currentLocation: "Ubicación Actual",
-    locationPlaceholder: "Ciudad, Estado, País",
-    enterNationality: "Ingrese su nacionalidad",
-    other: "Otro",
-    
-    // Case Details Section
-    caseDetails: "Detalles del Caso",
-    describeYourSituation: "Describa Su Situación",
-    situationPlaceholder: "Por favor proporcione detalles sobre su caso, incluyendo fechas relevantes, circunstancias y qué resultado espera obtener...",
-    beDetailed: "Sea lo más detallado posible para ayudarnos a entender su situación.",
-    previousAttorney: "Abogado Anterior (si tiene)",
-    attorneyPlaceholder: "Nombre del abogado o firma",
-    upcomingCourtDate: "Fecha de Corte Próxima",
-    
-    // Documents Section
-    documents: "Documentos",
-    documentsSubtitle: "Seleccione qué documentos tiene disponibles y súbalos si es posible",
-    availableDocuments: "Documentos Disponibles",
-    passport: "Pasaporte",
-    currentVisa: "Visa Actual",
-    i94: "I-94",
-    birthCertificate: "Acta de Nacimiento",
-    marriageCertificate: "Acta de Matrimonio",
-    policeRecord: "Antecedentes Policiales",
-    employmentLetter: "Carta de Empleo",
-    taxReturns: "Declaraciones de Impuestos",
-    courtDocuments: "Documentos de Corte",
-    medicalRecords: "Registros Médicos",
-    clickToUpload: "Clic para subir archivos",
-    fileTypes: "PDF, JPG, PNG, DOC (Máx 10MB)",
-    uploadedFiles: "Archivos Subidos",
-    
-    // Contact Preferences Section
-    contactPreferences: "Preferencias de Contacto",
-    preferredContactMethod: "Método de Contacto Preferido",
-    phoneCall: "Llamada Telefónica",
-    emailMethod: "Correo Electrónico",
-    videoCall: "Videollamada",
-    inPerson: "En Persona",
-    preferredTime: "Horario Preferido",
-    morning: "Mañana",
-    morningTime: "8 AM - 12 PM",
-    afternoon: "Tarde",
-    afternoonTime: "12 PM - 5 PM",
-    evening: "Noche",
-    eveningTime: "5 PM - 7 PM",
-    weekend: "Fin de Semana",
-    weekendTime: "Sáb/Dom",
-    
-    // Terms & Submit
-    agreeToTerms: "Acepto los términos y condiciones",
-    termsDescription: "Su información está protegida por el privilegio abogado-cliente. Solo la usaremos para evaluar y responder a su solicitud de consulta.",
-    submitting: "Enviando...",
-    submitButton: "Enviar Solicitud de Consulta",
-    
-    // Success Screen
-    successTitle: "¡Solicitud de Consulta Enviada!",
-    successMessage: "Gracias por elegir Diaz & Johnson. Nuestros abogados revisarán su caso y lo contactarán dentro de 24 horas.",
-    returnHome: "Volver al Inicio",
-    
-    // Navigation
-    backToHome: "Volver al Inicio",
-    
-    // Sidebar
-    whatHappensNext: "¿Qué Sigue?",
-    step1Title: "Revisión del Caso",
-    step1Desc: "Nuestros abogados revisan su información dentro de 24 horas.",
-    step2Title: "Contacto Inicial",
-    step2Desc: "Nos comunicaremos para programar su consulta.",
-    step3Title: "Consulta",
-    step3Desc: "Reúnase con un abogado para discutir su caso en detalle.",
-    step4Title: "Plan de Acción",
-    step4Desc: "Reciba una estrategia clara y próximos pasos.",
-    
-    needImmediateHelp: "¿Necesita Ayuda Inmediata?",
-    callUsNow: "Llámenos ahora",
-    emailUs: "Envíenos un correo",
-    officeHours: "Horario de Oficina",
-    officeHoursValue: "Lun-Vie: 8 AM - 6 PM",
-    location: "Ubicación",
-    emergencyLine: "Línea de Emergencia 24/7 para Casos Urgentes",
-    
-    confidential: "100% Confidencial",
-    confidentialDesc: "Su información está protegida por el privilegio abogado-cliente y encriptada usando seguridad de nivel industrial.",
-    
-    // Errors
-    errorSubmit: "Error al enviar. Por favor intente de nuevo.",
-    errorConnection: "Error de conexión. Por favor intente de nuevo.",
+    title: "Consulta General",
+    subtitle: "Cuéntenos sobre su caso — lo revisaremos y nos comunicaremos dentro de 24 horas.",
+    steps: {
+      personal: { title: "Personal", desc: "Sus Datos" },
+      caseInfo: { title: "Caso", desc: "Detalles" },
+      description: { title: "Detalles", desc: "Su Historia" },
+      review: { title: "Revisar", desc: "Confirmar" },
+    },
+    step1: {
+      heading: "Información Personal",
+      firstName: "Nombre",
+      firstNamePh: "ej. María",
+      lastName: "Apellido",
+      lastNamePh: "ej. García",
+      email: "Correo Electrónico",
+      emailPh: "correo@ejemplo.com",
+      phone: "Teléfono",
+      phonePh: "+1 (555) 000-0000",
+      nationality: "Nacionalidad",
+      nationalityOther: "Otra nacionalidad",
+      nationalityOtherPh: "Escriba su nacionalidad",
+      location: "Ubicación Actual",
+      locationPh: "Ciudad, Estado o País",
+    },
+    step2: {
+      heading: "Detalles del Caso",
+      caseType: "¿Qué tipo de caso necesita?",
+      urgency: "¿Qué tan urgente es su situación?",
+      urgencyImmediate: "Inmediata",
+      urgencyImmediateDesc: "Fecha de corte o plazo en días",
+      urgencyUrgent: "Urgente",
+      urgencyUrgentDesc: "Necesita ayuda en 1-2 semanas",
+      urgencyNormal: "Normal",
+      urgencyNormalDesc: "Planificando, sin prisa",
+      urgencyPlanning: "Planificación",
+      urgencyPlanningDesc: "Planes de inmigración futuros",
+    },
+    step3: {
+      heading: "Cuéntenos Su Historia",
+      description: "Describa su situación",
+      descriptionPh: "Por favor describa su situación migratoria, fechas límite, solicitudes previas o preocupaciones...",
+      descriptionHelp: "Mientras más detalle nos brinde, mejor podremos preparar su consulta.",
+      previousAttorney: "Abogado Anterior (opcional)",
+      previousAttorneyPh: "Nombre del abogado anterior, si aplica",
+      courtDate: "Próxima Fecha de Corte (opcional)",
+      courtDatePh: "DD/MM/AAAA",
+      contactMethod: "Método de Contacto Preferido",
+      contactTime: "Horario Preferido (opcional)",
+      timeMorning: "Mañana",
+      timeAfternoon: "Tarde",
+      timeEvening: "Noche",
+      timeFlexible: "Flexible",
+    },
+    step4: {
+      heading: "Revisar y Enviar",
+      personalInfo: "Información Personal",
+      caseDetails: "Detalles del Caso",
+      yourStory: "Su Historia",
+      preferences: "Preferencias",
+      contact: "Contacto",
+      time: "Horario",
+      terms: "Acepto que mi información sea utilizada para evaluar mi caso y contactarme sobre servicios legales. Esto no crea una relación abogado-cliente.",
+      submit: "Enviar Solicitud de Consulta",
+      submitting: "Enviando...",
+    },
+    caseTypes: {
+      "h2b-work-visa": "Visa H-2B de Trabajo",
+      "family-petition": "Petición Familiar",
+      "immigration-greencard": "Tarjeta Verde",
+      "immigration-citizenship": "Ciudadanía",
+      "immigration-deportation": "Defensa de Deportación",
+      "immigration-asylum": "Asilo",
+      "criminal-defense": "Defensa Criminal",
+      "business-immigration": "Inmigración de Negocios",
+    },
+    contactMethods: { phone: "Teléfono", email: "Correo", video: "Videollamada", "in-person": "En Persona" },
+    nationalities: ["Mexicana", "Hondureña", "Guatemalteca", "Salvadoreña", "Colombiana", "Venezolana", "Cubana", "Haitiana", "Brasileña"],
+    validation: {
+      firstNameReq: "El nombre es requerido (mín. 2 caracteres)",
+      lastNameReq: "El apellido es requerido (mín. 2 caracteres)",
+      emailReq: "Se requiere un correo válido",
+      phoneReq: "Se requiere teléfono (mín. 10 dígitos)",
+      nationalityReq: "La nacionalidad es requerida",
+      locationReq: "La ubicación actual es requerida",
+      caseTypeReq: "Seleccione un tipo de caso",
+      urgencyReq: "Seleccione el nivel de urgencia",
+      descriptionReq: "Describa su situación (mín. 20 caracteres)",
+      contactMethodReq: "Seleccione un método de contacto",
+      termsReq: "Debe aceptar los términos",
+    },
+    confirmation: {
+      title: "¡Solicitud de Consulta Enviada!",
+      message: "Gracias por comunicarse. Nuestro equipo revisará su caso y lo contactará dentro de 24 horas.",
+      followUp: "Revise su correo electrónico para una confirmación.",
+      backToForms: "Volver a Formularios",
+      backToHome: "Volver al Inicio",
+    },
+    nav: { back: "Atrás", next: "Continuar", analyze: "Revisar" },
   },
 }
 
-// ============================================
-// CASE TYPES CONFIG
-// ============================================
-const caseTypes = [
-  {
-    id: "h2b-work-visa",
-    icon: Briefcase,
-    titleKey: "h2bWorkVisa",
-    descKey: "h2bWorkVisaDesc",
-    color: "bg-blue-500",
-  },
-  {
-    id: "family-petition",
-    icon: Heart,
-    titleKey: "familyPetitions",
-    descKey: "familyPetitionsDesc",
-    color: "bg-pink-500",
-  },
-  {
-    id: "immigration-greencard",
-    icon: FileCheck,
-    titleKey: "greenCard",
-    descKey: "greenCardDesc",
-    color: "bg-green-500",
-  },
-  {
-    id: "immigration-citizenship",
-    icon: Globe,
-    titleKey: "citizenship",
-    descKey: "citizenshipDesc",
-    color: "bg-purple-500",
-  },
-  {
-    id: "immigration-deportation",
-    icon: Shield,
-    titleKey: "deportationDefense",
-    descKey: "deportationDefenseDesc",
-    color: "bg-red-500",
-  },
-  {
-    id: "immigration-asylum",
-    icon: Home,
-    titleKey: "asylum",
-    descKey: "asylumDesc",
-    color: "bg-amber-500",
-  },
-  {
-    id: "criminal-defense",
-    icon: Gavel,
-    titleKey: "criminalDefense",
-    descKey: "criminalDefenseDesc",
-    color: "bg-slate-600",
-  },
-  {
-    id: "business-immigration",
-    icon: Building2,
-    titleKey: "businessImmigration",
-    descKey: "businessImmigrationDesc",
-    color: "bg-indigo-500",
-  },
+// ==========================================
+// TYPES
+// ==========================================
+
+interface FormData {
+  firstName: string
+  lastName: string
+  email: string
+  phone: string
+  nationality: string
+  customNationality: string
+  currentLocation: string
+  caseType: string
+  urgency: string
+  caseDescription: string
+  previousAttorney: string
+  courtDate: string
+  courtDateDisplay: string
+  preferredContactMethod: string
+  preferredConsultationTime: string
+  agreeToTerms: boolean
+}
+
+const initialFormData: FormData = {
+  firstName: "",
+  lastName: "",
+  email: "",
+  phone: "",
+  nationality: "",
+  customNationality: "",
+  currentLocation: "",
+  caseType: "",
+  urgency: "",
+  caseDescription: "",
+  previousAttorney: "",
+  courtDate: "",
+  courtDateDisplay: "",
+  preferredContactMethod: "",
+  preferredConsultationTime: "",
+  agreeToTerms: false,
+}
+
+// ==========================================
+// CASE TYPE OPTIONS
+// ==========================================
+
+const caseTypeOptions = [
+  { id: "h2b-work-visa", icon: Briefcase },
+  { id: "family-petition", icon: Heart },
+  { id: "immigration-greencard", icon: Shield },
+  { id: "immigration-citizenship", icon: Globe },
+  { id: "immigration-deportation", icon: Scale },
+  { id: "immigration-asylum", icon: Home },
+  { id: "criminal-defense", icon: AlertTriangle },
+  { id: "business-immigration", icon: GraduationCap },
 ]
 
-// ============================================
-// SUB-OPTIONS CONFIG
-// ============================================
-
-// H2B Industries
-const h2bIndustries = [
-  { id: "agriculture", labelKey: "agriculture", icon: Leaf },
-  { id: "landscaping", labelKey: "landscaping", icon: TreePine },
-  { id: "construction", labelKey: "construction", icon: HardHat },
-  { id: "hospitality", labelKey: "hospitality", icon: Hotel },
-  { id: "food-processing", labelKey: "foodProcessing", icon: Utensils },
-  { id: "seafood", labelKey: "seafood", icon: Fish },
-  { id: "warehouse", labelKey: "warehouse", icon: Warehouse },
-  { id: "manufacturing", labelKey: "manufacturing", icon: Factory },
-  { id: "maintenance", labelKey: "maintenance", icon: Wrench },
-  { id: "housekeeping", labelKey: "housekeeping", icon: Home },
+const urgencyOptions = [
+  { id: "immediate", icon: Zap, color: "red" },
+  { id: "urgent", icon: AlertTriangle, color: "amber" },
+  { id: "normal", icon: Clock, color: "blue" },
+  { id: "planning", icon: Calendar, color: "green" },
 ]
 
-// Family Petition Types
-const familyPetitionTypes = [
-  { id: "spouse", labelKey: "spouse", icon: Heart },
-  { id: "parent", labelKey: "parent", icon: Users },
-  { id: "child", labelKey: "child", icon: Baby },
-  { id: "sibling", labelKey: "sibling", icon: UserPlus },
-  { id: "fiance", labelKey: "fiance", icon: Heart },
+const contactMethodOptions = [
+  { id: "phone", icon: Phone },
+  { id: "email", icon: Mail },
+  { id: "video", icon: Video },
+  { id: "in-person", icon: MapPin },
 ]
 
-// Green Card Categories
-const greenCardCategories = [
-  { id: "family-based", labelKey: "familyBased", icon: Heart },
-  { id: "employment-based", labelKey: "employmentBased", icon: Briefcase },
-  { id: "diversity-lottery", labelKey: "diversityLottery", icon: Globe },
-  { id: "vawa", labelKey: "vawa", icon: Shield },
-  { id: "special-immigrant", labelKey: "specialImmigrant", icon: FileCheck },
+// ==========================================
+// STEP CONFIG
+// ==========================================
+
+const stepsConfig = [
+  { id: 1, key: "personal", icon: User },
+  { id: 2, key: "caseInfo", icon: FileText },
+  { id: 3, key: "description", icon: MessageSquare },
+  { id: 4, key: "review", icon: CheckCircle2 },
 ]
 
-// Visa Types (excluding tourist)
-const visaTypes = [
-  { id: "student-f1", labelKey: "studentF1", icon: GraduationCap },
-  { id: "work-h1b", labelKey: "workH1b", icon: Briefcase },
-  { id: "investor-e2", labelKey: "investorE2", icon: DollarSign },
-  { id: "intracompany-l1", labelKey: "intracompanyL1", icon: Building2 },
-  { id: "religious-r1", labelKey: "religiousR1", icon: HandHelping },
-  { id: "extraordinary-o1", labelKey: "extraordinaryO1", icon: TrendingUp },
-]
+// ==========================================
+// DATE INPUT HELPER
+// ==========================================
 
-// Urgency Levels
-const urgencyLevels = [
-  { id: "immediate", labelKey: "immediate", sublabelKey: "immediateDesc", icon: AlertCircle, color: "bg-red-500 border-red-500" },
-  { id: "urgent", labelKey: "urgent", sublabelKey: "urgentDesc", icon: Clock, color: "bg-orange-500 border-orange-500" },
-  { id: "normal", labelKey: "normal", sublabelKey: "normalDesc", icon: Calendar, color: "bg-blue-500 border-blue-500" },
-  { id: "planning", labelKey: "planning", sublabelKey: "planningDesc", icon: TrendingUp, color: "bg-gray-500 border-gray-500" },
-]
-
-// Nationalities (common for immigration)
-const nationalities = [
-  { id: "mexican", label: "Mexico" },
-  { id: "ecuadorian", label: "Ecuador" },
-  { id: "brazilian", label: "Brazil" },
-  { id: "chilean", label: "Chile" },
-  { id: "argentinian", label: "Argentina" },
-  { id: "bolivian", label: "Bolivia" },
-  { id: "peruvian", label: "Peru" },
-  { id: "paraguayan", label: "Paraguay" },
-  { id: "spanish", label: "Spain" },
-  { id: "other", labelKey: "other" },
-]
-
-// Document Types
-const documentTypes = [
-  { id: "passport", labelKey: "passport", required: true },
-  { id: "visa", labelKey: "currentVisa", required: false },
-  { id: "i94", labelKey: "i94", required: false },
-  { id: "birth-certificate", labelKey: "birthCertificate", required: false },
-  { id: "marriage-certificate", labelKey: "marriageCertificate", required: false },
-  { id: "police-record", labelKey: "policeRecord", required: false },
-  { id: "employment-letter", labelKey: "employmentLetter", required: false },
-  { id: "tax-returns", labelKey: "taxReturns", required: false },
-  { id: "court-documents", labelKey: "courtDocuments", required: false },
-  { id: "medical-records", labelKey: "medicalRecords", required: false },
-]
-
-// Contact Methods
-const contactMethods = [
-  { id: "phone", labelKey: "phoneCall", icon: Phone },
-  { id: "email", labelKey: "emailMethod", icon: Mail },
-  { id: "video", labelKey: "videoCall", icon: Globe },
-  { id: "in-person", labelKey: "inPerson", icon: MapPin },
-]
-
-// Consultation Times
-const consultationTimes = [
-  { id: "morning", labelKey: "morning", sublabelKey: "morningTime" },
-  { id: "afternoon", labelKey: "afternoon", sublabelKey: "afternoonTime" },
-  { id: "evening", labelKey: "evening", sublabelKey: "eveningTime" },
-  { id: "weekend", labelKey: "weekend", sublabelKey: "weekendTime" },
-]
-
-// ============================================
-// FORM SCHEMA
-// ============================================
-const consultationFormSchema = z.object({
-  firstName: z.string().min(2, "First name must be at least 2 characters"),
-  lastName: z.string().min(2, "Last name must be at least 2 characters"),
-  email: z.string().email("Invalid email address"),
-  phone: z.string().min(10, "Phone number must be at least 10 digits"),
-  dateOfBirth: z.string().optional(),
-  nationality: z.string().min(2, "Please select your nationality"),
-  currentLocation: z.string().min(2, "Please enter your current location"),
-  caseType: z.string().min(1, "Please select a case type"),
-  caseSubType: z.string().optional(),
-  urgency: z.string().min(1, "Please select urgency level"),
-  caseDescription: z.string().min(20, "Please provide at least 20 characters describing your case"),
-  previousAttorney: z.string().optional(),
-  courtDate: z.string().optional(),
-  preferredContactMethod: z.string().min(1, "Please select a preferred contact method"),
-  preferredConsultationTime: z.string().optional(),
-  referralSource: z.string().optional(),
-  agreeToTerms: z.boolean().refine((val) => val === true, "You must agree to the terms and conditions"),
-})
-
-type ConsultationFormValues = z.infer<typeof consultationFormSchema>
-
-// ============================================
-// COMPONENT
-// ============================================
-export function ConsultationForm() {
-  const { language } = useLanguage()
-  const t = language === "en" ? translations.en : translations.es
-  
-  const [uploadedFiles, setUploadedFiles] = useState<File[]>([])
-  const [selectedDocTypes, setSelectedDocTypes] = useState<string[]>([])
-  const [isSubmitting, setIsSubmitting] = useState(false)
-  const [submitSuccess, setSubmitSuccess] = useState(false)
-  const [submitError, setSubmitError] = useState<string | null>(null)
-  const [honeypot, setHoneypot] = useState("")
-  const [showOtherNationality, setShowOtherNationality] = useState(false)
-
-  const form = useForm<ConsultationFormValues>({
-    resolver: zodResolver(consultationFormSchema),
-    defaultValues: {
-      firstName: "",
-      lastName: "",
-      email: "",
-      phone: "",
-      dateOfBirth: "",
-      nationality: "",
-      currentLocation: "",
-      caseType: "",
-      caseSubType: "",
-      urgency: "",
-      caseDescription: "",
-      previousAttorney: "",
-      courtDate: "",
-      preferredContactMethod: "",
-      preferredConsultationTime: "",
-      referralSource: "",
-      agreeToTerms: false,
-    },
-  })
-
-  const selectedCaseType = form.watch("caseType")
-
-  // Get sub-options based on selected case type
-  const getSubOptions = () => {
-    switch (selectedCaseType) {
-      case "h2b-work-visa":
-        return { titleKey: "selectIndustry", options: h2bIndustries }
-      case "family-petition":
-        return { titleKey: "petitionType", options: familyPetitionTypes }
-      case "immigration-greencard":
-        return { titleKey: "greenCardCategory", options: greenCardCategories }
-      case "business-immigration":
-        return { titleKey: "visaType", options: visaTypes }
-      default:
-        return null
-    }
-  }
-
-  const subOptions = getSubOptions()
-
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = Array.from(e.target.files || [])
-    const validFiles = files.filter((file) => {
-      const validTypes = [
-        "application/pdf",
-        "image/jpeg",
-        "image/png",
-        "image/jpg",
-        "application/msword",
-        "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-      ]
-      const maxSize = 10 * 1024 * 1024
-
-      if (!validTypes.includes(file.type)) {
-        alert(`${file.name} is not a supported file type.`)
-        return false
+function DateInputField({
+  value,
+  onChange,
+  onValueChange,
+  placeholder,
+  label,
+  id,
+}: {
+  value: string
+  onChange: (isoDate: string) => void
+  onValueChange: (display: string) => void
+  placeholder: string
+  label: string
+  id: string
+}) {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    let raw = e.target.value.replace(/[^0-9]/g, "")
+    if (raw.length > 8) raw = raw.slice(0, 8)
+    let formatted = ""
+    if (raw.length > 0) formatted = raw.slice(0, 2)
+    if (raw.length > 2) formatted += "/" + raw.slice(2, 4)
+    if (raw.length > 4) formatted += "/" + raw.slice(4, 8)
+    onValueChange(formatted)
+    if (raw.length === 8) {
+      const dd = raw.slice(0, 2)
+      const mm = raw.slice(2, 4)
+      const yyyy = raw.slice(4, 8)
+      const day = parseInt(dd, 10)
+      const month = parseInt(mm, 10)
+      const year = parseInt(yyyy, 10)
+      if (day >= 1 && day <= 31 && month >= 1 && month <= 12 && year >= 1900 && year <= 2030) {
+        onChange(`${yyyy}-${mm}-${dd}`)
+      } else {
+        onChange("")
       }
-
-      if (file.size > maxSize) {
-        alert(`${file.name} is too large. Maximum file size is 10MB.`)
-        return false
-      }
-
-      return true
-    })
-
-    setUploadedFiles((prev) => [...prev, ...validFiles])
-  }
-
-  const removeFile = (index: number) => {
-    setUploadedFiles((prev) => prev.filter((_, i) => i !== index))
-  }
-
-  const toggleDocType = (docId: string) => {
-    setSelectedDocTypes((prev) =>
-      prev.includes(docId) ? prev.filter((d) => d !== docId) : [...prev, docId]
-    )
-  }
-
-  const onSubmit = async (data: ConsultationFormValues) => {
-    if (honeypot) {
-      setSubmitSuccess(true)
-      return
+    } else {
+      onChange("")
     }
-
-    setIsSubmitting(true)
-    setSubmitError(null)
-
-    try {
-      const supabase = getSupabaseBrowserClient()
-
-      // @ts-expect-error - No hay tipos generados de Supabase
-      const { error } = await supabase
-        .from("consultation_requests")
-        .insert({
-          first_name: data.firstName,
-          last_name: data.lastName,
-          email: data.email.toLowerCase(),
-          phone: data.phone,
-          date_of_birth: data.dateOfBirth || null,
-          nationality: data.nationality,
-          current_location: data.currentLocation,
-          case_type: data.caseType,
-          case_sub_type: data.caseSubType || null,
-          urgency: data.urgency,
-          case_description: data.caseDescription,
-          previous_attorney: data.previousAttorney || null,
-          court_date: data.courtDate || null,
-          preferred_contact_method: data.preferredContactMethod,
-          preferred_consultation_time: data.preferredConsultationTime || null,
-          referral_source: data.referralSource || null,
-          document_types: selectedDocTypes,
-          files: uploadedFiles.map((f) => ({ name: f.name, size: f.size, type: f.type })),
-          language: language,
-          status: "new",
-        })
-
-      if (error) {
-        console.error("Supabase insert error:", error)
-        setSubmitError(t.errorSubmit)
-        return
-      }
-
-      setSubmitSuccess(true)
-      setTimeout(() => {
-        form.reset()
-        setUploadedFiles([])
-        setSelectedDocTypes([])
-        setSubmitSuccess(false)
-      }, 5000)
-    } catch (err) {
-      console.error("Submit error:", err)
-      setSubmitError(t.errorConnection)
-    } finally {
-      setIsSubmitting(false)
-    }
-  }
-
-  // Success Screen
-  if (submitSuccess) {
-    return (
-      <section className="py-20 md:py-28 bg-background min-h-screen flex items-center justify-center">
-        <motion.div 
-          initial={{ opacity: 0, scale: 0.9 }}
-          animate={{ opacity: 1, scale: 1 }}
-          className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 text-center"
-        >
-          <div className="bg-card rounded-xl p-8 md:p-12 shadow-lg">
-            <motion.div
-              initial={{ scale: 0 }}
-              animate={{ scale: 1 }}
-              transition={{ delay: 0.2, type: "spring" }}
-              className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6"
-            >
-              <CheckCircle2 className="h-12 w-12 text-green-600" />
-            </motion.div>
-            <h2 className="font-serif text-3xl font-bold text-foreground mb-4">
-              {t.successTitle}
-            </h2>
-            <p className="text-muted-foreground text-lg mb-6">
-              {t.successMessage}
-            </p>
-            <Button
-              size="lg"
-              onClick={() => (window.location.href = "/")}
-              className="bg-primary text-primary-foreground hover:bg-primary/90"
-            >
-              {t.returnHome}
-            </Button>
-          </div>
-        </motion.div>
-      </section>
-    )
   }
 
   return (
-    <section className="py-12 md:py-20 bg-background">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Back Button */}
-        <div className="mb-8">
-          <Link href="/">
-            <Button variant="ghost" className="flex items-center gap-2 text-muted-foreground hover:text-foreground">
-              <ArrowLeft className="h-4 w-4" />
-              {t.backToHome}
-            </Button>
-          </Link>
-        </div>
+    <div>
+      <Label htmlFor={id}>{label}</Label>
+      <Input
+        id={id}
+        type="text"
+        inputMode="numeric"
+        value={value}
+        onChange={handleChange}
+        placeholder={placeholder}
+        maxLength={10}
+        className="mt-1"
+      />
+    </div>
+  )
+}
 
-        {/* Header */}
-        <div className="text-center max-w-3xl mx-auto mb-12">
-          <p className="text-accent font-medium tracking-wider uppercase text-sm mb-3">{t.caseEvaluation}</p>
-          <h1 className="font-serif text-4xl md:text-5xl font-bold text-foreground mb-6">
-            {t.freeConsultation}
-          </h1>
-          <p className="text-muted-foreground text-lg leading-relaxed">
-            {t.headerSubtitle}
-          </p>
-        </div>
+// ==========================================
+// COMPONENT
+// ==========================================
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Form */}
-          <div className="lg:col-span-2">
-            <Card className="p-6 md:p-8 bg-card">
-              <Form {...form}>
-                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-                  {/* Honeypot */}
-                  <input
-                    type="text"
-                    name="website"
-                    value={honeypot}
-                    onChange={(e) => setHoneypot(e.target.value)}
-                    autoComplete="off"
-                    tabIndex={-1}
-                    className="hidden"
-                    aria-hidden="true"
-                  />
+export function ConsultationForm() {
+  const { language } = useLanguage()
+  const t = translations[language] || translations.en
+  const [currentStep, setCurrentStep] = useState(1)
+  const [formData, setFormData] = useState<FormData>(initialFormData)
+  const [direction, setDirection] = useState(0)
+  const [validationError, setValidationError] = useState<string | null>(null)
+  const [isLoaded, setIsLoaded] = useState(false)
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [isSubmitted, setIsSubmitted] = useState(false)
+  const [submitError, setSubmitError] = useState<string | null>(null)
+  const [showOtherNationality, setShowOtherNationality] = useState(false)
 
-                  {submitError && (
-                    <div className="rounded-lg border border-destructive/30 bg-destructive/10 p-4 text-sm text-destructive">
-                      {submitError}
-                    </div>
-                  )}
+  // Data persistence
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      try {
+        const saved = localStorage.getItem("consultation-form-data")
+        if (saved) {
+          const parsed = JSON.parse(saved)
+          setFormData({ ...initialFormData, ...parsed, agreeToTerms: false })
+          if (parsed.customNationality) setShowOtherNationality(true)
+        }
+      } catch { /* ignore */ }
+      setIsLoaded(true)
+    }
+  }, [])
 
-                  {/* ============================================ */}
-                  {/* SECTION 1: CASE TYPE SELECTION */}
-                  {/* ============================================ */}
-                  <div>
-                    <h3 className="font-serif text-xl font-bold text-foreground mb-2 pb-2 border-b flex items-center gap-2">
-                      <Scale className="h-5 w-5 text-accent" />
-                      {t.whatHelpNeeded}
-                    </h3>
-                    <p className="text-sm text-muted-foreground mb-4">{t.selectCaseType}</p>
-                    
-                    <FormField
-                      control={form.control}
-                      name="caseType"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormControl>
-                            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                              {caseTypes.map((caseType) => {
-                                const Icon = caseType.icon
-                                const isSelected = field.value === caseType.id
-                                return (
-                                  <motion.button
-                                    key={caseType.id}
-                                    type="button"
-                                    whileHover={{ scale: 1.02 }}
-                                    whileTap={{ scale: 0.98 }}
-                                    onClick={() => {
-                                      field.onChange(caseType.id)
-                                      form.setValue("caseSubType", "")
-                                    }}
-                                    className={cn(
-                                      "relative p-4 rounded-xl border-2 transition-all duration-200 text-left",
-                                      isSelected
-                                        ? "border-accent bg-accent/10 shadow-md"
-                                        : "border-border hover:border-accent/50 bg-card"
-                                    )}
-                                  >
-                                    <div className={cn(
-                                      "w-10 h-10 rounded-lg flex items-center justify-center mb-2",
-                                      isSelected ? caseType.color : "bg-muted"
-                                    )}>
-                                      <Icon className={cn("h-5 w-5", isSelected ? "text-white" : "text-muted-foreground")} />
-                                    </div>
-                                    <h4 className={cn(
-                                      "font-semibold text-sm",
-                                      isSelected ? "text-foreground" : "text-muted-foreground"
-                                    )}>
-                                      {t[caseType.titleKey as keyof typeof t]}
-                                    </h4>
-                                    <p className="text-xs text-muted-foreground mt-1 line-clamp-2">
-                                      {t[caseType.descKey as keyof typeof t]}
-                                    </p>
-                                    {isSelected && (
-                                      <div className="absolute top-2 right-2">
-                                        <Check className="h-4 w-4 text-accent" />
-                                      </div>
-                                    )}
-                                  </motion.button>
-                                )
-                              })}
-                            </div>
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
+  useEffect(() => {
+    if (isLoaded && typeof window !== "undefined") {
+      try { localStorage.setItem("consultation-form-data", JSON.stringify(formData)) } catch { /* ignore */ }
+    }
+  }, [formData, isLoaded])
 
-                    {/* Sub-options based on case type */}
-                    <AnimatePresence>
-                      {subOptions && (
-                        <motion.div
-                          initial={{ opacity: 0, height: 0 }}
-                          animate={{ opacity: 1, height: "auto" }}
-                          exit={{ opacity: 0, height: 0 }}
-                          className="mt-4 overflow-hidden"
-                        >
-                          <Label className="text-sm font-medium mb-3 block">{t[subOptions.titleKey as keyof typeof t]}</Label>
-                          <FormField
-                            control={form.control}
-                            name="caseSubType"
-                            render={({ field }) => (
-                              <FormControl>
-                                <div className="flex flex-wrap gap-2">
-                                  {subOptions.options.map((option) => {
-                                    const Icon = option.icon
-                                    const isSelected = field.value === option.id
-                                    return (
-                                      <motion.button
-                                        key={option.id}
-                                        type="button"
-                                        whileHover={{ scale: 1.05 }}
-                                        whileTap={{ scale: 0.95 }}
-                                        onClick={() => field.onChange(isSelected ? "" : option.id)}
-                                        className={cn(
-                                          "px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 flex items-center gap-2",
-                                          isSelected
-                                            ? "bg-accent text-accent-foreground shadow-md"
-                                            : "bg-secondary/70 text-muted-foreground hover:bg-secondary"
-                                        )}
-                                      >
-                                        <Icon className="h-4 w-4" />
-                                        {t[option.labelKey as keyof typeof t]}
-                                        {isSelected && <Check className="h-3 w-3" />}
-                                      </motion.button>
-                                    )
-                                  })}
-                                </div>
-                              </FormControl>
-                            )}
-                          />
-                        </motion.div>
-                      )}
-                    </AnimatePresence>
-                  </div>
+  const updateField = <K extends keyof FormData>(field: K, value: FormData[K]) => {
+    setFormData((prev) => ({ ...prev, [field]: value }))
+  }
 
-                  {/* ============================================ */}
-                  {/* SECTION 2: URGENCY LEVEL */}
-                  {/* ============================================ */}
-                  <div>
-                    <h3 className="font-serif text-xl font-bold text-foreground mb-2 pb-2 border-b flex items-center gap-2">
-                      <Clock className="h-5 w-5 text-accent" />
-                      {t.howUrgent}
-                    </h3>
-                    
-                    <FormField
-                      control={form.control}
-                      name="urgency"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormControl>
-                            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-4">
-                              {urgencyLevels.map((level) => {
-                                const Icon = level.icon
-                                const isSelected = field.value === level.id
-                                return (
-                                  <motion.button
-                                    key={level.id}
-                                    type="button"
-                                    whileHover={{ scale: 1.02 }}
-                                    whileTap={{ scale: 0.98 }}
-                                    onClick={() => field.onChange(level.id)}
-                                    className={cn(
-                                      "p-4 rounded-xl border-2 transition-all duration-200 text-center",
-                                      isSelected
-                                        ? `${level.color} text-white shadow-md`
-                                        : "border-border bg-card hover:border-accent/50"
-                                    )}
-                                  >
-                                    <Icon className={cn("h-6 w-6 mx-auto mb-2", isSelected ? "text-white" : "text-muted-foreground")} />
-                                    <h4 className={cn("font-semibold text-sm", isSelected ? "text-white" : "text-foreground")}>
-                                      {t[level.labelKey as keyof typeof t]}
-                                    </h4>
-                                    <p className={cn("text-xs mt-1", isSelected ? "text-white/80" : "text-muted-foreground")}>
-                                      {t[level.sublabelKey as keyof typeof t]}
-                                    </p>
-                                  </motion.button>
-                                )
-                              })}
-                            </div>
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
+  const effectiveNationality = showOtherNationality ? formData.customNationality : formData.nationality
 
-                  {/* ============================================ */}
-                  {/* SECTION 3: PERSONAL INFORMATION */}
-                  {/* ============================================ */}
-                  <div>
-                    <h3 className="font-serif text-xl font-bold text-foreground mb-4 pb-2 border-b flex items-center gap-2">
-                      <Users className="h-5 w-5 text-accent" />
-                      {t.personalInfo}
-                    </h3>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                      <FormField
-                        control={form.control}
-                        name="firstName"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>{t.firstName} *</FormLabel>
-                            <FormControl>
-                              <Input placeholder="John" {...field} className="h-11" />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
+  const validateStep = (step: number): string | null => {
+    setValidationError(null)
+    switch (step) {
+      case 1:
+        if (formData.firstName.trim().length < 2) return t.validation.firstNameReq
+        if (formData.lastName.trim().length < 2) return t.validation.lastNameReq
+        if (!formData.email.includes("@") || !formData.email.includes(".")) return t.validation.emailReq
+        if (formData.phone.replace(/\D/g, "").length < 10) return t.validation.phoneReq
+        if (!effectiveNationality || effectiveNationality.trim().length < 2) return t.validation.nationalityReq
+        if (formData.currentLocation.trim().length < 2) return t.validation.locationReq
+        break
+      case 2:
+        if (!formData.caseType) return t.validation.caseTypeReq
+        if (!formData.urgency) return t.validation.urgencyReq
+        break
+      case 3:
+        if (formData.caseDescription.trim().length < 20) return t.validation.descriptionReq
+        if (!formData.preferredContactMethod) return t.validation.contactMethodReq
+        break
+      case 4:
+        if (!formData.agreeToTerms) return t.validation.termsReq
+        break
+    }
+    return null
+  }
 
-                      <FormField
-                        control={form.control}
-                        name="lastName"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>{t.lastName} *</FormLabel>
-                            <FormControl>
-                              <Input placeholder="Doe" {...field} className="h-11" />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
+  const handleNext = () => {
+    const error = validateStep(currentStep)
+    if (error) { setValidationError(error); return }
+    if (currentStep < 4) {
+      setDirection(1)
+      setCurrentStep((prev) => prev + 1)
+      setValidationError(null)
+    }
+  }
 
-                      <FormField
-                        control={form.control}
-                        name="email"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>{t.email} *</FormLabel>
-                            <FormControl>
-                              <Input type="email" placeholder="john@example.com" {...field} className="h-11" />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
+  const handleBack = () => {
+    if (currentStep > 1) {
+      setDirection(-1)
+      setCurrentStep((prev) => prev - 1)
+      setValidationError(null)
+    }
+  }
 
-                      <FormField
-                        control={form.control}
-                        name="phone"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>{t.phone} *</FormLabel>
-                            <FormControl>
-                              <Input type="tel" placeholder="(305) 555-1234" {...field} className="h-11" />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
+  const handleSubmit = async () => {
+    const error = validateStep(4)
+    if (error) { setValidationError(error); return }
+    setIsSubmitting(true)
+    setSubmitError(null)
+    try {
+      const supabase = getSupabaseBrowserClient()
+      // @ts-expect-error - No generated Supabase types
+      const { error: dbError } = await supabase.from("consultation_requests").insert({
+        first_name: formData.firstName.trim(),
+        last_name: formData.lastName.trim(),
+        email: formData.email.trim(),
+        phone: formData.phone.trim(),
+        nationality: effectiveNationality.trim(),
+        current_location: formData.currentLocation.trim(),
+        case_type: formData.caseType,
+        urgency: formData.urgency,
+        case_description: formData.caseDescription.trim(),
+        previous_attorney: formData.previousAttorney.trim() || null,
+        court_date: formData.courtDate || null,
+        preferred_contact_method: formData.preferredContactMethod,
+        preferred_consultation_time: formData.preferredConsultationTime || null,
+        language,
+        status: "new",
+      })
+      if (dbError) {
+        console.error("Supabase insert error:", dbError)
+        setSubmitError(language === "es" ? "Error al enviar. Por favor intente de nuevo." : "Error submitting. Please try again.")
+        setIsSubmitting(false)
+        return
+      }
+      localStorage.removeItem("consultation-form-data")
+      setIsSubmitted(true)
+    } catch (e) {
+      console.error("Consultation submit failed:", e)
+      setSubmitError(language === "es" ? "Error de conexión. Por favor intente de nuevo." : "Connection error. Please try again.")
+    }
+    setIsSubmitting(false)
+  }
 
-                      <FormField
-                        control={form.control}
-                        name="dateOfBirth"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>{t.dateOfBirth}</FormLabel>
-                            <FormControl>
-                              <Input type="date" {...field} className="h-11" />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
+  // Animation
+  const variants = {
+    enter: (d: number) => ({ x: d > 0 ? 50 : -50, opacity: 0 }),
+    center: { x: 0, opacity: 1 },
+    exit: (d: number) => ({ x: d < 0 ? 50 : -50, opacity: 0 }),
+  }
 
-                      {/* Nationality Selector */}
-                      <FormField
-                        control={form.control}
-                        name="nationality"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>{t.nationality} *</FormLabel>
-                            <FormControl>
-                              <div>
-                                <div className="flex flex-wrap gap-2 mb-2">
-                                  {nationalities.map((nat) => {
-                                    const isSelected = field.value === nat.label
-                                    const isOther = nat.id === "other"
-                                    const label = nat.labelKey ? t[nat.labelKey as keyof typeof t] : nat.label
-                                    return (
-                                      <motion.button
-                                        key={nat.id}
-                                        type="button"
-                                        whileHover={{ scale: 1.05 }}
-                                        whileTap={{ scale: 0.95 }}
-                                        onClick={() => {
-                                          if (isOther) {
-                                            setShowOtherNationality(true)
-                                            field.onChange("")
-                                          } else {
-                                            setShowOtherNationality(false)
-                                            field.onChange(nat.label)
-                                          }
-                                        }}
-                                        className={cn(
-                                          "px-4 py-2.5 rounded-full text-sm font-medium transition-all duration-200",
-                                          isSelected
-                                            ? "bg-accent text-accent-foreground shadow-sm"
-                                            : "bg-secondary/70 text-muted-foreground hover:bg-secondary"
-                                        )}
-                                      >
-                                        {label}
-                                      </motion.button>
-                                    )
-                                  })}
-                                </div>
-                                <AnimatePresence>
-                                  {showOtherNationality && (
-                                    <motion.div
-                                      initial={{ opacity: 0, height: 0 }}
-                                      animate={{ opacity: 1, height: "auto" }}
-                                      exit={{ opacity: 0, height: 0 }}
-                                    >
-                                      <Input
-                                        placeholder={t.enterNationality}
-                                        value={field.value}
-                                        onChange={(e) => field.onChange(e.target.value)}
-                                        className="h-11"
-                                      />
-                                    </motion.div>
-                                  )}
-                                </AnimatePresence>
-                              </div>
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-
-                      <FormField
-                        control={form.control}
-                        name="currentLocation"
-                        render={({ field }) => (
-                          <FormItem className="md:col-span-2">
-                            <FormLabel>{t.currentLocation} *</FormLabel>
-                            <FormControl>
-                              <Input placeholder={t.locationPlaceholder} {...field} className="h-11" />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                    </div>
-                  </div>
-
-                  {/* ============================================ */}
-                  {/* SECTION 4: CASE DETAILS */}
-                  {/* ============================================ */}
-                  <div>
-                    <h3 className="font-serif text-xl font-bold text-foreground mb-4 pb-2 border-b flex items-center gap-2">
-                      <FileText className="h-5 w-5 text-accent" />
-                      {t.caseDetails}
-                    </h3>
-                    <div className="space-y-5">
-                      <FormField
-                        control={form.control}
-                        name="caseDescription"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>{t.describeYourSituation} *</FormLabel>
-                            <FormControl>
-                              <Textarea
-                                placeholder={t.situationPlaceholder}
-                                rows={6}
-                                {...field}
-                                className="resize-none"
-                              />
-                            </FormControl>
-                            <FormDescription>
-                              {t.beDetailed}
-                            </FormDescription>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                        <FormField
-                          control={form.control}
-                          name="previousAttorney"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>{t.previousAttorney}</FormLabel>
-                              <FormControl>
-                                <Input placeholder={t.attorneyPlaceholder} {...field} className="h-11" />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-
-                        <FormField
-                          control={form.control}
-                          name="courtDate"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>{t.upcomingCourtDate}</FormLabel>
-                              <FormControl>
-                                <Input type="date" {...field} className="h-11" />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* ============================================ */}
-                  {/* SECTION 5: DOCUMENT UPLOAD */}
-                  {/* ============================================ */}
-                  <div>
-                    <h3 className="font-serif text-xl font-bold text-foreground mb-2 pb-2 border-b flex items-center gap-2">
-                      <Upload className="h-5 w-5 text-accent" />
-                      {t.documents}
-                    </h3>
-                    <p className="text-sm text-muted-foreground mb-4">
-                      {t.documentsSubtitle}
-                    </p>
-
-                    {/* Document Type Pills */}
-                    <div className="mb-4">
-                      <Label className="text-sm font-medium mb-3 block">{t.availableDocuments}</Label>
-                      <div className="flex flex-wrap gap-2">
-                        {documentTypes.map((doc) => {
-                          const isSelected = selectedDocTypes.includes(doc.id)
-                          return (
-                            <motion.button
-                              key={doc.id}
-                              type="button"
-                              whileHover={{ scale: 1.05 }}
-                              whileTap={{ scale: 0.95 }}
-                              onClick={() => toggleDocType(doc.id)}
-                              className={cn(
-                                "px-4 py-2.5 rounded-full text-sm font-medium transition-all duration-200 flex items-center gap-1",
-                                isSelected
-                                  ? "bg-green-500 text-white shadow-sm"
-                                  : "bg-secondary/70 text-muted-foreground hover:bg-secondary"
-                              )}
-                            >
-                              {isSelected && <Check className="h-3 w-3" />}
-                              {t[doc.labelKey as keyof typeof t]}
-                            </motion.button>
-                          )
-                        })}
-                      </div>
-                    </div>
-
-                    {/* File Upload Zone */}
-                    <div className="border-2 border-dashed border-border rounded-lg p-6 text-center hover:border-accent transition-colors">
-                      <input
-                        type="file"
-                        id="file-upload"
-                        multiple
-                        accept=".pdf,.jpg,.jpeg,.png,.doc,.docx"
-                        onChange={handleFileUpload}
-                        className="hidden"
-                      />
-                      <label htmlFor="file-upload" className="cursor-pointer">
-                        <Upload className="h-12 w-12 text-muted-foreground mx-auto mb-3" />
-                        <p className="text-foreground font-medium mb-1">{t.clickToUpload}</p>
-                        <p className="text-sm text-muted-foreground">{t.fileTypes}</p>
-                      </label>
-                    </div>
-
-                    {/* Uploaded Files List */}
-                    {uploadedFiles.length > 0 && (
-                      <div className="mt-4 space-y-2">
-                        <Label>{t.uploadedFiles} ({uploadedFiles.length})</Label>
-                        {uploadedFiles.map((file, index) => (
-                          <motion.div
-                            key={index}
-                            initial={{ opacity: 0, x: -20 }}
-                            animate={{ opacity: 1, x: 0 }}
-                            className="flex items-center justify-between bg-muted rounded-lg p-3"
-                          >
-                            <div className="flex items-center gap-3">
-                              <FileText className="h-5 w-5 text-accent" />
-                              <div>
-                                <p className="text-sm font-medium text-foreground">{file.name}</p>
-                                <p className="text-xs text-muted-foreground">
-                                  {(file.size / 1024 / 1024).toFixed(2)} MB
-                                </p>
-                              </div>
-                            </div>
-                            <Button
-                              type="button"
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => removeFile(index)}
-                              className="h-8 w-8 p-0"
-                            >
-                              <X className="h-4 w-4" />
-                            </Button>
-                          </motion.div>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-
-                  {/* ============================================ */}
-                  {/* SECTION 6: CONTACT PREFERENCES */}
-                  {/* ============================================ */}
-                  <div>
-                    <h3 className="font-serif text-xl font-bold text-foreground mb-4 pb-2 border-b flex items-center gap-2">
-                      <Phone className="h-5 w-5 text-accent" />
-                      {t.contactPreferences}
-                    </h3>
-
-                    {/* Contact Method */}
-                    <div className="mb-4">
-                      <FormField
-                        control={form.control}
-                        name="preferredContactMethod"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>{t.preferredContactMethod} *</FormLabel>
-                            <FormControl>
-                              <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-2">
-                                {contactMethods.map((method) => {
-                                  const Icon = method.icon
-                                  const isSelected = field.value === method.id
-                                  return (
-                                    <motion.button
-                                      key={method.id}
-                                      type="button"
-                                      whileHover={{ scale: 1.02 }}
-                                      whileTap={{ scale: 0.98 }}
-                                      onClick={() => field.onChange(method.id)}
-                                      className={cn(
-                                        "p-3 rounded-xl border-2 transition-all duration-200 flex flex-col items-center gap-2",
-                                        isSelected
-                                          ? "border-accent bg-accent/10 shadow-sm"
-                                          : "border-border hover:border-accent/50"
-                                      )}
-                                    >
-                                      <Icon className={cn("h-5 w-5", isSelected ? "text-accent" : "text-muted-foreground")} />
-                                      <span className={cn("text-sm font-medium", isSelected ? "text-foreground" : "text-muted-foreground")}>
-                                        {t[method.labelKey as keyof typeof t]}
-                                      </span>
-                                    </motion.button>
-                                  )
-                                })}
-                              </div>
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                    </div>
-
-                    {/* Consultation Time */}
-                    <FormField
-                      control={form.control}
-                      name="preferredConsultationTime"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>{t.preferredTime}</FormLabel>
-                          <FormControl>
-                            <div className="flex flex-wrap gap-2 mt-2">
-                              {consultationTimes.map((time) => {
-                                const isSelected = field.value === time.id
-                                return (
-                                  <motion.button
-                                    key={time.id}
-                                    type="button"
-                                    whileHover={{ scale: 1.05 }}
-                                    whileTap={{ scale: 0.95 }}
-                                    onClick={() => field.onChange(isSelected ? "" : time.id)}
-                                    className={cn(
-                                      "px-4 py-2 rounded-full text-sm font-medium transition-all duration-200",
-                                      isSelected
-                                        ? "bg-accent text-accent-foreground shadow-md"
-                                        : "bg-secondary/70 text-muted-foreground hover:bg-secondary"
-                                    )}
-                                  >
-                                    {t[time.labelKey as keyof typeof t]}
-                                    <span className="text-xs opacity-70 ml-1">({t[time.sublabelKey as keyof typeof t]})</span>
-                                  </motion.button>
-                                )
-                              })}
-                            </div>
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-
-                  {/* ============================================ */}
-                  {/* SECTION 7: TERMS & SUBMIT */}
-                  {/* ============================================ */}
-                  <div>
-                    <FormField
-                      control={form.control}
-                      name="agreeToTerms"
-                      render={({ field }) => (
-                        <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4 bg-muted/50">
-                          <FormControl>
-                            <Checkbox checked={field.value} onCheckedChange={field.onChange} />
-                          </FormControl>
-                          <div className="space-y-1 leading-none">
-                            <FormLabel>{t.agreeToTerms} *</FormLabel>
-                            <FormDescription>
-                              {t.termsDescription}
-                            </FormDescription>
-                            <FormMessage />
-                          </div>
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-
-                  <Button
-                    type="submit"
-                    size="lg"
-                    className="w-full h-14 text-lg bg-primary text-primary-foreground hover:bg-primary/90"
-                    disabled={isSubmitting}
-                  >
-                    {isSubmitting ? (
-                      <span className="flex items-center gap-2">
-                        <Clock className="h-5 w-5 animate-spin" />
-                        {t.submitting}
-                      </span>
-                    ) : (
-                      <span className="flex items-center gap-2">
-                        <CheckCircle2 className="h-5 w-5" />
-                        {t.submitButton}
-                      </span>
-                    )}
-                  </Button>
-                </form>
-              </Form>
-            </Card>
-          </div>
-
-          {/* Sidebar */}
-          <div className="space-y-6">
-            <Card className="p-6 bg-card">
-              <h3 className="font-serif text-xl font-bold text-foreground mb-4">{t.whatHappensNext}</h3>
-              <div className="space-y-4">
-                {[
-                  { step: 1, titleKey: "step1Title", descKey: "step1Desc" },
-                  { step: 2, titleKey: "step2Title", descKey: "step2Desc" },
-                  { step: 3, titleKey: "step3Title", descKey: "step3Desc" },
-                  { step: 4, titleKey: "step4Title", descKey: "step4Desc" },
-                ].map((item) => (
-                  <div key={item.step} className="flex gap-3">
-                    <div className="shrink-0 w-8 h-8 bg-accent/20 rounded-full flex items-center justify-center">
-                      <span className="text-accent font-bold text-sm">{item.step}</span>
-                    </div>
-                    <div>
-                      <h4 className="font-semibold text-foreground text-sm">{t[item.titleKey as keyof typeof t]}</h4>
-                      <p className="text-muted-foreground text-sm mt-1">{t[item.descKey as keyof typeof t]}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </Card>
-
-            <Card className="p-6 bg-primary text-primary-foreground">
-              <h3 className="font-serif text-xl font-bold mb-4">{t.needImmediateHelp}</h3>
-              <div className="space-y-4">
-                <a href="tel:+13057280029" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
-                  <Phone className="h-5 w-5" />
-                  <div>
-                    <p className="text-sm opacity-90">{t.callUsNow}</p>
-                    <p className="font-semibold">305-728-0029</p>
-                  </div>
-                </a>
-
-                <a href="mailto:info@diazjohnsonlaw.com" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
-                  <Mail className="h-5 w-5" />
-                  <div>
-                    <p className="text-sm opacity-90">{t.emailUs}</p>
-                    <p className="font-semibold">info@diazjohnsonlaw.com</p>
-                  </div>
-                </a>
-
-                <div className="flex items-center gap-3">
-                  <Clock className="h-5 w-5" />
-                  <div>
-                    <p className="text-sm opacity-90">{t.officeHours}</p>
-                    <p className="font-semibold">{t.officeHoursValue}</p>
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-3">
-                  <MapPin className="h-5 w-5" />
-                  <div>
-                    <p className="text-sm opacity-90">{t.location}</p>
-                    <p className="font-semibold">1680 Michigan Ave, Miami Beach</p>
-                  </div>
-                </div>
-              </div>
-
-              <div className="mt-6 pt-6 border-t border-primary-foreground/20">
-                <p className="text-sm opacity-90 text-center">{t.emergencyLine}</p>
-              </div>
-            </Card>
-
-            <Card className="p-6 bg-muted">
-              <div className="flex items-start gap-3">
-                <Shield className="h-6 w-6 text-accent shrink-0 mt-1" />
-                <div>
-                  <h3 className="font-serif text-lg font-bold text-foreground mb-2">{t.confidential}</h3>
-                  <p className="text-muted-foreground text-sm">
-                    {t.confidentialDesc}
-                  </p>
-                </div>
-              </div>
-            </Card>
-          </div>
+  // ==========================================
+  // SUBMITTED CONFIRMATION
+  // ==========================================
+  if (isSubmitted) {
+    return (
+      <div className="min-h-screen bg-slate-50 py-12 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-3xl mx-auto">
+          <Card className="p-8 md:p-12 shadow-lg border-t-4 border-t-green-600 text-center">
+            <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
+              <CheckCircle2 className="w-10 h-10 text-green-600" />
+            </div>
+            <h2 className="text-3xl font-bold text-slate-900 mb-3">{t.confirmation.title}</h2>
+            <p className="text-lg text-slate-600 mb-2">{t.confirmation.message}</p>
+            <p className="text-slate-500 mb-8">{t.confirmation.followUp}</p>
+            <div className="flex flex-col sm:flex-row gap-3 justify-center">
+              <Link href="/consult">
+                <Button variant="outline" className="gap-2 w-full sm:w-auto">
+                  <ChevronLeft className="w-4 h-4" /> {t.confirmation.backToForms}
+                </Button>
+              </Link>
+              <Link href="/">
+                <Button className="gap-2 bg-blue-600 hover:bg-blue-700 w-full sm:w-auto">
+                  {t.confirmation.backToHome}
+                </Button>
+              </Link>
+            </div>
+          </Card>
         </div>
       </div>
-    </section>
+    )
+  }
+
+  // ==========================================
+  // FORM WIZARD
+  // ==========================================
+  return (
+    <div className="min-h-screen bg-slate-50 py-12 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-3xl mx-auto">
+        {/* Header / Progress */}
+        <div className="mb-8">
+          <div className="flex items-center justify-between mb-2">
+            <h1 className="text-3xl font-bold text-slate-900">{t.title}</h1>
+            <WaiverLanguageSelector />
+          </div>
+          <p className="text-slate-600 mb-6">{t.subtitle}</p>
+
+          {validationError && (
+            <motion.div
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="mb-4 p-3 bg-red-100 text-red-800 rounded-lg flex items-center gap-2"
+            >
+              <AlertCircle className="w-5 h-5" />
+              <span className="font-medium">{validationError}</span>
+            </motion.div>
+          )}
+
+          {/* Step Indicators */}
+          <div className="flex items-center justify-between relative">
+            <div className="absolute left-0 top-1/2 -translate-y-1/2 w-full h-1 bg-slate-200 -z-10" />
+            {stepsConfig.map((step) => {
+              const isActive = step.id === currentStep
+              const isCompleted = step.id < currentStep
+              return (
+                <div key={step.id} className="flex flex-col items-center bg-slate-50 px-3">
+                  <div
+                    className={cn(
+                      "w-10 h-10 rounded-full flex items-center justify-center border-2 transition-all duration-300",
+                      isActive ? "border-blue-600 bg-blue-600 text-white" :
+                      isCompleted ? "border-green-500 bg-green-500 text-white" : "border-slate-300 bg-white text-slate-400"
+                    )}
+                  >
+                    <step.icon className="w-5 h-5" />
+                  </div>
+                  <span className={cn(
+                    "text-xs font-medium mt-2 hidden sm:block",
+                    isActive ? "text-blue-600" : isCompleted ? "text-green-600" : "text-slate-400"
+                  )}>
+                    {t.steps[step.key as keyof typeof t.steps]?.title}
+                  </span>
+                </div>
+              )
+            })}
+          </div>
+        </div>
+
+        {/* Content Card */}
+        <Card className="p-6 md:p-8 min-h-80 relative shadow-lg border-t-4 border-t-blue-600">
+          <AnimatePresence custom={direction} mode="wait">
+            <motion.div
+              key={currentStep}
+              custom={direction}
+              variants={variants}
+              initial="enter"
+              animate="center"
+              exit="exit"
+              transition={{ type: "spring", stiffness: 300, damping: 30 }}
+              className="space-y-6"
+            >
+              {/* =============== STEP 1: PERSONAL INFO =============== */}
+              {currentStep === 1 && (
+                <div className="space-y-5">
+                  <div className="flex items-center gap-2 mb-4">
+                    <User className="text-blue-600 w-6 h-6" />
+                    <h2 className="text-2xl font-semibold">{t.step1.heading}</h2>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                      <Label htmlFor="firstName">{t.step1.firstName}</Label>
+                      <Input id="firstName" value={formData.firstName} onChange={(e) => updateField("firstName", e.target.value)} placeholder={t.step1.firstNamePh} className="mt-1" />
+                    </div>
+                    <div>
+                      <Label htmlFor="lastName">{t.step1.lastName}</Label>
+                      <Input id="lastName" value={formData.lastName} onChange={(e) => updateField("lastName", e.target.value)} placeholder={t.step1.lastNamePh} className="mt-1" />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                      <Label htmlFor="email">{t.step1.email}</Label>
+                      <Input id="email" type="email" value={formData.email} onChange={(e) => updateField("email", e.target.value)} placeholder={t.step1.emailPh} className="mt-1" />
+                    </div>
+                    <div>
+                      <Label htmlFor="phone">{t.step1.phone}</Label>
+                      <Input id="phone" type="tel" value={formData.phone} onChange={(e) => updateField("phone", e.target.value)} placeholder={t.step1.phonePh} className="mt-1" />
+                    </div>
+                  </div>
+
+                  {/* Nationality */}
+                  <div className="space-y-3">
+                    <Label>{t.step1.nationality}</Label>
+                    <div className="flex flex-wrap gap-2">
+                      {t.nationalities.map((nat, i) => (
+                        <button
+                          key={nat}
+                          type="button"
+                          onClick={() => {
+                            updateField("nationality", translations.en.nationalities[i])
+                            setShowOtherNationality(false)
+                            updateField("customNationality", "")
+                          }}
+                          className={cn(
+                            "px-3 py-1.5 rounded-full border text-sm font-medium transition-all",
+                            formData.nationality === translations.en.nationalities[i] && !showOtherNationality
+                              ? "border-blue-600 bg-blue-50 text-blue-700"
+                              : "border-slate-200 hover:border-blue-300 text-slate-600"
+                          )}
+                        >
+                          {nat}
+                        </button>
+                      ))}
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setShowOtherNationality(true)
+                          updateField("nationality", "")
+                        }}
+                        className={cn(
+                          "px-3 py-1.5 rounded-full border text-sm font-medium transition-all",
+                          showOtherNationality
+                            ? "border-blue-600 bg-blue-50 text-blue-700"
+                            : "border-slate-200 hover:border-blue-300 text-slate-600"
+                        )}
+                      >
+                        {t.step1.nationalityOther}
+                      </button>
+                    </div>
+                    {showOtherNationality && (
+                      <Input
+                        value={formData.customNationality}
+                        onChange={(e) => updateField("customNationality", e.target.value)}
+                        placeholder={t.step1.nationalityOtherPh}
+                        className="mt-2"
+                      />
+                    )}
+                  </div>
+
+                  <div>
+                    <Label htmlFor="location">{t.step1.location}</Label>
+                    <Input id="location" value={formData.currentLocation} onChange={(e) => updateField("currentLocation", e.target.value)} placeholder={t.step1.locationPh} className="mt-1" />
+                  </div>
+                </div>
+              )}
+
+              {/* =============== STEP 2: CASE DETAILS =============== */}
+              {currentStep === 2 && (
+                <div className="space-y-6">
+                  <div className="flex items-center gap-2 mb-4">
+                    <FileText className="text-blue-600 w-6 h-6" />
+                    <h2 className="text-2xl font-semibold">{t.step2.heading}</h2>
+                  </div>
+
+                  {/* Case Type */}
+                  <div className="space-y-3">
+                    <Label className="text-base">{t.step2.caseType}</Label>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      {caseTypeOptions.map((opt) => (
+                        <button
+                          key={opt.id}
+                          type="button"
+                          onClick={() => updateField("caseType", opt.id)}
+                          className={cn(
+                            "p-4 border-2 rounded-xl flex items-center gap-3 text-left transition-all",
+                            formData.caseType === opt.id
+                              ? "border-blue-600 bg-blue-50"
+                              : "border-slate-200 hover:border-blue-300"
+                          )}
+                        >
+                          <opt.icon className={cn("w-6 h-6 shrink-0", formData.caseType === opt.id ? "text-blue-600" : "text-slate-400")} />
+                          <span className="font-medium text-sm">
+                            {t.caseTypes[opt.id as keyof typeof t.caseTypes]}
+                          </span>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Urgency */}
+                  <div className="space-y-3">
+                    <Label className="text-base">{t.step2.urgency}</Label>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      {urgencyOptions.map((opt) => {
+                        const urgKey = `urgency${opt.id.charAt(0).toUpperCase() + opt.id.slice(1)}` as keyof typeof t.step2
+                        const descKey = `${urgKey}Desc` as keyof typeof t.step2
+                        return (
+                          <button
+                            key={opt.id}
+                            type="button"
+                            onClick={() => updateField("urgency", opt.id)}
+                            className={cn(
+                              "p-4 border-2 rounded-xl flex items-start gap-3 text-left transition-all",
+                              formData.urgency === opt.id
+                                ? "border-blue-600 bg-blue-50"
+                                : "border-slate-200 hover:border-blue-300"
+                            )}
+                          >
+                            <opt.icon className={cn("w-5 h-5 mt-0.5 shrink-0", formData.urgency === opt.id ? "text-blue-600" : "text-slate-400")} />
+                            <div>
+                              <span className="font-medium text-sm block">{t.step2[urgKey]}</span>
+                              <span className="text-xs text-slate-500">{t.step2[descKey]}</span>
+                            </div>
+                          </button>
+                        )
+                      })}
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* =============== STEP 3: DESCRIPTION =============== */}
+              {currentStep === 3 && (
+                <div className="space-y-5">
+                  <div className="flex items-center gap-2 mb-4">
+                    <MessageSquare className="text-blue-600 w-6 h-6" />
+                    <h2 className="text-2xl font-semibold">{t.step3.heading}</h2>
+                  </div>
+
+                  <div>
+                    <Label htmlFor="description">{t.step3.description}</Label>
+                    <Textarea
+                      id="description"
+                      value={formData.caseDescription}
+                      onChange={(e) => updateField("caseDescription", e.target.value)}
+                      placeholder={t.step3.descriptionPh}
+                      rows={5}
+                      className="mt-1"
+                    />
+                    <p className="text-xs text-slate-500 mt-1">{t.step3.descriptionHelp}</p>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                      <Label htmlFor="previousAttorney">{t.step3.previousAttorney}</Label>
+                      <Input id="previousAttorney" value={formData.previousAttorney} onChange={(e) => updateField("previousAttorney", e.target.value)} placeholder={t.step3.previousAttorneyPh} className="mt-1" />
+                    </div>
+                    <DateInputField
+                      value={formData.courtDateDisplay}
+                      onChange={(iso) => updateField("courtDate", iso)}
+                      onValueChange={(display) => updateField("courtDateDisplay", display)}
+                      placeholder={t.step3.courtDatePh}
+                      label={t.step3.courtDate}
+                      id="courtDate"
+                    />
+                  </div>
+
+                  {/* Contact Method */}
+                  <div className="space-y-3">
+                    <Label className="text-base">{t.step3.contactMethod}</Label>
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                      {contactMethodOptions.map((opt) => (
+                        <button
+                          key={opt.id}
+                          type="button"
+                          onClick={() => updateField("preferredContactMethod", opt.id)}
+                          className={cn(
+                            "p-3 border-2 rounded-xl flex flex-col items-center gap-2 transition-all",
+                            formData.preferredContactMethod === opt.id
+                              ? "border-blue-600 bg-blue-50"
+                              : "border-slate-200 hover:border-blue-300"
+                          )}
+                        >
+                          <opt.icon className={cn("w-5 h-5", formData.preferredContactMethod === opt.id ? "text-blue-600" : "text-slate-400")} />
+                          <span className="text-xs font-medium">
+                            {t.contactMethods[opt.id as keyof typeof t.contactMethods]}
+                          </span>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Time Preference */}
+                  <div className="space-y-3">
+                    <Label>{t.step3.contactTime}</Label>
+                    <div className="flex flex-wrap gap-2">
+                      {(["morning", "afternoon", "evening", "flexible"] as const).map((time) => {
+                        const timeKey = `time${time.charAt(0).toUpperCase() + time.slice(1)}` as keyof typeof t.step3
+                        return (
+                          <button
+                            key={time}
+                            type="button"
+                            onClick={() => updateField("preferredConsultationTime", time)}
+                            className={cn(
+                              "px-4 py-2 rounded-full border text-sm font-medium transition-all",
+                              formData.preferredConsultationTime === time
+                                ? "border-blue-600 bg-blue-50 text-blue-700"
+                                : "border-slate-200 hover:border-blue-300 text-slate-600"
+                            )}
+                          >
+                            {t.step3[timeKey]}
+                          </button>
+                        )
+                      })}
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* =============== STEP 4: REVIEW & SUBMIT =============== */}
+              {currentStep === 4 && (
+                <div className="space-y-5">
+                  <div className="flex items-center gap-2 mb-4">
+                    <CheckCircle2 className="text-blue-600 w-6 h-6" />
+                    <h2 className="text-2xl font-semibold">{t.step4.heading}</h2>
+                  </div>
+
+                  {/* Personal Info Summary */}
+                  <Card className="p-4 bg-slate-50 space-y-2">
+                    <h3 className="font-semibold text-sm text-slate-500 uppercase">{t.step4.personalInfo}</h3>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm">
+                      <p><span className="text-slate-500">{t.step1.firstName}:</span> <span className="font-medium">{formData.firstName}</span></p>
+                      <p><span className="text-slate-500">{t.step1.lastName}:</span> <span className="font-medium">{formData.lastName}</span></p>
+                      <p><span className="text-slate-500">{t.step1.email}:</span> <span className="font-medium">{formData.email}</span></p>
+                      <p><span className="text-slate-500">{t.step1.phone}:</span> <span className="font-medium">{formData.phone}</span></p>
+                      <p><span className="text-slate-500">{t.step1.nationality}:</span> <span className="font-medium">{effectiveNationality}</span></p>
+                      <p><span className="text-slate-500">{t.step1.location}:</span> <span className="font-medium">{formData.currentLocation}</span></p>
+                    </div>
+                  </Card>
+
+                  {/* Case Summary */}
+                  <Card className="p-4 bg-slate-50 space-y-2">
+                    <h3 className="font-semibold text-sm text-slate-500 uppercase">{t.step4.caseDetails}</h3>
+                    <div className="text-sm space-y-1">
+                      <p><span className="text-slate-500">{t.step2.caseType.replace("?", "")}:</span> <span className="font-medium">{t.caseTypes[formData.caseType as keyof typeof t.caseTypes] || formData.caseType}</span></p>
+                      <p><span className="text-slate-500">{t.step2.urgency.replace("?", "")}:</span> <span className="font-medium capitalize">{formData.urgency}</span></p>
+                    </div>
+                  </Card>
+
+                  {/* Description Summary */}
+                  <Card className="p-4 bg-slate-50 space-y-2">
+                    <h3 className="font-semibold text-sm text-slate-500 uppercase">{t.step4.yourStory}</h3>
+                    <p className="text-sm text-slate-700 whitespace-pre-wrap">{formData.caseDescription}</p>
+                    {formData.previousAttorney && (
+                      <p className="text-sm"><span className="text-slate-500">{t.step3.previousAttorney}:</span> <span className="font-medium">{formData.previousAttorney}</span></p>
+                    )}
+                    {formData.courtDateDisplay && (
+                      <p className="text-sm"><span className="text-slate-500">{t.step3.courtDate}:</span> <span className="font-medium">{formData.courtDateDisplay}</span></p>
+                    )}
+                  </Card>
+
+                  {/* Preferences Summary */}
+                  <Card className="p-4 bg-slate-50 space-y-2">
+                    <h3 className="font-semibold text-sm text-slate-500 uppercase">{t.step4.preferences}</h3>
+                    <div className="text-sm space-y-1">
+                      <p><span className="text-slate-500">{t.step4.contact}:</span> <span className="font-medium">{t.contactMethods[formData.preferredContactMethod as keyof typeof t.contactMethods]}</span></p>
+                      {formData.preferredConsultationTime && (
+                        <p><span className="text-slate-500">{t.step4.time}:</span> <span className="font-medium capitalize">{formData.preferredConsultationTime}</span></p>
+                      )}
+                    </div>
+                  </Card>
+
+                  {/* Terms */}
+                  <div className="flex items-start gap-3 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                    <Checkbox
+                      id="terms"
+                      checked={formData.agreeToTerms}
+                      onCheckedChange={(checked) => updateField("agreeToTerms", checked === true)}
+                      className="mt-0.5"
+                    />
+                    <label htmlFor="terms" className="text-sm text-slate-700 cursor-pointer leading-relaxed">
+                      {t.step4.terms}
+                    </label>
+                  </div>
+
+                  {submitError && (
+                    <div className="p-3 bg-red-50 border border-red-200 rounded-lg flex items-center gap-2">
+                      <AlertCircle className="w-4 h-4 text-red-600" />
+                      <span className="text-sm text-red-800">{submitError}</span>
+                    </div>
+                  )}
+                </div>
+              )}
+            </motion.div>
+          </AnimatePresence>
+        </Card>
+
+        {/* Footer Navigation */}
+        <div className="mt-8 flex justify-between items-center">
+          <Button variant="outline" onClick={handleBack} disabled={currentStep === 1} className="gap-2">
+            <ChevronLeft className="w-4 h-4" /> {t.nav.back}
+          </Button>
+          {currentStep < 4 ? (
+            <Button onClick={handleNext} className="gap-2 bg-blue-600 hover:bg-blue-700">
+              {t.nav.next} <ChevronRight className="w-4 h-4" />
+            </Button>
+          ) : (
+            <Button onClick={handleSubmit} disabled={isSubmitting} className="gap-2 bg-green-600 hover:bg-green-700">
+              <Save className="w-4 h-4" /> {isSubmitting ? t.step4.submitting : t.step4.submit}
+            </Button>
+          )}
+        </div>
+      </div>
+    </div>
   )
 }

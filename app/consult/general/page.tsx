@@ -1,7 +1,6 @@
 "use client"
 
 import { ConsultationForm } from "@/components/consultation-form"
-import { ValeriaChat } from "@/components/valeria-chat"
 import { ArrowLeft } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
@@ -23,7 +22,6 @@ export default function GeneralConsultPage() {
         </Button>
       </Link>
       <ConsultationForm />
-      <ValeriaChat />
     </div>
   )
 }
