@@ -3,15 +3,24 @@ import type { Metadata, Viewport } from "next"
 import { Inter, Playfair_Display } from "next/font/google"
 import { Analytics } from "@vercel/analytics/next"
 import { LanguageProvider } from "@/lib/language-context"
+import { SITE_URL } from "@/lib/site-config"
 import "./globals.css"
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" })
 const playfair = Playfair_Display({ subsets: ["latin"], variable: "--font-playfair" })
 
 export const metadata: Metadata = {
+  metadataBase: new URL(SITE_URL),
   title: "Diaz & Johnson | Immigration & Criminal Defense Attorneys | Miami, FL",
   description:
     "Trusted immigration and criminal defense attorneys in Miami, Florida. Specializing in green cards, visas, civil rights, and criminal defense. Free consultation available.",
+  alternates: {
+    canonical: "/",
+  },
+  openGraph: {
+    url: SITE_URL,
+    siteName: "Diaz & Johnson",
+  },
   generator: "v0.app",
   icons: {
     icon: [

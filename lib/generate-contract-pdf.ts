@@ -1,4 +1,5 @@
 import jsPDF from "jspdf"
+import { CONTRACTS_EMAIL, SITE_URL } from "@/lib/site-config"
 
 /* ═══════════════════════════════════════════════════════════════
    DÍAZ & JOHNSON — H-2B Contract PDF Generator
@@ -411,7 +412,7 @@ export async function generateContractPDF(data: ContractData): Promise<ContractP
   writeTitle("NOVENO — NOTIFICACIONES Y FIRMA ELECTRÓNICA")
   writeParagraph("Toda comunicación, notificación o requerimiento entre las partes relacionado con el presente contrato deberá realizarse por escrito y podrá ser enviado a través de correo electrónico, servicio postal certificado, mensajería privada o cualquier otro medio que permita verificar su recepción.")
   writeParagraph("A efectos de este contrato, las partes designan los siguientes correos electrónicos como medios válidos de notificación:")
-  writeBullet("EL ESTUDIO: contratos@diazandjohnson.online")
+  writeBullet(`EL ESTUDIO: ${CONTRACTS_EMAIL}`)
   writeBullet(`EL CLIENTE: ${data.clientEmail}`)
   y += 1
   writeParagraph("Cualquier cambio de dirección física o electrónica deberá ser notificado por escrito a la otra parte dentro de un plazo máximo de cinco (5) días hábiles.")
@@ -601,7 +602,7 @@ export async function generateContractPDF(data: ContractData): Promise<ContractP
   y = boxY + boxH + 6
 
   // Verification badge + URL
-  const qrDataURL = generateVerificationBadge(`https://diazandjohnson.online/verify/${data.contractId}`)
+  const qrDataURL = generateVerificationBadge(`${SITE_URL}/verify/${data.contractId}`)
   const qrSize = 26
 
   doc.setFillColor(248, 249, 252)
@@ -640,7 +641,7 @@ export async function generateContractPDF(data: ContractData): Promise<ContractP
   doc.setFont("helvetica", "bold")
   doc.setFontSize(5.5)
   doc.setTextColor(...gold)
-  doc.text(`URL: https://diazandjohnson.online/verify/${data.contractId}`, textX, textY)
+  doc.text(`URL: ${SITE_URL}/verify/${data.contractId}`, textX, textY)
 
   y += 46
 
