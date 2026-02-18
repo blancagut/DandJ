@@ -27,7 +27,6 @@ import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { cn } from "@/lib/utils"
-import { getSupabaseBrowserClient } from "@/lib/supabase/client"
 import { useWorkScreeningTranslation } from "@/lib/work-screening-i18n"
 import { useLanguage } from "@/lib/language-context"
 import { WaiverLanguageSelector } from "@/components/waiver-language-selector"
@@ -395,15 +394,20 @@ export function WorkScreeningWizard() {
         },
       }
 
-      // Save to Supabase
-      const supabase = getSupabaseBrowserClient()
-      // @ts-expect-error - No hay tipos generados de Supabase
-      const { error } = await supabase
-        .from("work_screenings")
-        .insert({ data: saveData, status: "new", contact_name: contactName.trim(), contact_email: contactEmail.trim(), contact_phone: contactPhone.trim() })
+      const res = await fetch("/api/consult/work", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          data: saveData,
+          contactName: contactName.trim(),
+          contactEmail: contactEmail.trim(),
+          contactPhone: contactPhone.trim(),
+        }),
+      })
 
-      if (error) {
-        console.error("Supabase insert error:", error)
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}))
+        console.error("Work screening API error:", data)
         setContactError(language === "es"
           ? "Error al guardar. Por favor intente de nuevo."
           : "Error saving your results. Please try again.")

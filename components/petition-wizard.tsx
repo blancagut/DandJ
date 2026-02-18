@@ -49,7 +49,6 @@ import { Card } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
-import { getSupabaseBrowserClient } from "@/lib/supabase/client"
 import Link from "next/link"
 
 // Step definition with icons
@@ -286,15 +285,20 @@ export function PetitionWizard() {
         },
       }
 
-      // Save to Supabase
-      const supabase = getSupabaseBrowserClient()
-      // @ts-expect-error - No hay tipos generados de Supabase
-      const { error } = await supabase
-        .from("petition_screenings")
-        .insert({ data: saveData, status: "new", contact_name: contactName.trim(), contact_email: contactEmail.trim(), contact_phone: contactPhone.trim() })
+      const res = await fetch("/api/consult/petition", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          data: saveData,
+          contactName: contactName.trim(),
+          contactEmail: contactEmail.trim(),
+          contactPhone: contactPhone.trim(),
+        }),
+      })
 
-      if (error) {
-        console.error("Supabase insert error:", error)
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}))
+        console.error("Petition API error:", data)
         setContactError(language === "es"
           ? "Error al guardar. Por favor intente de nuevo."
           : "Error saving your results. Please try again.")

@@ -34,7 +34,6 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Checkbox } from "@/components/ui/checkbox"
 import { cn } from "@/lib/utils"
-import { getSupabaseBrowserClient } from "@/lib/supabase/client"
 import { useLanguage } from "@/lib/language-context"
 import { WaiverLanguageSelector } from "@/components/waiver-language-selector"
 import Link from "next/link"
@@ -492,27 +491,30 @@ export function ConsultationForm() {
     setIsSubmitting(true)
     setSubmitError(null)
     try {
-      const supabase = getSupabaseBrowserClient()
-      // @ts-expect-error - No generated Supabase types
-      const { error: dbError } = await supabase.from("consultation_requests").insert({
-        first_name: formData.firstName.trim(),
-        last_name: formData.lastName.trim(),
-        email: formData.email.trim(),
-        phone: formData.phone.trim(),
-        nationality: effectiveNationality.trim(),
-        current_location: formData.currentLocation.trim(),
-        case_type: formData.caseType,
-        urgency: formData.urgency,
-        case_description: formData.caseDescription.trim(),
-        previous_attorney: formData.previousAttorney.trim() || null,
-        court_date: formData.courtDate || null,
-        preferred_contact_method: formData.preferredContactMethod,
-        preferred_consultation_time: formData.preferredConsultationTime || null,
-        language,
-        status: "new",
+      const res = await fetch("/api/consult/general", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          firstName: formData.firstName.trim(),
+          lastName: formData.lastName.trim(),
+          email: formData.email.trim(),
+          phone: formData.phone.trim(),
+          nationality: effectiveNationality.trim(),
+          currentLocation: formData.currentLocation.trim(),
+          caseType: formData.caseType,
+          urgency: formData.urgency,
+          caseDescription: formData.caseDescription.trim(),
+          previousAttorney: formData.previousAttorney.trim() || null,
+          courtDate: formData.courtDate || null,
+          preferredContactMethod: formData.preferredContactMethod,
+          preferredConsultationTime: formData.preferredConsultationTime || null,
+          language,
+        }),
       })
-      if (dbError) {
-        console.error("Supabase insert error:", dbError)
+
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}))
+        console.error("General consult API error:", data)
         setSubmitError(language === "es" ? "Error al enviar. Por favor intente de nuevo." : "Error submitting. Please try again.")
         setIsSubmitting(false)
         return
