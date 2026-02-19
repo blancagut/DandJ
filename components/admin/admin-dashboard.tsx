@@ -13,6 +13,7 @@ import {
   Users,
   Shield,
   Briefcase,
+  ClipboardList,
   MessageSquare,
   CheckSquare,
   Bell,
@@ -26,6 +27,7 @@ import { ContactsTab } from "./tabs/contacts-tab"
 import { PetitionsTab } from "./tabs/petitions-tab"
 import { WaiversTab } from "./tabs/waivers-tab"
 import { WorkVisasTab } from "./tabs/work-visas-tab"
+import { H2BIntakeTab } from "./tabs/h2b-intake-tab"
 import { ChatTab } from "./tabs/chat-tab"
 import { TasksTab } from "./tabs/tasks-tab"
 import { ContractsTab } from "./tabs/contracts-tab"
@@ -42,6 +44,7 @@ type TabCounts = {
   petitions: number
   waivers: number
   workVisas: number
+  h2bIntake: number
   chat: number
   tasks: number
   contracts: number
@@ -54,6 +57,7 @@ export function AdminDashboard({ user, onSignOut }: AdminDashboardProps) {
     petitions: 0,
     waivers: 0,
     workVisas: 0,
+    h2bIntake: 0,
     chat: 0,
     tasks: 0,
     contracts: 0,
@@ -62,12 +66,13 @@ export function AdminDashboard({ user, onSignOut }: AdminDashboardProps) {
 
   const loadCounts = useCallback(async () => {
     const supabase = getSupabaseBrowserClient()
-    const [c1, c2, c3, c4, c5, c6, c7, c8] = await Promise.all([
+    const [c1, c2, c3, c4, c5, c6, c7, c8, c9] = await Promise.all([
       supabase.from("consultation_requests").select("id", { count: "exact", head: true }),
       supabase.from("leads").select("id", { count: "exact", head: true }),
       supabase.from("petition_screenings").select("id", { count: "exact", head: true }),
       supabase.from("waiver_screenings").select("id", { count: "exact", head: true }),
       supabase.from("work_screenings").select("id", { count: "exact", head: true }),
+      supabase.from("h2b_intake_submissions").select("id", { count: "exact", head: true }),
       supabase.from("chat_conversations").select("id", { count: "exact", head: true }),
       supabase.from("work_items").select("id", { count: "exact", head: true }).neq("status", "done"),
       supabase.from("h2b_contracts").select("id", { count: "exact", head: true }),
@@ -78,9 +83,10 @@ export function AdminDashboard({ user, onSignOut }: AdminDashboardProps) {
       petitions: c3.count ?? 0,
       waivers: c4.count ?? 0,
       workVisas: c5.count ?? 0,
-      chat: c6.count ?? 0,
-      tasks: c7.count ?? 0,
-      contracts: c8.count ?? 0,
+      h2bIntake: c6.count ?? 0,
+      chat: c7.count ?? 0,
+      tasks: c8.count ?? 0,
+      contracts: c9.count ?? 0,
     })
   }, [])
 
@@ -95,6 +101,7 @@ export function AdminDashboard({ user, onSignOut }: AdminDashboardProps) {
       "petition_screenings",
       "waiver_screenings",
       "work_screenings",
+      "h2b_intake_submissions",
       "chat_conversations",
       "h2b_contracts",
     ]
@@ -142,6 +149,7 @@ export function AdminDashboard({ user, onSignOut }: AdminDashboardProps) {
     { value: "petitions", label: "Petitions", icon: Users, count: counts.petitions },
     { value: "waivers", label: "Waivers", icon: Shield, count: counts.waivers },
     { value: "work-visas", label: "Work Visas", icon: Briefcase, count: counts.workVisas },
+    { value: "h2b-intake", label: "H-2B Intake", icon: ClipboardList, count: counts.h2bIntake },
     { value: "chat", label: "Chat", icon: MessageSquare, count: counts.chat },
     { value: "tasks", label: "Tasks", icon: CheckSquare, count: counts.tasks },
     { value: "contracts", label: "Contracts", icon: Scale, count: counts.contracts },
@@ -151,8 +159,8 @@ export function AdminDashboard({ user, onSignOut }: AdminDashboardProps) {
   return (
     <div className="min-h-screen bg-background">
       {/* Sticky Header */}
-      <header className="sticky top-0 z-50 border-b bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/60">
-        <div className="max-w-[1400px] mx-auto px-4 py-3 flex items-center justify-between">
+      <header className="sticky top-0 z-50 border-b bg-card/95 backdrop-blur supports-backdrop-filter:bg-card/60">
+        <div className="max-w-350 mx-auto px-4 py-3 flex items-center justify-between">
           <div>
             <h1 className="text-xl font-bold">Super Admin</h1>
             <p className="text-xs text-muted-foreground">{user.email}</p>
@@ -179,7 +187,7 @@ export function AdminDashboard({ user, onSignOut }: AdminDashboardProps) {
         </div>
       </header>
 
-      <main className="max-w-[1400px] mx-auto px-4 py-6">
+      <main className="max-w-350 mx-auto px-4 py-6">
         <Tabs defaultValue="consultations" className="w-full">
           <TabsList className="w-full flex flex-wrap h-auto gap-1 bg-muted/50 p-1">
             {tabs.map((tab) => (
@@ -236,6 +244,14 @@ export function AdminDashboard({ user, onSignOut }: AdminDashboardProps) {
               <Card>
                 <CardContent className="p-4">
                   <WorkVisasTab />
+                </CardContent>
+              </Card>
+            </TabsContent>
+
+            <TabsContent value="h2b-intake">
+              <Card>
+                <CardContent className="p-4">
+                  <H2BIntakeTab />
                 </CardContent>
               </Card>
             </TabsContent>
