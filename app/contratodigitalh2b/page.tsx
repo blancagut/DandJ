@@ -525,13 +525,13 @@ export default function ContratoDigitalH2B() {
             <ClauseHeading num="CUARTA" title="HONORARIOS" icon={<DollarSign className="w-5 h-5 text-white" />} />
             <p>EL CLIENTE se obliga a pagar a EL ESTUDIO la suma única y total de <strong style={{ color: NAVY }}>Quinientos dólares estadounidenses (USD $500.00)</strong>, por concepto de comisión profesional. La cual se pagará en 2 partes:</p>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-3 mb-3">
-              <div className="rounded-lg border p-4 text-sm text-center" style={{ borderColor: `${GOLD}40`, background: `${GOLD}08` }}>
-                <p className="text-2xl font-bold font-sans" style={{ color: NAVY }}>$300<span className="text-base">.00</span></p>
-                <p className="text-gray-500 text-xs mt-1">A la firma del contrato</p>
+              <div className="rounded-xl border p-4 text-sm text-center shadow-sm" style={{ borderColor: `${NAVY}26`, background: "#F8FAFC" }}>
+                <p className="text-lg sm:text-xl font-semibold font-sans" style={{ color: NAVY }}>$300<span className="text-sm">.00</span></p>
+                <p className="text-gray-600 text-xs mt-1">A la firma del contrato</p>
               </div>
-              <div className="rounded-lg border p-4 text-sm text-center" style={{ borderColor: `${GOLD}40`, background: `${GOLD}08` }}>
-                <p className="text-2xl font-bold font-sans" style={{ color: NAVY }}>$200<span className="text-base">.00</span></p>
-                <p className="text-gray-500 text-xs mt-1">Al instalarse en el trabajo en Miami, FL</p>
+              <div className="rounded-xl border p-4 text-sm text-center shadow-sm" style={{ borderColor: `${NAVY}26`, background: "#F8FAFC" }}>
+                <p className="text-lg sm:text-xl font-semibold font-sans" style={{ color: NAVY }}>$200<span className="text-sm">.00</span></p>
+                <p className="text-gray-600 text-xs mt-1">Al instalarse en el trabajo en Miami, FL</p>
               </div>
             </div>
             <p className="text-sm mt-2">Dicho monto corresponde exclusivamente a los honorarios de intermediación, asesoría y coordinación del proceso migratorio bajo el programa de visas H-2B.</p>
