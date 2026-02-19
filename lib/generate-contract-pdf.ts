@@ -27,6 +27,7 @@ export interface ContractData {
   feeTotalTextEs?: string
   firstInstallmentTextEs?: string
   secondInstallmentTextEs?: string
+  thirdInstallmentTextEs?: string
 }
 
 export interface ContractPDFResult {
@@ -372,6 +373,9 @@ export async function generateContractPDF(data: ContractData): Promise<ContractP
     data.secondInstallmentTextEs ||
       "$200.00 (doscientos dólares) al momento de instalarse en el trabajo dentro de Miami, Florida."
   )
+  if (data.thirdInstallmentTextEs) {
+    writeBullet(data.thirdInstallmentTextEs)
+  }
   y += 1
   writeParagraph("Dicho monto corresponde exclusivamente a los honorarios de intermediación, asesoría y coordinación del proceso migratorio bajo el programa de visas H-2B.")
   writeParagraph("Todos los gastos gubernamentales, tasas consulares, tarifas administrativas, formularios y costos relacionados con la tramitación de la visa H-2B serán cubiertos en su totalidad por el empleador. Esto incluye —de manera enunciativa pero no limitativa— los siguientes conceptos:")
