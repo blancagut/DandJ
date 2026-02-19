@@ -24,6 +24,9 @@ export interface ContractData {
   clientSignature: string // base64 PNG
   ipAddress?: string
   userAgent?: string
+  feeTotalTextEs?: string
+  firstInstallmentTextEs?: string
+  secondInstallmentTextEs?: string
 }
 
 export interface ContractPDFResult {
@@ -357,9 +360,18 @@ export async function generateContractPDF(data: ContractData): Promise<ContractP
 
   // CUARTA
   writeTitle("CUARTA — HONORARIOS")
-  writeParagraph("EL CLIENTE se obliga a pagar a EL ESTUDIO la suma única y total de Quinientos dólares estadounidenses (USD $500.00), por concepto de comisión profesional. La cual se pagará en 2 partes:")
-  writeBullet("La primera de $300.00 (trescientos dólares) a la firma del contrato;")
-  writeBullet("$200.00 (doscientos dólares) al momento de instalarse en el trabajo dentro de Miami, Florida.")
+  writeParagraph(
+    data.feeTotalTextEs ||
+      "EL CLIENTE se obliga a pagar a EL ESTUDIO la suma única y total de Quinientos dólares estadounidenses (USD $500.00), por concepto de comisión profesional. La cual se pagará en 2 partes:"
+  )
+  writeBullet(
+    data.firstInstallmentTextEs ||
+      "La primera de $300.00 (trescientos dólares) a la firma del contrato;"
+  )
+  writeBullet(
+    data.secondInstallmentTextEs ||
+      "$200.00 (doscientos dólares) al momento de instalarse en el trabajo dentro de Miami, Florida."
+  )
   y += 1
   writeParagraph("Dicho monto corresponde exclusivamente a los honorarios de intermediación, asesoría y coordinación del proceso migratorio bajo el programa de visas H-2B.")
   writeParagraph("Todos los gastos gubernamentales, tasas consulares, tarifas administrativas, formularios y costos relacionados con la tramitación de la visa H-2B serán cubiertos en su totalidad por el empleador. Esto incluye —de manera enunciativa pero no limitativa— los siguientes conceptos:")
