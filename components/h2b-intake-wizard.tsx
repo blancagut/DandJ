@@ -513,8 +513,8 @@ export function H2BIntakeWizard() {
         <div className="bg-linear-to-r from-slate-900 via-slate-800 to-slate-900 p-6 text-white">
           <div className="flex flex-wrap items-center justify-between gap-4 mb-4">
             <div>
-              <p className="text-xs uppercase tracking-[0.2em] text-slate-300">Díaz and Johnson Attorney</p>
-              <h1 className="text-2xl md:text-3xl font-bold">H-2B Immigration Intake Intelligence</h1>
+              <p className="text-xs uppercase tracking-[0.2em] text-slate-300">Diaz & Johnson Attorneys at Law</p>
+              <h1 className="text-2xl md:text-3xl font-bold">Evaluación de Elegibilidad H-2B</h1>
             </div>
             <Badge className="bg-white/15 text-white border-white/20 hover:bg-white/15">
               Paso {Math.min(currentStep, steps.length)} de {steps.length}
