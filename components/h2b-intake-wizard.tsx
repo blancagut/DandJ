@@ -10,7 +10,8 @@ import { Textarea } from "@/components/ui/textarea"
 import { Progress } from "@/components/ui/progress"
 import { Badge } from "@/components/ui/badge"
 import { SignaturePad } from "@/components/signature-pad"
-import { ArrowLeft, ArrowRight, CheckCircle2, Shield, AlertTriangle, FileCheck2, Upload, Sparkles } from "lucide-react"
+import type { LucideIcon } from "lucide-react"
+import { ArrowLeft, ArrowRight, CheckCircle2, Shield, AlertTriangle, FileCheck2, Upload, Fingerprint, MapPin, Plane, Ban, Gavel, Siren, Briefcase, Users, FileText, PenSquare } from "lucide-react"
 
 type QuestionType = "text" | "email" | "tel" | "date" | "number" | "yesno" | "select" | "textarea"
 
@@ -28,6 +29,7 @@ type Step = {
   id: number
   title: string
   subtitle: string
+  icon: LucideIcon
   range: [number, number]
 }
 
@@ -42,17 +44,17 @@ type Analysis = {
 const DRAFT_KEY = "h2b-intake-draft-v1"
 
 const steps: Step[] = [
-  { id: 1, title: "Identidad", subtitle: "Datos legales y pasaporte", range: [1, 15] },
-  { id: 2, title: "Contacto", subtitle: "Dirección y canales de comunicación", range: [16, 25] },
-  { id: 3, title: "Historial EE.UU.", subtitle: "Entradas, visas y permanencia", range: [26, 45] },
-  { id: 4, title: "Remoción", subtitle: "Deportación y entradas no autorizadas", range: [46, 65] },
-  { id: 5, title: "Historial penal", subtitle: "Arrestos, condenas y casos pendientes", range: [66, 80] },
-  { id: 6, title: "Drogas", subtitle: "Antecedentes y riesgos relacionados", range: [81, 90] },
-  { id: 7, title: "Laboral", subtitle: "Experiencia y disponibilidad temporal", range: [91, 105] },
-  { id: 8, title: "Familia", subtitle: "Vínculos familiares en Estados Unidos", range: [106, 115] },
-  { id: 9, title: "Seguridad", subtitle: "Declaraciones y veracidad", range: [116, 120] },
-  { id: 10, title: "Documentos", subtitle: "Archivos requeridos para revisión", range: [0, 0] },
-  { id: 11, title: "Firma digital", subtitle: "Certificación y consentimiento", range: [0, 0] },
+  { id: 1, title: "Identidad", subtitle: "Datos legales y pasaporte", icon: Fingerprint, range: [1, 15] },
+  { id: 2, title: "Contacto", subtitle: "Dirección y canales de comunicación", icon: MapPin, range: [16, 25] },
+  { id: 3, title: "Historial EE.UU.", subtitle: "Entradas, visas y permanencia", icon: Plane, range: [26, 45] },
+  { id: 4, title: "Remoción", subtitle: "Deportación y entradas no autorizadas", icon: Ban, range: [46, 65] },
+  { id: 5, title: "Historial penal", subtitle: "Arrestos, condenas y casos pendientes", icon: Gavel, range: [66, 80] },
+  { id: 6, title: "Drogas", subtitle: "Antecedentes y riesgos relacionados", icon: Siren, range: [81, 90] },
+  { id: 7, title: "Laboral", subtitle: "Experiencia y disponibilidad temporal", icon: Briefcase, range: [91, 105] },
+  { id: 8, title: "Familia", subtitle: "Vínculos familiares en Estados Unidos", icon: Users, range: [106, 115] },
+  { id: 9, title: "Seguridad", subtitle: "Declaraciones y veracidad", icon: Shield, range: [116, 120] },
+  { id: 10, title: "Documentos", subtitle: "Archivos requeridos para revisión", icon: FileText, range: [0, 0] },
+  { id: 11, title: "Firma digital", subtitle: "Certificación y consentimiento", icon: PenSquare, range: [0, 0] },
 ]
 
 const q = (id: number, label: string, type: QuestionType = "text", required = false, options?: string[], showIf?: Question["showIf"]): Question => ({
@@ -524,7 +526,7 @@ export function H2BIntakeWizard() {
 
         <CardHeader className="pb-2 border-b bg-slate-50/80">
           <CardTitle className="text-xl text-slate-900 flex items-center gap-2">
-            <Sparkles className="h-5 w-5 text-amber-500" />
+            <activeStep.icon className="h-5 w-5 text-amber-500" />
             {activeStep.title}
           </CardTitle>
           <CardDescription>{activeStep.subtitle}</CardDescription>
