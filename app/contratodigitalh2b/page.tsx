@@ -187,7 +187,23 @@ function CarlosDiazSignature() {
 
 export default function ContratoDigitalH2B() {
   const pathname = usePathname()
-  const pricing = pathname === "/contract2h2b"
+  const pricing = pathname === "/contract2h2b28"
+    ? {
+        totalText: "Novecientos sesenta dólares estadounidenses (USD $960.00)",
+        totalClause:
+          "EL CLIENTE se obliga a pagar a EL ESTUDIO la suma única y total de Novecientos sesenta dólares estadounidenses (USD $960.00), por concepto de comisión profesional. La cual se pagará en 3 partes iguales:",
+        firstInstallmentClause: "La primera de $320.00 (trescientos veinte dólares) a la firma del contrato;",
+        secondInstallmentClause: "La segunda de $320.00 (trescientos veinte dólares) cuando EL CLIENTE esté en Miami, Florida;",
+        thirdInstallmentClause: "La tercera de $320.00 (trescientos veinte dólares) en su primera quincena de sueldo.",
+        firstInstallmentAmount: "$320",
+        secondInstallmentAmount: "$320",
+        installments: [
+          { amount: "$320", label: "A la firma del contrato" },
+          { amount: "$320", label: "Cuando esté en Miami, FL" },
+          { amount: "$320", label: "En su primera quincena de sueldo" },
+        ],
+      }
+    : pathname === "/contract2h2b"
     ? {
         totalText: "Novecientos sesenta dólares estadounidenses (USD $960.00)",
         totalClause:
