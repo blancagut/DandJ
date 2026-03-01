@@ -4,13 +4,30 @@
  */
 
 export interface EmailTemplateOptions {
-  /** The site base URL for logo and links (defaults to https://diazandjohnson.com) */
+  /** The site base URL for logo and links */
   siteUrl?: string
   /** Optional preheader text (hidden preview text in email clients) */
   preheader?: string
+  /** Optional path for logo image under siteUrl */
+  logoPath?: string
+  /** Optional hero heading under logo */
+  headerTitle?: string
+  /** Optional hero subtitle under headerTitle */
+  headerSubtitle?: string
+  /** Optional support phone shown in footer */
+  supportPhone?: string
+  /** Optional support email shown in footer */
+  supportEmail?: string
+  /** Optional unsubscribe URL displayed in footer */
+  unsubscribeUrl?: string
 }
 
-const DEFAULT_SITE_URL = "https://diazandjohnson.com"
+const DEFAULT_SITE_URL = "https://diazandjohnson.online"
+const DEFAULT_LOGO_PATH = "/logo.png"
+const DEFAULT_HEADER_TITLE = "Diaz & Johnson Immigration Law"
+const DEFAULT_HEADER_SUBTITLE = "Immigration Law Firm"
+const DEFAULT_SUPPORT_PHONE = "(786) 741-2239"
+const DEFAULT_SUPPORT_EMAIL = "info@diazandjohnson.online"
 
 // Brand colors
 const NAVY = "#0B1E3A"
@@ -26,8 +43,13 @@ export function buildBrandedEmail(
   options: EmailTemplateOptions = {},
 ): string {
   const siteUrl = options.siteUrl ?? DEFAULT_SITE_URL
-  const logoUrl = `${siteUrl}/logo.png`
+  const logoUrl = `${siteUrl}${options.logoPath ?? DEFAULT_LOGO_PATH}`
   const preheader = options.preheader ?? ""
+  const headerTitle = options.headerTitle ?? DEFAULT_HEADER_TITLE
+  const headerSubtitle = options.headerSubtitle ?? DEFAULT_HEADER_SUBTITLE
+  const supportPhone = options.supportPhone ?? DEFAULT_SUPPORT_PHONE
+  const supportEmail = options.supportEmail ?? DEFAULT_SUPPORT_EMAIL
+  const unsubscribeUrl = options.unsubscribeUrl
 
   return `<!DOCTYPE html>
 <html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office">
@@ -113,8 +135,15 @@ export function buildBrandedEmail(
                 </tr>
                 <tr>
                   <td align="center" style="padding-top:12px;">
+                    <p style="margin:0;font-size:18px;line-height:1.4;font-weight:700;color:${WHITE};">
+                      ${escapeHtml(headerTitle)}
+                    </p>
+                  </td>
+                </tr>
+                <tr>
+                  <td align="center" style="padding-top:8px;">
                     <p style="margin:0;font-size:12px;letter-spacing:2px;text-transform:uppercase;color:${GOLD};font-weight:600;">
-                      Immigration Law Firm
+                      ${escapeHtml(headerSubtitle)}
                     </p>
                   </td>
                 </tr>
@@ -172,14 +201,14 @@ export function buildBrandedEmail(
                     <table role="presentation" cellpadding="0" cellspacing="0" border="0">
                       <tr>
                         <td style="padding:0 12px;">
-                          <a href="tel:+1-555-000-0000" style="color:rgba(255,255,255,0.8);text-decoration:none;font-size:13px;">
-                            &#9742; (555) 000-0000
+                          <a href="tel:${normalizeTelHref(supportPhone)}" style="color:rgba(255,255,255,0.8);text-decoration:none;font-size:13px;">
+                            &#9742; ${escapeHtml(supportPhone)}
                           </a>
                         </td>
                         <td style="color:rgba(255,255,255,0.3);font-size:13px;">|</td>
                         <td style="padding:0 12px;">
-                          <a href="mailto:info@diazandjohnson.com" style="color:rgba(255,255,255,0.8);text-decoration:none;font-size:13px;">
-                            &#9993; info@diazandjohnson.com
+                          <a href="mailto:${escapeHtml(supportEmail)}" style="color:rgba(255,255,255,0.8);text-decoration:none;font-size:13px;">
+                            &#9993; ${escapeHtml(supportEmail)}
                           </a>
                         </td>
                       </tr>
@@ -213,6 +242,7 @@ export function buildBrandedEmail(
                     <p style="margin:0;font-size:11px;line-height:1.6;color:rgba(255,255,255,0.5);">
                       This email was sent by Diaz &amp; Johnson Immigration Law. You are receiving this because you submitted a form on our website or engaged with our services.
                     </p>
+                    ${unsubscribeUrl ? `<p style="margin:10px 0 0 0;font-size:11px;line-height:1.6;color:rgba(255,255,255,0.65);">To unsubscribe, <a href="${escapeHtml(unsubscribeUrl)}" target="_blank" style="color:${GOLD};">click here</a>.</p>` : ""}
                   </td>
                 </tr>
 
@@ -239,6 +269,12 @@ export function buildBrandedEmail(
 
 </body>
 </html>`
+}
+
+function normalizeTelHref(phone: string): string {
+  const cleaned = phone.replace(/[^\d+]/g, "")
+  if (cleaned.startsWith("+")) return cleaned
+  return `+1${cleaned}`
 }
 
 function escapeHtml(str: string): string {

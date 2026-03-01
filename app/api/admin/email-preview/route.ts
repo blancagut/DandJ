@@ -26,7 +26,13 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Missing subject or bodyHtml" }, { status: 400 })
   }
 
-  const html = buildBrandedEmail(subject, bodyHtml)
+  const html = buildBrandedEmail(subject, bodyHtml, {
+    siteUrl: process.env.NEXT_PUBLIC_SITE_URL || process.env.NEXT_PUBLIC_APP_URL,
+    preheader: subject,
+    supportPhone: process.env.FIRM_PHONE,
+    supportEmail: process.env.FIRM_SUPPORT_EMAIL || process.env.LEADS_TO_EMAIL,
+    unsubscribeUrl: process.env.MARKETING_UNSUBSCRIBE_URL,
+  })
 
   return new NextResponse(html, {
     headers: { "Content-Type": "text/html; charset=utf-8" },

@@ -65,7 +65,13 @@ export async function POST(request: NextRequest) {
   const replyTo = process.env.LEADS_TO_EMAIL || undefined
 
   // Build the full branded HTML
-  const fullHtml = buildBrandedEmail(subject, bodyHtml)
+  const fullHtml = buildBrandedEmail(subject, bodyHtml, {
+    siteUrl: process.env.NEXT_PUBLIC_SITE_URL || process.env.NEXT_PUBLIC_APP_URL,
+    preheader: subject,
+    supportPhone: process.env.FIRM_PHONE,
+    supportEmail: process.env.FIRM_SUPPORT_EMAIL || process.env.LEADS_TO_EMAIL,
+    unsubscribeUrl: process.env.MARKETING_UNSUBSCRIBE_URL,
+  })
 
   // Resend batch API supports up to 100 emails per call
   const BATCH_SIZE = 100

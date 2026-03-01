@@ -64,13 +64,23 @@ import {
   Mail,
   CheckSquare,
   Square,
+  Save,
+  Trash2,
 } from "lucide-react"
+import { MAILING_DRAFT_STORAGE_KEY } from "./mailing-templates"
 
 // ─── Types ───────────────────────────────────────────────────
 interface Recipient {
   email: string
   name: string
   source: string
+}
+
+type MailingDraft = {
+  source?: string
+  subject?: string
+  bodyHtml?: string
+  templateName?: string
 }
 
 const SOURCES = [
@@ -114,6 +124,7 @@ export function EmailComposer({ onSent }: { onSent?: () => void }) {
   const [confirmOpen, setConfirmOpen] = useState(false)
   const [linkDialogOpen, setLinkDialogOpen] = useState(false)
   const [linkUrl, setLinkUrl] = useState("")
+  const [loadedTemplateName, setLoadedTemplateName] = useState<string | null>(null)
 
   // Tiptap editor — immediatelyRender: false is REQUIRED for Next.js SSR
   const editor = useEditor({
@@ -162,6 +173,51 @@ export function EmailComposer({ onSent }: { onSent?: () => void }) {
   useEffect(() => {
     loadRecipients(source)
   }, [source, loadRecipients])
+
+  const applyDraft = useCallback((draft: MailingDraft) => {
+    if (!editor) return
+    if (draft.source && SOURCES.some((sourceOption) => sourceOption.value === draft.source)) {
+      setSource(draft.source)
+    }
+    if (draft.subject) {
+      setSubject(draft.subject)
+    }
+    if (draft.bodyHtml) {
+      editor.commands.setContent(draft.bodyHtml)
+    }
+    setLoadedTemplateName(draft.templateName || "Draft")
+  }, [editor])
+
+  useEffect(() => {
+    if (!editor) return
+    try {
+      const rawDraft = localStorage.getItem(MAILING_DRAFT_STORAGE_KEY)
+      if (!rawDraft) return
+      const parsed = JSON.parse(rawDraft) as MailingDraft
+      applyDraft(parsed)
+    } catch {
+      // Ignore malformed draft payloads in storage
+    }
+  }, [editor, applyDraft])
+
+  useEffect(() => {
+    if (!editor) return
+    const handleDraftUpdate = () => {
+      try {
+        const rawDraft = localStorage.getItem(MAILING_DRAFT_STORAGE_KEY)
+        if (!rawDraft) return
+        const parsed = JSON.parse(rawDraft) as MailingDraft
+        applyDraft(parsed)
+      } catch {
+        // Ignore malformed draft payloads in storage
+      }
+    }
+
+    window.addEventListener("admin:mailing-draft-updated", handleDraftUpdate)
+    return () => {
+      window.removeEventListener("admin:mailing-draft-updated", handleDraftUpdate)
+    }
+  }, [editor, applyDraft])
 
   // ── Filtered list for search ───────────────────────────────
   const filteredRecipients = allRecipients.filter((r) => {
@@ -220,6 +276,34 @@ export function EmailComposer({ onSent }: { onSent?: () => void }) {
   }
 
   const selectedCount = selectedEmails.size
+
+  const saveDraft = () => {
+    if (!editor) return
+    const draftPayload: MailingDraft = {
+      source,
+      subject,
+      bodyHtml: editor.getHTML(),
+      templateName: loadedTemplateName || "Custom Draft",
+    }
+
+    try {
+      localStorage.setItem(MAILING_DRAFT_STORAGE_KEY, JSON.stringify(draftPayload))
+      setLoadedTemplateName(draftPayload.templateName || "Custom Draft")
+      toast.success("Draft guardado")
+    } catch {
+      toast.error("No se pudo guardar el draft")
+    }
+  }
+
+  const clearDraft = () => {
+    try {
+      localStorage.removeItem(MAILING_DRAFT_STORAGE_KEY)
+      setLoadedTemplateName(null)
+      toast.success("Draft limpiado")
+    } catch {
+      toast.error("No se pudo limpiar el draft")
+    }
+  }
 
   // ── Preview ────────────────────────────────────────────────
   const handlePreview = async () => {
@@ -324,7 +408,7 @@ export function EmailComposer({ onSent }: { onSent?: () => void }) {
           <div className="flex items-center gap-2">
             <Label className="text-sm whitespace-nowrap">Source:</Label>
             <Select value={source} onValueChange={setSource}>
-              <SelectTrigger className="w-[180px] h-9">
+              <SelectTrigger className="h-9 w-45">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -383,7 +467,7 @@ export function EmailComposer({ onSent }: { onSent?: () => void }) {
                 </Button>
               </div>
             )}
-            <ScrollArea className="h-[220px] rounded-lg border bg-background">
+            <ScrollArea className="h-55 rounded-lg border bg-background">
               <div className="divide-y">
                 {filteredRecipients.map((r) => {
                   const isSelected = selectedEmails.has(r.email)
@@ -412,7 +496,7 @@ export function EmailComposer({ onSent }: { onSent?: () => void }) {
                       </div>
                       <Badge
                         variant="secondary"
-                        className={`text-[10px] px-1.5 py-0 flex-shrink-0 ${SOURCE_COLORS[r.source] ?? ""}`}
+                        className={`text-[10px] px-1.5 py-0 shrink-0 ${SOURCE_COLORS[r.source] ?? ""}`}
                       >
                         {r.source}
                       </Badge>
@@ -465,6 +549,22 @@ export function EmailComposer({ onSent }: { onSent?: () => void }) {
         <div className="flex items-center gap-2">
           <h3 className="font-semibold text-base">Step 2: Subject Line</h3>
         </div>
+        {loadedTemplateName && (
+          <div className="flex flex-wrap items-center gap-2 rounded-md border bg-muted/40 px-3 py-2">
+            <Badge variant="secondary">Template</Badge>
+            <span className="text-sm">{loadedTemplateName}</span>
+            <div className="ml-auto flex items-center gap-2">
+              <Button type="button" variant="outline" size="sm" onClick={saveDraft}>
+                <Save className="h-4 w-4 mr-2" />
+                Guardar draft
+              </Button>
+              <Button type="button" variant="outline" size="sm" onClick={clearDraft}>
+                <Trash2 className="h-4 w-4 mr-2" />
+                Limpiar
+              </Button>
+            </div>
+          </div>
+        )}
         <Input
           id="email-subject"
           value={subject}
@@ -608,11 +708,11 @@ export function EmailComposer({ onSent }: { onSent?: () => void }) {
           )}
 
           {/* Editor content area */}
-          <div className="min-h-[280px]">
+          <div className="min-h-70">
             {editor ? (
               <EditorContent editor={editor} />
             ) : (
-              <div className="flex items-center justify-center h-[280px] text-muted-foreground">
+              <div className="flex h-70 items-center justify-center text-muted-foreground">
                 <Loader2 className="h-5 w-5 animate-spin mr-2" />
                 Loading editor...
               </div>
@@ -682,7 +782,7 @@ export function EmailComposer({ onSent }: { onSent?: () => void }) {
           <div className="flex-1 overflow-auto border rounded-lg bg-gray-100">
             <iframe
               srcDoc={previewHtml}
-              className="w-full min-h-[500px] border-0"
+              className="min-h-125 w-full border-0"
               title="Email preview"
               sandbox="allow-same-origin"
             />

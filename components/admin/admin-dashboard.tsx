@@ -31,7 +31,7 @@ import { H2BIntakeTab } from "./tabs/h2b-intake-tab"
 import { ChatTab } from "./tabs/chat-tab"
 import { TasksTab } from "./tabs/tasks-tab"
 import { ContractsTab } from "./tabs/contracts-tab"
-import { EmailTab } from "./tabs/email-tab"
+import { MailingTab } from "./tabs/mailing-tab"
 
 interface AdminDashboardProps {
   user: User
@@ -153,7 +153,7 @@ export function AdminDashboard({ user, onSignOut }: AdminDashboardProps) {
     { value: "chat", label: "Chat", icon: MessageSquare, count: counts.chat },
     { value: "tasks", label: "Tasks", icon: CheckSquare, count: counts.tasks },
     { value: "contracts", label: "Contracts", icon: Scale, count: counts.contracts },
-    { value: "email", label: "Email", icon: Send },
+    { value: "mailing", label: "Mailing", icon: Send },
   ]
 
   return (
@@ -280,10 +280,10 @@ export function AdminDashboard({ user, onSignOut }: AdminDashboardProps) {
               </Card>
             </TabsContent>
 
-            <TabsContent value="email">
+            <TabsContent value="mailing">
               <Card>
                 <CardContent className="p-4">
-                  <EmailTab />
+                  <MailingTab />
                 </CardContent>
               </Card>
             </TabsContent>
