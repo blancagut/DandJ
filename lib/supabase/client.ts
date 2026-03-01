@@ -1,7 +1,12 @@
-import { createClient } from "@supabase/supabase-js"
+import { createBrowserClient } from "@supabase/ssr"
 
-let browserClient: ReturnType<typeof createClient> | null = null
+let browserClient: ReturnType<typeof createBrowserClient> | null = null
 
+/**
+ * Returns a singleton Supabase browser client that stores the session in cookies
+ * (via @supabase/ssr) so that API routes using getSupabaseServerClient() can read
+ * the same session from the request cookies and authenticate the user server-side.
+ */
 export function getSupabaseBrowserClient() {
   if (browserClient) return browserClient
 
@@ -12,6 +17,6 @@ export function getSupabaseBrowserClient() {
     throw new Error("Missing NEXT_PUBLIC_SUPABASE_URL or NEXT_PUBLIC_SUPABASE_ANON_KEY")
   }
 
-  browserClient = createClient(url, anonKey)
+  browserClient = createBrowserClient(url, anonKey)
   return browserClient
 }
