@@ -355,20 +355,44 @@ export function EmailComposer({ onSent }: { onSent?: () => void }) {
           recipientSource: source,
         }),
       })
-      const data = await res.json()
+
+      // Always try to parse JSON, but handle non-JSON responses gracefully
+      let data: Record<string, unknown>
+      try {
+        data = await res.json()
+      } catch {
+        // Server returned non-JSON (e.g. HTML error page)
+        toast.error(
+          `Server error (${res.status}). Check that RESEND_API_KEY and RESEND_FROM_EMAIL are set in Vercel env vars and redeploy.`,
+        )
+        return
+      }
+
+      if (!res.ok) {
+        // Server returned a JSON error (401, 400, 500, etc.)
+        const msg =
+          (data.errorMessage as string) ||
+          (data.error as string) ||
+          `Server returned ${res.status}`
+        toast.error(msg)
+        return
+      }
 
       if (data.success) {
         toast.success(
-          `Email sent to ${data.sentCount} recipient${data.sentCount !== 1 ? "s" : ""}!`,
+          `Email sent to ${data.sentCount} recipient${(data.sentCount as number) !== 1 ? "s" : ""}!`,
         )
         setSubject("")
         editor.commands.clearContent()
         onSent?.()
       } else {
-        toast.error(data.errorMessage || "Failed to send emails")
+        toast.error(
+          (data.errorMessage as string) || "Failed to send emails — check Resend dashboard for details",
+        )
       }
-    } catch {
-      toast.error("An error occurred while sending")
+    } catch (err) {
+      console.error("Email send error:", err)
+      toast.error("Network error — could not reach the server. Please try again.")
     } finally {
       setSending(false)
     }
