@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
 import { createClient } from "@supabase/supabase-js"
+import { uploadLeadFile } from "@/lib/server/blob"
 
 function getSupabaseAdminClient() {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
@@ -14,7 +15,23 @@ function getSupabaseAdminClient() {
 
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json()
+    const contentType = request.headers.get("content-type") || ""
+
+    let body: { data?: unknown; contactName?: unknown; contactEmail?: unknown; contactPhone?: unknown } = {}
+    let signaturePhoto: File | null = null
+
+    if (contentType.includes("multipart/form-data")) {
+      const formData = await request.formData()
+      const rawPayload = formData.get("payload")
+      if (typeof rawPayload === "string") {
+        body = JSON.parse(rawPayload) as typeof body
+      }
+      const maybeFile = formData.get("signaturePhoto")
+      signaturePhoto = maybeFile instanceof File ? maybeFile : null
+    } else {
+      body = await request.json()
+    }
+
     const { data, contactName, contactEmail, contactPhone } = body
 
     if (!data || !contactName || !contactEmail || !contactPhone) {
@@ -23,8 +40,35 @@ export async function POST(request: NextRequest) {
 
     const supabase = getSupabaseAdminClient()
 
+    const submissionId = crypto.randomUUID()
+    const dataRecord = data && typeof data === "object" ? (data as Record<string, unknown>) : {}
+
+    if (signaturePhoto) {
+      const uploaded = await uploadLeadFile({ leadId: submissionId, file: signaturePhoto })
+      const h2bIntake =
+        dataRecord.h2bIntake && typeof dataRecord.h2bIntake === "object"
+          ? (dataRecord.h2bIntake as Record<string, unknown>)
+          : {}
+      const priorSignature =
+        h2bIntake.signature && typeof h2bIntake.signature === "object"
+          ? (h2bIntake.signature as Record<string, unknown>)
+          : {}
+
+      h2bIntake.signature = {
+        ...priorSignature,
+        method: "upload",
+        url: uploaded.url,
+        pathname: uploaded.pathname,
+        fileName: signaturePhoto.name,
+        fileSize: signaturePhoto.size,
+        fileType: signaturePhoto.type,
+      }
+      dataRecord.h2bIntake = h2bIntake
+    }
+
     const { error } = await supabase.from("h2b_intake_submissions").insert({
-      data,
+      id: submissionId,
+      data: dataRecord,
       status: "new",
       contact_name: String(contactName).trim(),
       contact_email: String(contactEmail).trim().toLowerCase(),

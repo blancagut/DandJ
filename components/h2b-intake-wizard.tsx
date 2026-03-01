@@ -279,13 +279,14 @@ function scoreCase(answers: Record<string, string>): Analysis {
 export function H2BIntakeWizard() {
   const [currentStep, setCurrentStep] = useState(1)
   const [answers, setAnswers] = useState<Record<string, string>>({})
+  const [signatureMethod, setSignatureMethod] = useState<"draw" | "upload">("draw")
   const [signature, setSignature] = useState<string | null>(null)
+  const [signaturePhotoFile, setSignaturePhotoFile] = useState<File | null>(null)
   const [certify, setCertify] = useState(false)
   const [passportFile, setPassportFile] = useState<File | null>(null)
   const [selfieFile, setSelfieFile] = useState<File | null>(null)
   const [visaPhotoFile, setVisaPhotoFile] = useState<File | null>(null)
   const [cvFile, setCvFile] = useState<File | null>(null)
-  const [certFile, setCertFile] = useState<File | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [analysis, setAnalysis] = useState<Analysis | null>(null)
@@ -318,14 +319,18 @@ export function H2BIntakeWizard() {
   }, [])
 
   useEffect(() => {
-    localStorage.setItem(
-      DRAFT_KEY,
-      JSON.stringify({
-        currentStep,
-        answers,
-        certify,
-      })
-    )
+    try {
+      localStorage.setItem(
+        DRAFT_KEY,
+        JSON.stringify({
+          currentStep,
+          answers,
+          certify,
+        })
+      )
+    } catch {
+      // localStorage unavailable
+    }
   }, [currentStep, answers, certify])
 
   const handleAnswer = useCallback((key: string, value: string) => {
@@ -366,14 +371,18 @@ export function H2BIntakeWizard() {
         setError("Debe certificar bajo pena de perjurio antes de enviar.")
         return false
       }
-      if (!signature) {
-        setError("La firma digital es obligatoria.")
+      if (signatureMethod === "draw" && !signature) {
+        setError("La firma digital dibujada es obligatoria.")
+        return false
+      }
+      if (signatureMethod === "upload" && !signaturePhotoFile) {
+        setError("Debe subir una foto de su firma para continuar.")
         return false
       }
     }
 
     return true
-  }, [answers, certify, currentStep, passportFile, selfieFile, signature, visibleQuestions])
+  }, [answers, certify, currentStep, passportFile, selfieFile, signature, signatureMethod, signaturePhotoFile, visibleQuestions])
 
   const goNext = () => {
     if (!validateCurrentStep()) return
@@ -400,16 +409,33 @@ export function H2BIntakeWizard() {
       selfieWithPassport: selfieFile ? { name: selfieFile.name, size: selfieFile.size, type: selfieFile.type } : null,
       visaPhoto: visaPhotoFile ? { name: visaPhotoFile.name, size: visaPhotoFile.size, type: visaPhotoFile.type } : null,
       cv: cvFile ? { name: cvFile.name, size: cvFile.size, type: cvFile.type } : null,
-      certifications: certFile ? { name: certFile.name, size: certFile.size, type: certFile.type } : null,
     }
 
     try {
+      const signatureMeta =
+        signatureMethod === "upload"
+          ? {
+              method: "upload" as const,
+              fileName: signaturePhotoFile?.name || "",
+              fileSize: signaturePhotoFile?.size || 0,
+              fileType: signaturePhotoFile?.type || "",
+            }
+          : {
+              method: "draw" as const,
+              format: "image/png",
+              hasDrawnSignature: Boolean(signature),
+            }
+
       const payload = {
         data: {
           h2bIntake: {
             answers,
             analysis: computed,
             documentMeta,
+            signature: {
+              ...signatureMeta,
+              drawnSignature: signatureMethod === "draw" ? signature : null,
+            },
             declarationAccepted: certify,
             signedAt: new Date().toISOString(),
           },
@@ -419,10 +445,15 @@ export function H2BIntakeWizard() {
         contactPhone: answers.q19 || "",
       }
 
+      const body = new FormData()
+      body.append("payload", JSON.stringify(payload))
+      if (signatureMethod === "upload" && signaturePhotoFile) {
+        body.append("signaturePhoto", signaturePhotoFile)
+      }
+
       const response = await fetch("/api/consult/h2b-intake", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
+        body,
       })
 
       if (!response.ok) {
@@ -430,8 +461,12 @@ export function H2BIntakeWizard() {
       }
 
       setAnalysis(computed)
-      localStorage.removeItem(DRAFT_KEY)
       setCurrentStep(steps.length + 1)
+      try {
+        localStorage.removeItem(DRAFT_KEY)
+      } catch {
+        // localStorage unavailable
+      }
     } catch {
       setError("No se pudo completar el envío. Intente nuevamente en unos minutos.")
     } finally {
@@ -487,6 +522,10 @@ export function H2BIntakeWizard() {
                   <li key={item}>• {item}</li>
                 ))}
               </ul>
+            </div>
+
+            <div className="rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-800">
+              Su formulario ya fue recibido correctamente. Si no llega correo de confirmación, no necesita reenviar; nuestro equipo igual procesará su caso.
             </div>
 
             {analysis.riskFlags.length > 0 && (
@@ -641,10 +680,6 @@ export function H2BIntakeWizard() {
                       <Label className="font-medium">CV / Resume (opcional)</Label>
                       <Input className="mt-2" type="file" accept=".pdf,.doc,.docx" onChange={(event) => setCvFile(event.target.files?.[0] || null)} />
                     </div>
-                    <div className="rounded-xl border p-4 bg-white md:col-span-2">
-                      <Label className="font-medium">Certificaciones laborales (opcional)</Label>
-                      <Input className="mt-2" type="file" accept=".pdf,image/*" onChange={(event) => setCertFile(event.target.files?.[0] || null)} />
-                    </div>
                   </div>
                 </div>
               )}
@@ -670,9 +705,52 @@ export function H2BIntakeWizard() {
                   <div className="rounded-xl border p-4 bg-white">
                     <div className="flex items-center gap-2 mb-3">
                       <Shield className="h-4 w-4 text-slate-700" />
-                      <p className="text-sm font-semibold text-slate-900">Firma digital del cliente</p>
+                      <p className="text-sm font-semibold text-slate-900">Firma del cliente</p>
                     </div>
-                    <SignaturePad onSignatureChange={setSignature} label="Firma / Signature" />
+
+                    <div className="flex flex-wrap gap-2 mb-4">
+                      <Button
+                        type="button"
+                        variant={signatureMethod === "draw" ? "default" : "outline"}
+                        className={signatureMethod === "draw" ? "bg-slate-900 hover:bg-slate-800" : ""}
+                        onClick={() => {
+                          setSignatureMethod("draw")
+                          setSignaturePhotoFile(null)
+                        }}
+                      >
+                        Dibujar firma
+                      </Button>
+                      <Button
+                        type="button"
+                        variant={signatureMethod === "upload" ? "default" : "outline"}
+                        className={signatureMethod === "upload" ? "bg-slate-900 hover:bg-slate-800" : ""}
+                        onClick={() => {
+                          setSignatureMethod("upload")
+                          setSignature(null)
+                        }}
+                      >
+                        Subir foto de firma
+                      </Button>
+                    </div>
+
+                    {signatureMethod === "draw" ? (
+                      <SignaturePad onSignatureChange={setSignature} label="Firma / Signature" />
+                    ) : (
+                      <div className="space-y-2">
+                        <Label className="text-sm font-medium text-slate-900">Foto de firma (obligatorio)</Label>
+                        <Input
+                          type="file"
+                          accept="image/*"
+                          onChange={(event) => setSignaturePhotoFile(event.target.files?.[0] || null)}
+                        />
+                        <p className="text-xs text-slate-500">
+                          Puede tomar una foto de su firma manuscrita en papel y subirla aquí.
+                        </p>
+                        {signaturePhotoFile && (
+                          <p className="text-xs text-emerald-700">Archivo seleccionado: {signaturePhotoFile.name}</p>
+                        )}
+                      </div>
+                    )}
                   </div>
                 </div>
               )}

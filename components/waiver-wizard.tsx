@@ -479,8 +479,12 @@ export function WaiverWizard() {
       }
 
       // Clear localStorage after successful save
-      localStorage.removeItem("waiver-wizard-data")
       setIsSaved(true)
+            try {
+                localStorage.removeItem("waiver-wizard-data")
+            } catch {
+                // localStorage unavailable
+            }
     } catch (e) {
       console.error("Waiver save failed:", e)
       setContactError(language === "es"
@@ -574,6 +578,11 @@ export function WaiverWizard() {
             <h2 className="text-3xl font-bold text-slate-900 mb-3">{t("confirmation.title")}</h2>
             <p className="text-lg text-slate-600 mb-2">{t("confirmation.message")}</p>
             <p className="text-slate-500 mb-8">{t("confirmation.followUp")}</p>
+                        <p className="text-sm text-amber-700 bg-amber-50 border border-amber-200 rounded-lg px-4 py-3 mb-6">
+                            {language === "es"
+                                ? "Su formulario ya fue recibido correctamente. Si no llega correo de confirmación, no necesita reenviar; nuestro equipo igual procesará su caso."
+                                : "Your form has already been received successfully. If confirmation email is delayed, do not resubmit; our team will still process your case."}
+                        </p>
             <div className="flex flex-col sm:flex-row gap-3 justify-center">
               <Link href="/consult">
                 <Button variant="outline" className="gap-2 w-full sm:w-auto">

@@ -18,6 +18,7 @@ export function SignaturePad({
   height = 200,
 }: SignaturePadProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
+  const activePointerIdRef = useRef<number | null>(null)
   const [isDrawing, setIsDrawing] = useState(false)
   const [hasSignature, setHasSignature] = useState(false)
 
@@ -59,16 +60,10 @@ export function SignaturePad({
   }, [width, height])
 
   const getCoords = useCallback(
-    (e: React.MouseEvent | React.TouchEvent) => {
+    (e: React.PointerEvent<HTMLCanvasElement>) => {
       const canvas = canvasRef.current
       if (!canvas) return { x: 0, y: 0 }
       const rect = canvas.getBoundingClientRect()
-      if ("touches" in e) {
-        return {
-          x: e.touches[0].clientX - rect.left,
-          y: e.touches[0].clientY - rect.top,
-        }
-      }
       return {
         x: e.clientX - rect.left,
         y: e.clientY - rect.top,
@@ -78,11 +73,13 @@ export function SignaturePad({
   )
 
   const startDrawing = useCallback(
-    (e: React.MouseEvent | React.TouchEvent) => {
+    (e: React.PointerEvent<HTMLCanvasElement>) => {
       e.preventDefault()
       const canvas = canvasRef.current
       const ctx = canvas?.getContext("2d")
       if (!ctx) return
+      activePointerIdRef.current = e.pointerId
+      canvas.setPointerCapture(e.pointerId)
       const { x, y } = getCoords(e)
       ctx.beginPath()
       ctx.moveTo(x, y)
@@ -92,9 +89,9 @@ export function SignaturePad({
   )
 
   const draw = useCallback(
-    (e: React.MouseEvent | React.TouchEvent) => {
+    (e: React.PointerEvent<HTMLCanvasElement>) => {
       e.preventDefault()
-      if (!isDrawing) return
+      if (!isDrawing || activePointerIdRef.current !== e.pointerId) return
       const canvas = canvasRef.current
       const ctx = canvas?.getContext("2d")
       if (!ctx) return
@@ -107,15 +104,33 @@ export function SignaturePad({
     [isDrawing, getCoords]
   )
 
-  const stopDrawing = useCallback(() => {
+  const stopDrawing = useCallback((e?: React.PointerEvent<HTMLCanvasElement>) => {
+    if (e && activePointerIdRef.current !== e.pointerId) return
     if (!isDrawing) return
+
+    const canvas = canvasRef.current
+    if (canvas && activePointerIdRef.current !== null) {
+      try {
+        canvas.releasePointerCapture(activePointerIdRef.current)
+      } catch {
+        // ignore release errors
+      }
+    }
+
+    activePointerIdRef.current = null
     setIsDrawing(false)
     setHasSignature(true)
-    const canvas = canvasRef.current
+
     if (canvas) {
       onSignatureChange(canvas.toDataURL("image/png"))
     }
   }, [isDrawing, onSignatureChange])
+
+  const cancelDrawing = useCallback((e: React.PointerEvent<HTMLCanvasElement>) => {
+    if (activePointerIdRef.current !== e.pointerId) return
+    activePointerIdRef.current = null
+    setIsDrawing(false)
+  }, [])
 
   const clearSignature = useCallback(() => {
     const canvas = canvasRef.current
@@ -148,13 +163,11 @@ export function SignaturePad({
         <canvas
           ref={canvasRef}
           className="cursor-crosshair touch-none max-w-full"
-          onMouseDown={startDrawing}
-          onMouseMove={draw}
-          onMouseUp={stopDrawing}
-          onMouseLeave={stopDrawing}
-          onTouchStart={startDrawing}
-          onTouchMove={draw}
-          onTouchEnd={stopDrawing}
+          onPointerDown={startDrawing}
+          onPointerMove={draw}
+          onPointerUp={stopDrawing}
+          onPointerCancel={cancelDrawing}
+          onPointerLeave={stopDrawing}
         />
         {!hasSignature && (
           <div className="absolute inset-0 flex items-center justify-center pointer-events-none">

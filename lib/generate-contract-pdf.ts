@@ -21,7 +21,7 @@ export interface ContractData {
   contractYear: string
   contractId: string
   signedAt: string
-  clientSignature: string // base64 PNG
+  clientSignature: string // data URL, blob URL, or JSON signature payload
   ipAddress?: string
   userAgent?: string
   feeTotalTextEs?: string
@@ -33,6 +33,11 @@ export interface ContractData {
 export interface ContractPDFResult {
   blob: Blob
   filename: string
+}
+
+type SignatureImage = {
+  dataUrl: string
+  format: "PNG" | "JPEG"
 }
 
 /* ── SHA-256 hash via Web Crypto API ── */
@@ -137,6 +142,52 @@ async function loadLogoBase64(): Promise<string> {
     reader.onerror = reject
     reader.readAsDataURL(blob)
   })
+}
+
+function toImageFormat(value: string): "PNG" | "JPEG" {
+  const lower = value.toLowerCase()
+  if (lower.startsWith("data:image/jpeg") || lower.startsWith("data:image/jpg")) {
+    return "JPEG"
+  }
+  return "PNG"
+}
+
+function extractSignatureRef(raw: string): string {
+  const trimmed = raw.trim()
+  if (!trimmed.startsWith("{")) return trimmed
+
+  try {
+    const parsed = JSON.parse(trimmed) as { dataUrl?: unknown; url?: unknown }
+    if (typeof parsed.dataUrl === "string" && parsed.dataUrl.trim().length > 0) return parsed.dataUrl
+    if (typeof parsed.url === "string" && parsed.url.trim().length > 0) return parsed.url
+    return trimmed
+  } catch {
+    return trimmed
+  }
+}
+
+async function resolveSignatureImage(raw: string): Promise<SignatureImage | null> {
+  const sourceRef = extractSignatureRef(raw)
+  if (!sourceRef) return null
+
+  if (sourceRef.startsWith("data:image/")) {
+    return { dataUrl: sourceRef, format: toImageFormat(sourceRef) }
+  }
+
+  if (sourceRef.startsWith("http://") || sourceRef.startsWith("https://")) {
+    const response = await fetch(sourceRef)
+    if (!response.ok) return null
+    const blob = await response.blob()
+    const dataUrl = await new Promise<string>((resolve, reject) => {
+      const reader = new FileReader()
+      reader.onloadend = () => resolve(reader.result as string)
+      reader.onerror = reject
+      reader.readAsDataURL(blob)
+    })
+    return { dataUrl, format: toImageFormat(dataUrl) }
+  }
+
+  return null
 }
 
 /* ═══════════════════════════════════════════════════════════════
@@ -487,7 +538,12 @@ export async function generateContractPDF(data: ContractData): Promise<ContractP
   // Client signature
   if (data.clientSignature) {
     try {
-      doc.addImage(data.clientSignature, "PNG", sigBlockRight, y - 12, sigBlockW - 5, 18)
+      const signatureImage = await resolveSignatureImage(data.clientSignature)
+      if (signatureImage) {
+        doc.addImage(signatureImage.dataUrl, signatureImage.format, sigBlockRight, y - 12, sigBlockW - 5, 18)
+      } else {
+        throw new Error("Invalid signature image")
+      }
     } catch {
       doc.setFontSize(12)
       doc.setFont("helvetica", "italic")

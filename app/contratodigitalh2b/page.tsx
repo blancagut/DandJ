@@ -262,7 +262,9 @@ export default function ContratoDigitalH2B() {
   const [contractDay, setContractDay] = useState(today.getDate().toString())
   const [contractMonth, setContractMonth] = useState(MONTHS[today.getMonth()])
   const [contractYear, setContractYear] = useState(today.getFullYear().toString())
+  const [signatureMethod, setSignatureMethod] = useState<"draw" | "upload">("draw")
   const [clientSignature, setClientSignature] = useState<string | null>(null)
+  const [signaturePhotoFile, setSignaturePhotoFile] = useState<File | null>(null)
   const [acceptedTerms, setAcceptedTerms] = useState(false)
   const [acceptedEsign, setAcceptedEsign] = useState(false)
   const [status, setStatus] = useState<FormStatus>("idle")
@@ -272,10 +274,13 @@ export default function ContratoDigitalH2B() {
   const [ipAddress, setIpAddress] = useState("")
   const [userAgent, setUserAgent] = useState("")
   const [emailSent, setEmailSent] = useState(false)
+  const [emailDeliveryFailed, setEmailDeliveryFailed] = useState(false)
   const [pdfDownloaded, setPdfDownloaded] = useState(false)
   const autoDownloadTriggered = useRef(false)
 
   const lawyer = LAWYERS.find((l) => l.id === selectedLawyer)
+
+  const hasSignature = signatureMethod === "draw" ? Boolean(clientSignature) : Boolean(signaturePhotoFile)
 
   const isFormValid =
     clientName.trim().length >= 2 &&
@@ -285,32 +290,55 @@ export default function ContratoDigitalH2B() {
     clientCity.trim().length >= 2 &&
     clientEmail.includes("@") &&
     selectedLawyer &&
-    clientSignature &&
+    hasSignature &&
     acceptedTerms &&
     acceptedEsign
+
+  const onSignaturePhotoChange = async (file: File | null) => {
+    setSignaturePhotoFile(file)
+    if (!file) {
+      setClientSignature(null)
+      return
+    }
+
+    const reader = new FileReader()
+    reader.onloadend = () => {
+      const value = typeof reader.result === "string" ? reader.result : null
+      setClientSignature(value)
+    }
+    reader.readAsDataURL(file)
+  }
 
   const handleSubmit = async () => {
     if (!isFormValid) return
     setStatus("submitting")
     setErrorMsg("")
     try {
+      const payload = {
+        clientName: clientName.trim(),
+        clientDob,
+        clientPassport: clientPassport.trim(),
+        clientCountry: clientCountry.trim(),
+        clientCity: clientCity.trim(),
+        clientEmail: clientEmail.trim(),
+        clientPhone: clientPhone.trim(),
+        lawyerName: lawyer?.name || selectedLawyer,
+        contractDay: parseInt(contractDay),
+        contractMonth,
+        contractYear: parseInt(contractYear),
+        clientSignature,
+        signatureMethod,
+      }
+
+      const body = new FormData()
+      body.append("payload", JSON.stringify(payload))
+      if (signatureMethod === "upload" && signaturePhotoFile) {
+        body.append("signaturePhoto", signaturePhotoFile)
+      }
+
       const res = await fetch("/api/contract", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          clientName: clientName.trim(),
-          clientDob,
-          clientPassport: clientPassport.trim(),
-          clientCountry: clientCountry.trim(),
-          clientCity: clientCity.trim(),
-          clientEmail: clientEmail.trim(),
-          clientPhone: clientPhone.trim(),
-          lawyerName: lawyer?.name || selectedLawyer,
-          contractDay: parseInt(contractDay),
-          contractMonth,
-          contractYear: parseInt(contractYear),
-          clientSignature,
-        }),
+        body,
       })
       const data = await res.json()
       if (!res.ok) { setErrorMsg(data.error || "Error"); setStatus("error"); return }
@@ -383,14 +411,17 @@ export default function ContratoDigitalH2B() {
               setEmailSent(true)
             } else {
               console.error("Contract email endpoint returned non-OK response")
+              setEmailDeliveryFailed(true)
             }
           } catch {
             console.error("Failed to send contract email")
+            setEmailDeliveryFailed(true)
           }
         }
         reader.readAsDataURL(result.blob)
       } catch (err) {
         console.error("Auto-download failed:", err)
+        setEmailDeliveryFailed(true)
       }
     }
     run()
@@ -427,6 +458,8 @@ export default function ContratoDigitalH2B() {
             </div>
             {emailSent ? (
               <p className="text-xs text-green-600 flex items-center justify-center gap-1"><CheckCircle2 className="w-3 h-3" /> Copia enviada a <strong>{clientEmail}</strong></p>
+            ) : emailDeliveryFailed ? (
+              <p className="text-xs text-amber-700 flex items-center justify-center gap-1"><AlertTriangle className="w-3 h-3" /> Contrato guardado correctamente, pero no se pudo enviar el correo automático.</p>
             ) : (
               <p className="text-xs text-gray-500">Enviando copia a <strong>{clientEmail}</strong>...</p>
             )}
@@ -693,9 +726,52 @@ export default function ContratoDigitalH2B() {
                 {/* Client */}
                 <div className="space-y-2">
                   <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider font-sans flex items-center gap-1.5"><FileSignature className="w-3 h-3" style={{ color: GOLD }} /> Firma del Cliente</p>
-                  <div className="w-full max-w-[380px]">
-                    <SignaturePad onSignatureChange={setClientSignature} label="" width={340} height={160} />
+                  <div className="flex flex-wrap gap-2">
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant={signatureMethod === "draw" ? "default" : "outline"}
+                      onClick={() => {
+                        setSignatureMethod("draw")
+                        setSignaturePhotoFile(null)
+                        setClientSignature(null)
+                      }}
+                      className={signatureMethod === "draw" ? "text-white" : ""}
+                      style={signatureMethod === "draw" ? { background: NAVY } : undefined}
+                    >
+                      Dibujar firma
+                    </Button>
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant={signatureMethod === "upload" ? "default" : "outline"}
+                      onClick={() => {
+                        setSignatureMethod("upload")
+                        setClientSignature(null)
+                      }}
+                      className={signatureMethod === "upload" ? "text-white" : ""}
+                      style={signatureMethod === "upload" ? { background: NAVY } : undefined}
+                    >
+                      Subir foto de firma
+                    </Button>
                   </div>
+
+                  {signatureMethod === "draw" ? (
+                    <div className="w-full max-w-[380px]">
+                      <SignaturePad onSignatureChange={setClientSignature} label="" width={340} height={160} />
+                    </div>
+                  ) : (
+                    <div className="w-full max-w-[380px] space-y-2">
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={(e) => onSignaturePhotoChange(e.target.files?.[0] || null)}
+                        className="block w-full text-sm text-gray-700 file:mr-4 file:py-2 file:px-3 file:rounded-lg file:border file:border-gray-300 file:bg-white file:text-gray-700 hover:file:bg-gray-50"
+                      />
+                      <p className="text-xs text-gray-500">Suba una foto clara de su firma manuscrita.</p>
+                      {signaturePhotoFile && <p className="text-xs text-emerald-700">Archivo: {signaturePhotoFile.name}</p>}
+                    </div>
+                  )}
                   <p className="text-xs text-gray-500 font-sans">{clientName || "(Nombre del Cliente)"} — EL CLIENTE</p>
                 </div>
               </div>
