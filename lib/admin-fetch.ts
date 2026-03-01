@@ -9,6 +9,10 @@
 
 import { getSupabaseBrowserClient } from "@/lib/supabase/client"
 
+type AdminFetchOptions = RequestInit & {
+  timeoutMs?: number
+}
+
 async function getAuthHeaders(): Promise<Record<string, string>> {
   try {
     const supabase = getSupabaseBrowserClient()
@@ -26,14 +30,34 @@ async function getAuthHeaders(): Promise<Record<string, string>> {
 
 export async function adminFetch(
   url: string,
-  init: RequestInit = {},
+  init: AdminFetchOptions = {},
 ): Promise<Response> {
   const authHeaders = await getAuthHeaders()
-  return fetch(url, {
-    ...init,
-    headers: {
-      ...authHeaders,
-      ...(init.headers ?? {}),
-    },
-  })
+  const { timeoutMs = 30000, ...requestInit } = init
+
+  const controller = new AbortController()
+  const timeoutId = setTimeout(() => {
+    controller.abort()
+  }, timeoutMs)
+
+  if (requestInit.signal) {
+    requestInit.signal.addEventListener(
+      "abort",
+      () => controller.abort(),
+      { once: true },
+    )
+  }
+
+  try {
+    return await fetch(url, {
+      ...requestInit,
+      signal: controller.signal,
+      headers: {
+        ...authHeaders,
+        ...(requestInit.headers ?? {}),
+      },
+    })
+  } finally {
+    clearTimeout(timeoutId)
+  }
 }

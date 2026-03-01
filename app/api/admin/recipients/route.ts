@@ -8,6 +8,15 @@ interface Recipient {
   source: string
 }
 
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/i
+
+function normalizeEmail(raw: unknown): string | null {
+  if (typeof raw !== "string") return null
+  const normalized = raw.trim().toLowerCase()
+  if (!normalized) return null
+  return EMAIL_REGEX.test(normalized) ? normalized : null
+}
+
 type SourceKey =
   | "all"
   | "consultations"
@@ -39,12 +48,14 @@ async function fetchFromTable(
     return []
   }
   return (data ?? [])
-    .filter((row: Record<string, unknown>) => row[emailCol] && typeof row[emailCol] === "string" && (row[emailCol] as string).includes("@"))
     .map((row: Record<string, unknown>) => ({
-      email: (row[emailCol] as string).toLowerCase().trim(),
-      name: nameCol && row[nameCol]
-        ? String(row[nameCol])
-        : "",
+      email: normalizeEmail(row[emailCol]),
+      name: nameCol && row[nameCol] ? String(row[nameCol]) : "",
+    }))
+    .filter((row): row is { email: string; name: string } => Boolean(row.email))
+    .map((row) => ({
+      email: row.email,
+      name: row.name,
       source,
     }))
 }

@@ -348,6 +348,7 @@ export function EmailComposer({ onSent }: { onSent?: () => void }) {
       const res = await adminFetch("/api/admin/send-email", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        timeoutMs: 45000,
         body: JSON.stringify({
           subject,
           bodyHtml,
@@ -392,7 +393,11 @@ export function EmailComposer({ onSent }: { onSent?: () => void }) {
       }
     } catch (err) {
       console.error("Email send error:", err)
-      toast.error("Network error — could not reach the server. Please try again.")
+      if (err instanceof DOMException && err.name === "AbortError") {
+        toast.error("Request timed out. Please retry with fewer recipients.")
+      } else {
+        toast.error("Network error — could not reach the server. Please try again.")
+      }
     } finally {
       setSending(false)
     }
