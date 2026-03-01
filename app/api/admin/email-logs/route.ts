@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
 import { createClient } from "@supabase/supabase-js"
-import { getSupabaseServerClient } from "@/lib/supabase/server"
-import { isAdminUser } from "@/lib/server/admin-auth"
+import { requireAdminFromRequest } from "@/lib/server/admin-auth"
 
 function getServiceClient() {
   return createClient(
@@ -10,19 +9,9 @@ function getServiceClient() {
   )
 }
 
-async function requireAdmin() {
-  const supabase = await getSupabaseServerClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
-  if (!user) throw new Error("Not authenticated")
-  if (!isAdminUser(user)) throw new Error("Not authorized")
-  return user
-}
-
 export async function GET(request: NextRequest) {
   try {
-    await requireAdmin()
+    await requireAdminFromRequest(request)
   } catch {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
   }
@@ -62,7 +51,7 @@ export async function GET(request: NextRequest) {
 /** GET a single email log with full details (including body and recipient list) */
 export async function POST(request: NextRequest) {
   try {
-    await requireAdmin()
+    await requireAdminFromRequest(request)
   } catch {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
   }

@@ -68,6 +68,7 @@ import {
   Trash2,
 } from "lucide-react"
 import { MAILING_DRAFT_STORAGE_KEY } from "./mailing-templates"
+import { adminFetch } from "@/lib/admin-fetch"
 
 // ─── Types ───────────────────────────────────────────────────
 interface Recipient {
@@ -156,7 +157,7 @@ export function EmailComposer({ onSent }: { onSent?: () => void }) {
   const loadRecipients = useCallback(async (src: string) => {
     setLoadingRecipients(true)
     try {
-      const res = await fetch(`/api/admin/recipients?source=${src}`)
+      const res = await adminFetch(`/api/admin/recipients?source=${src}`)
       const data = await res.json()
       if (data.recipients) {
         setAllRecipients(data.recipients)
@@ -319,7 +320,7 @@ export function EmailComposer({ onSent }: { onSent?: () => void }) {
     }
     setLoadingPreview(true)
     try {
-      const res = await fetch("/api/admin/email-preview", {
+      const res = await adminFetch("/api/admin/email-preview", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ subject, bodyHtml }),
@@ -344,7 +345,7 @@ export function EmailComposer({ onSent }: { onSent?: () => void }) {
     const emails = Array.from(selectedEmails)
 
     try {
-      const res = await fetch("/api/admin/send-email", {
+      const res = await adminFetch("/api/admin/send-email", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

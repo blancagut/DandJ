@@ -29,6 +29,7 @@ import {
   Trash2,
   Database,
 } from "lucide-react"
+import { adminFetch } from "@/lib/admin-fetch"
 
 export type MailingTemplateType = "campaign" | "header" | "footer"
 export type MailingTemplateLanguage = "ES" | "EN"
@@ -189,7 +190,7 @@ export function MailingTemplates({ onUseTemplate }: { onUseTemplate: () => void 
   const loadTemplates = useCallback(async () => {
     setLoading(true)
     try {
-      const response = await fetch("/api/admin/mailing-templates", { cache: "no-store" })
+      const response = await adminFetch("/api/admin/mailing-templates", { cache: "no-store" })
       const result = await response.json()
 
       if (!response.ok) {
@@ -289,7 +290,7 @@ export function MailingTemplates({ onUseTemplate }: { onUseTemplate: () => void 
 
     setSaving(true)
     try {
-      const response = await fetch("/api/admin/mailing-templates", {
+      const response = await adminFetch("/api/admin/mailing-templates", {
         method: form.id ? "PUT" : "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -323,7 +324,7 @@ export function MailingTemplates({ onUseTemplate }: { onUseTemplate: () => void 
     if (!approved) return
 
     try {
-      const response = await fetch(`/api/admin/mailing-templates?id=${encodeURIComponent(template.id)}`, {
+      const response = await adminFetch(`/api/admin/mailing-templates?id=${encodeURIComponent(template.id)}`, {
         method: "DELETE",
       })
       const result = await response.json()
@@ -343,7 +344,7 @@ export function MailingTemplates({ onUseTemplate }: { onUseTemplate: () => void 
     setSaving(true)
     try {
       for (const template of DEFAULT_TEMPLATES) {
-        const response = await fetch("/api/admin/mailing-templates", {
+        const response = await adminFetch("/api/admin/mailing-templates", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({

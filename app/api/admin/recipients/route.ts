@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
 import { createClient } from "@supabase/supabase-js"
-import { getSupabaseServerClient } from "@/lib/supabase/server"
-import { isAdminUser } from "@/lib/server/admin-auth"
+import { requireAdminFromRequest } from "@/lib/server/admin-auth"
 
 interface Recipient {
   email: string
@@ -23,16 +22,6 @@ function getServiceClient() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL!
   const key = process.env.SUPABASE_SERVICE_ROLE_KEY!
   return createClient(url, key)
-}
-
-async function requireAdmin() {
-  const supabase = await getSupabaseServerClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
-  if (!user) throw new Error("Not authenticated")
-  if (!isAdminUser(user)) throw new Error("Not authorized")
-  return user
 }
 
 async function fetchFromTable(
@@ -72,7 +61,7 @@ const TABLE_MAP: Record<Exclude<SourceKey, "all">, { table: string; emailCol: st
 
 export async function GET(request: NextRequest) {
   try {
-    await requireAdmin()
+    await requireAdminFromRequest(request)
   } catch {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
   }

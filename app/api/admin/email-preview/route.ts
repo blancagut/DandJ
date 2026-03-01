@@ -1,21 +1,10 @@
 import { NextRequest, NextResponse } from "next/server"
-import { getSupabaseServerClient } from "@/lib/supabase/server"
-import { isAdminUser } from "@/lib/server/admin-auth"
+import { requireAdminFromRequest } from "@/lib/server/admin-auth"
 import { buildBrandedEmail } from "@/lib/server/email-template"
-
-async function requireAdmin() {
-  const supabase = await getSupabaseServerClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
-  if (!user) throw new Error("Not authenticated")
-  if (!isAdminUser(user)) throw new Error("Not authorized")
-  return user
-}
 
 export async function POST(request: NextRequest) {
   try {
-    await requireAdmin()
+    await requireAdminFromRequest(request)
   } catch {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
   }

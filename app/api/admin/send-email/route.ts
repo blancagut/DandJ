@@ -1,8 +1,7 @@
 import { NextRequest, NextResponse } from "next/server"
 import { Resend } from "resend"
 import { createClient } from "@supabase/supabase-js"
-import { getSupabaseServerClient } from "@/lib/supabase/server"
-import { isAdminUser } from "@/lib/server/admin-auth"
+import { requireAdminFromRequest } from "@/lib/server/admin-auth"
 import { buildBrandedEmail } from "@/lib/server/email-template"
 
 function requiredEnv(name: string) {
@@ -18,16 +17,6 @@ function getServiceClient() {
   )
 }
 
-async function requireAdmin() {
-  const supabase = await getSupabaseServerClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
-  if (!user) throw new Error("Not authenticated")
-  if (!isAdminUser(user)) throw new Error("Not authorized")
-  return user
-}
-
 /** Chunk an array into groups of `size` */
 function chunk<T>(arr: T[], size: number): T[][] {
   const chunks: T[][] = []
@@ -40,7 +29,7 @@ function chunk<T>(arr: T[], size: number): T[][] {
 export async function POST(request: NextRequest) {
   let adminUser
   try {
-    adminUser = await requireAdmin()
+    adminUser = await requireAdminFromRequest(request)
   } catch {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
   }

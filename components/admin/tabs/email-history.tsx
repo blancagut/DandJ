@@ -34,6 +34,7 @@ import {
   AlertTriangle,
   RefreshCcw,
 } from "lucide-react"
+import { adminFetch } from "@/lib/admin-fetch"
 
 // ─── Types ───────────────────────────────────────────────────
 interface EmailLog {
@@ -133,7 +134,7 @@ export function EmailHistory({ refreshKey }: { refreshKey?: number }) {
       })
       if (search) params.set("search", search)
 
-      const res = await fetch(`/api/admin/email-logs?${params}`)
+      const res = await adminFetch(`/api/admin/email-logs?${params}`)
       const data = await res.json()
       setLogs(data.logs ?? [])
       setTotalCount(data.totalCount ?? 0)
@@ -165,7 +166,7 @@ export function EmailHistory({ refreshKey }: { refreshKey?: number }) {
     setDetail(null)
     setDetailPreviewHtml("")
     try {
-      const res = await fetch("/api/admin/email-logs", {
+      const res = await adminFetch("/api/admin/email-logs", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ id }),
@@ -174,7 +175,7 @@ export function EmailHistory({ refreshKey }: { refreshKey?: number }) {
       if (data.log) {
         setDetail(data.log)
         // Generate preview
-        const previewRes = await fetch("/api/admin/email-preview", {
+        const previewRes = await adminFetch("/api/admin/email-preview", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
