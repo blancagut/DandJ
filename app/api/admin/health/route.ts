@@ -5,12 +5,30 @@ import { listWorkItems } from "@/lib/server/work-items"
 
 export const dynamic = "force-dynamic"
 
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/i
+
+function looksLikeEmail(raw: string | undefined): boolean {
+  if (!raw) return false
+  return EMAIL_REGEX.test(raw.trim())
+}
+
 export async function GET() {
   const env = {
     supabaseUrl: Boolean(process.env.NEXT_PUBLIC_SUPABASE_URL),
     supabaseAnonKey: Boolean(process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY),
     serviceRoleKey: Boolean(process.env.SUPABASE_SERVICE_ROLE_KEY),
     adminEmails: Boolean(process.env.ADMIN_EMAILS),
+    resendApiKey: Boolean(process.env.RESEND_API_KEY),
+    resendFromEmail: Boolean(process.env.RESEND_FROM_EMAIL),
+    leadsToEmail: Boolean(process.env.LEADS_TO_EMAIL),
+  }
+
+  const resend = {
+    fromEmail: process.env.RESEND_FROM_EMAIL ?? null,
+    fromEmailLooksValid: looksLikeEmail(process.env.RESEND_FROM_EMAIL),
+    usingResendOnboardingFrom: (process.env.RESEND_FROM_EMAIL ?? "").trim().toLowerCase() === "onboarding@resend.dev",
+    leadsToEmail: process.env.LEADS_TO_EMAIL ?? null,
+    leadsToEmailLooksValid: looksLikeEmail(process.env.LEADS_TO_EMAIL),
   }
 
   let authError: string | null = null
@@ -55,6 +73,7 @@ export async function GET() {
   return NextResponse.json({
     ok,
     env,
+    resend,
     auth: {
       userEmail,
       isAdmin,

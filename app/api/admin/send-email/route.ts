@@ -153,7 +153,8 @@ export async function POST(request: NextRequest) {
     }
 
     const resend = new Resend(apiKey)
-    const replyTo = process.env.LEADS_TO_EMAIL || undefined
+    const replyToRaw = process.env.LEADS_TO_EMAIL
+    const replyTo = normalizeEmail(replyToRaw) || undefined
 
     // ── Build branded HTML ───────────────────────────────────
     const fullHtml = buildBrandedEmail(subject, bodyHtml, {
@@ -185,7 +186,7 @@ export async function POST(request: NextRequest) {
           to: email,
           subject,
           html: fullHtml,
-          reply_to: replyTo,
+          ...(replyTo ? { reply_to: replyTo } : {}),
         }))
 
         const { data, error } = await withTimeout(
@@ -216,7 +217,7 @@ export async function POST(request: NextRequest) {
                 to: email,
                 subject,
                 html: fullHtml,
-                reply_to: replyTo,
+                ...(replyTo ? { reply_to: replyTo } : {}),
               }),
               15000,
               `Resend single send timed out for ${email}`,
