@@ -14,12 +14,35 @@ function getServiceClient() {
 }
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/i
+const NAMED_EMAIL_REGEX = /^([^<>]+)<\s*([^<>\s@]+@[^<>\s@]+\.[^<>\s@]+)\s*>$/i
 
 function normalizeEmail(raw: unknown): string | null {
   if (typeof raw !== "string") return null
   const normalized = raw.trim().toLowerCase()
   if (!normalized) return null
   return EMAIL_REGEX.test(normalized) ? normalized : null
+}
+
+function normalizeFromAddress(raw: unknown): string | null {
+  if (typeof raw !== "string") return null
+
+  const trimmed = raw.trim()
+  if (!trimmed) return null
+
+  const plainCandidate = trimmed.replace(/\.$/, "").toLowerCase()
+  if (EMAIL_REGEX.test(plainCandidate)) {
+    return plainCandidate
+  }
+
+  const namedMatch = trimmed.match(NAMED_EMAIL_REGEX)
+  if (namedMatch) {
+    const name = namedMatch[1].trim()
+    const email = namedMatch[2].trim().replace(/\.$/, "").toLowerCase()
+    if (!name || !EMAIL_REGEX.test(email)) return null
+    return `${name} <${email}>`
+  }
+
+  return null
 }
 
 function getResendIds(data: unknown): string[] {
@@ -126,7 +149,8 @@ export async function POST(request: NextRequest) {
 
     // ── Validate env vars ────────────────────────────────────
     const apiKey = process.env.RESEND_API_KEY
-    const from = process.env.RESEND_FROM_EMAIL
+    const fromRaw = process.env.RESEND_FROM_EMAIL
+    const from = normalizeFromAddress(fromRaw)
 
     if (!apiKey) {
       console.error("RESEND_API_KEY is not set")
@@ -140,13 +164,25 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    if (!from) {
+    if (!fromRaw) {
       console.error("RESEND_FROM_EMAIL is not set")
       return NextResponse.json(
         {
           success: false,
           errorMessage:
             "Sender email is not configured (missing RESEND_FROM_EMAIL). Please add it in Vercel → Settings → Environment Variables and redeploy.",
+        },
+        { status: 500 },
+      )
+    }
+
+    if (!from) {
+      console.error("RESEND_FROM_EMAIL has invalid format:", fromRaw)
+      return NextResponse.json(
+        {
+          success: false,
+          errorMessage:
+            "RESEND_FROM_EMAIL has invalid format. Use exactly email@example.com (recommended: noreply@send.diazandjohnson.online) or Name <email@example.com>.",
         },
         { status: 500 },
       )
