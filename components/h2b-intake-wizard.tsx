@@ -284,7 +284,6 @@ export function H2BIntakeWizard() {
   const [signaturePhotoFile, setSignaturePhotoFile] = useState<File | null>(null)
   const [certify, setCertify] = useState(false)
   const [passportFile, setPassportFile] = useState<File | null>(null)
-  const [selfieFile, setSelfieFile] = useState<File | null>(null)
   const [visaPhotoFile, setVisaPhotoFile] = useState<File | null>(null)
   const [cvFile, setCvFile] = useState<File | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -360,10 +359,6 @@ export function H2BIntakeWizard() {
         setError("Passport is required to continue your immigration eligibility assessment.")
         return false
       }
-      if (!selfieFile) {
-        setError("Selfie with passport is required to continue.")
-        return false
-      }
     }
 
     if (currentStep === 11) {
@@ -382,7 +377,7 @@ export function H2BIntakeWizard() {
     }
 
     return true
-  }, [answers, certify, currentStep, passportFile, selfieFile, signature, signatureMethod, signaturePhotoFile, visibleQuestions])
+  }, [answers, certify, currentStep, passportFile, signature, signatureMethod, signaturePhotoFile, visibleQuestions])
 
   const goNext = () => {
     if (!validateCurrentStep()) return
@@ -406,7 +401,6 @@ export function H2BIntakeWizard() {
 
     const documentMeta = {
       passport: passportFile ? { name: passportFile.name, size: passportFile.size, type: passportFile.type } : null,
-      selfieWithPassport: selfieFile ? { name: selfieFile.name, size: selfieFile.size, type: selfieFile.type } : null,
       visaPhoto: visaPhotoFile ? { name: visaPhotoFile.name, size: visaPhotoFile.size, type: visaPhotoFile.type } : null,
       cv: cvFile ? { name: cvFile.name, size: cvFile.size, type: cvFile.type } : null,
     }
@@ -659,7 +653,7 @@ export function H2BIntakeWizard() {
                   <Card className="border-indigo-200 bg-indigo-50/40">
                     <CardContent className="p-4 text-sm text-indigo-900">
                       <p className="font-semibold mb-1">Documentación obligatoria</p>
-                      <p>Debe subir pasaporte y selfie con pasaporte para habilitar el envío.</p>
+                      <p>Debe subir pasaporte para habilitar el envío.</p>
                     </CardContent>
                   </Card>
 
@@ -667,10 +661,6 @@ export function H2BIntakeWizard() {
                     <div className="rounded-xl border p-4 bg-white">
                       <Label className="font-medium flex items-center gap-2"><Upload className="h-4 w-4" /> Pasaporte (obligatorio)</Label>
                       <Input className="mt-2" type="file" accept="image/*,.pdf" onChange={(event) => setPassportFile(event.target.files?.[0] || null)} />
-                    </div>
-                    <div className="rounded-xl border p-4 bg-white">
-                      <Label className="font-medium flex items-center gap-2"><Upload className="h-4 w-4" /> Selfie con pasaporte (obligatorio)</Label>
-                      <Input className="mt-2" type="file" accept="image/*" onChange={(event) => setSelfieFile(event.target.files?.[0] || null)} />
                     </div>
                     <div className="rounded-xl border p-4 bg-white">
                       <Label className="font-medium">Foto tipo visa (opcional)</Label>
