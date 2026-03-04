@@ -290,6 +290,50 @@ export function H2BIntakeWizard() {
   const [error, setError] = useState<string | null>(null)
   const [analysis, setAnalysis] = useState<Analysis | null>(null)
 
+  const compressImage = useCallback(
+    (file: File, maxDim = 1200, quality = 0.8): Promise<File> =>
+      new Promise((resolve, reject) => {
+        const img = new window.Image()
+        img.onload = () => {
+          let { width, height } = img
+          if (width > maxDim || height > maxDim) {
+            const ratio = Math.min(maxDim / width, maxDim / height)
+            width = Math.round(width * ratio)
+            height = Math.round(height * ratio)
+          }
+          const canvas = document.createElement("canvas")
+          canvas.width = width
+          canvas.height = height
+          const ctx = canvas.getContext("2d")!
+          ctx.drawImage(img, 0, 0, width, height)
+          canvas.toBlob(
+            (blob) => {
+              if (!blob) { reject(new Error("Compression failed")); return }
+              resolve(new File([blob], file.name, { type: "image/jpeg" }))
+            },
+            "image/jpeg",
+            quality,
+          )
+        }
+        img.onerror = () => reject(new Error("Failed to load image"))
+        img.src = URL.createObjectURL(file)
+      }),
+    [],
+  )
+
+  const handleImageFile = useCallback(
+    async (file: File | null, setter: (f: File | null) => void) => {
+      if (!file) { setter(null); return }
+      try {
+        const compressed = await compressImage(file)
+        setter(compressed)
+      } catch {
+        setter(file)
+      }
+    },
+    [compressImage],
+  )
+
   const activeStep = steps[currentStep - 1]
   const visibleQuestions = useMemo(
     () => getVisibleQuestionsForStep(activeStep, answers),
@@ -660,11 +704,14 @@ export function H2BIntakeWizard() {
                   <div className="grid md:grid-cols-2 gap-4">
                     <div className="rounded-xl border p-4 bg-white">
                       <Label className="font-medium flex items-center gap-2"><Upload className="h-4 w-4" /> Pasaporte (obligatorio)</Label>
-                      <Input className="mt-2" type="file" accept="image/*,.pdf" onChange={(event) => setPassportFile(event.target.files?.[0] || null)} />
+                      <Input className="mt-2" type="file" accept="image/*,.pdf" onChange={(event) => {
+                        const f = event.target.files?.[0] || null
+                        if (f && f.type.startsWith("image/")) { handleImageFile(f, setPassportFile) } else { setPassportFile(f) }
+                      }} />
                     </div>
                     <div className="rounded-xl border p-4 bg-white">
                       <Label className="font-medium">Foto tipo visa (opcional)</Label>
-                      <Input className="mt-2" type="file" accept="image/*" onChange={(event) => setVisaPhotoFile(event.target.files?.[0] || null)} />
+                      <Input className="mt-2" type="file" accept="image/*" onChange={(event) => handleImageFile(event.target.files?.[0] || null, setVisaPhotoFile)} />
                     </div>
                     <div className="rounded-xl border p-4 bg-white">
                       <Label className="font-medium">CV / Resume (opcional)</Label>
@@ -731,7 +778,7 @@ export function H2BIntakeWizard() {
                         <Input
                           type="file"
                           accept="image/*"
-                          onChange={(event) => setSignaturePhotoFile(event.target.files?.[0] || null)}
+                          onChange={(event) => handleImageFile(event.target.files?.[0] || null, setSignaturePhotoFile)}
                         />
                         <p className="text-xs text-slate-500">
                           Puede tomar una foto de su firma manuscrita en papel y subirla aquí.

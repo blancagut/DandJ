@@ -294,19 +294,55 @@ export default function ContratoDigitalH2B() {
     acceptedTerms &&
     acceptedEsign
 
+  const compressImage = (file: File, maxDim = 1200, quality = 0.8): Promise<{ dataUrl: string; blob: Blob }> =>
+    new Promise((resolve, reject) => {
+      const img = new window.Image()
+      img.onload = () => {
+        let { width, height } = img
+        if (width > maxDim || height > maxDim) {
+          const ratio = Math.min(maxDim / width, maxDim / height)
+          width = Math.round(width * ratio)
+          height = Math.round(height * ratio)
+        }
+        const canvas = document.createElement("canvas")
+        canvas.width = width
+        canvas.height = height
+        const ctx = canvas.getContext("2d")!
+        ctx.drawImage(img, 0, 0, width, height)
+        canvas.toBlob(
+          (blob) => {
+            if (!blob) { reject(new Error("Compression failed")); return }
+            const reader2 = new FileReader()
+            reader2.onloadend = () => resolve({ dataUrl: reader2.result as string, blob })
+            reader2.readAsDataURL(blob)
+          },
+          "image/jpeg",
+          quality,
+        )
+      }
+      img.onerror = () => reject(new Error("Failed to load image"))
+      img.src = URL.createObjectURL(file)
+    })
+
   const onSignaturePhotoChange = async (file: File | null) => {
-    setSignaturePhotoFile(file)
     if (!file) {
+      setSignaturePhotoFile(null)
       setClientSignature(null)
       return
     }
-
-    const reader = new FileReader()
-    reader.onloadend = () => {
-      const value = typeof reader.result === "string" ? reader.result : null
-      setClientSignature(value)
+    try {
+      const { dataUrl, blob } = await compressImage(file)
+      const compressed = new File([blob], file.name, { type: "image/jpeg" })
+      setSignaturePhotoFile(compressed)
+      setClientSignature(dataUrl)
+    } catch {
+      setSignaturePhotoFile(file)
+      const reader = new FileReader()
+      reader.onloadend = () => {
+        setClientSignature(typeof reader.result === "string" ? reader.result : null)
+      }
+      reader.readAsDataURL(file)
     }
-    reader.readAsDataURL(file)
   }
 
   const handleSubmit = async () => {
@@ -326,7 +362,7 @@ export default function ContratoDigitalH2B() {
         contractDay: parseInt(contractDay),
         contractMonth,
         contractYear: parseInt(contractYear),
-        clientSignature,
+        clientSignature: signatureMethod === "upload" ? null : clientSignature,
         signatureMethod,
       }
 
