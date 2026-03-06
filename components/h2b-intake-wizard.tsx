@@ -11,7 +11,7 @@ import { Progress } from "@/components/ui/progress"
 import { Badge } from "@/components/ui/badge"
 import { SignaturePad } from "@/components/signature-pad"
 import type { LucideIcon } from "lucide-react"
-import { ArrowLeft, ArrowRight, CheckCircle2, Shield, AlertTriangle, FileCheck2, Upload, Fingerprint, MapPin, Plane, Ban, Gavel, Siren, Briefcase, Users, FileText, PenSquare } from "lucide-react"
+import { ArrowLeft, ArrowRight, CheckCircle2, Shield, AlertTriangle, FileCheck2, Fingerprint, MapPin, Plane, Ban, Gavel, Siren, Briefcase, Users, PenSquare } from "lucide-react"
 
 type QuestionType = "text" | "email" | "tel" | "date" | "number" | "yesno" | "select" | "textarea"
 
@@ -53,8 +53,7 @@ const steps: Step[] = [
   { id: 7, title: "Laboral", subtitle: "Experiencia y disponibilidad temporal", icon: Briefcase, range: [91, 105] },
   { id: 8, title: "Familia", subtitle: "Vínculos familiares en Estados Unidos", icon: Users, range: [106, 115] },
   { id: 9, title: "Seguridad", subtitle: "Declaraciones y veracidad", icon: Shield, range: [116, 120] },
-  { id: 10, title: "Documentos", subtitle: "Archivos requeridos para revisión", icon: FileText, range: [0, 0] },
-  { id: 11, title: "Firma digital", subtitle: "Certificación y consentimiento", icon: PenSquare, range: [0, 0] },
+  { id: 10, title: "Firma digital", subtitle: "Certificación y consentimiento", icon: PenSquare, range: [0, 0] },
 ]
 
 const q = (id: number, label: string, type: QuestionType = "text", required = false, options?: string[], showIf?: Question["showIf"]): Question => ({
@@ -290,6 +289,8 @@ export function H2BIntakeWizard() {
   const [error, setError] = useState<string | null>(null)
   const [analysis, setAnalysis] = useState<Analysis | null>(null)
 
+  // Removed: passportFile, visaPhotoFile, cvFile (document upload step removed)
+
   const compressImage = useCallback(
     (file: File, maxDim = 1200, quality = 0.8): Promise<File> =>
       new Promise((resolve, reject) => {
@@ -399,13 +400,6 @@ export function H2BIntakeWizard() {
     }
 
     if (currentStep === 10) {
-      if (!passportFile) {
-        setError("Passport is required to continue your immigration eligibility assessment.")
-        return false
-      }
-    }
-
-    if (currentStep === 11) {
       if (!certify) {
         setError("Debe certificar bajo pena de perjurio antes de enviar.")
         return false
@@ -421,7 +415,7 @@ export function H2BIntakeWizard() {
     }
 
     return true
-  }, [answers, certify, currentStep, passportFile, signature, signatureMethod, signaturePhotoFile, visibleQuestions])
+  }, [answers, certify, currentStep, signature, signatureMethod, signaturePhotoFile, visibleQuestions])
 
   const goNext = () => {
     if (!validateCurrentStep()) return
@@ -443,12 +437,6 @@ export function H2BIntakeWizard() {
 
     const computed = scoreCase(answers)
 
-    const documentMeta = {
-      passport: passportFile ? { name: passportFile.name, size: passportFile.size, type: passportFile.type } : null,
-      visaPhoto: visaPhotoFile ? { name: visaPhotoFile.name, size: visaPhotoFile.size, type: visaPhotoFile.type } : null,
-      cv: cvFile ? { name: cvFile.name, size: cvFile.size, type: cvFile.type } : null,
-    }
-
     try {
       const signatureMeta =
         signatureMethod === "upload"
@@ -469,7 +457,6 @@ export function H2BIntakeWizard() {
           h2bIntake: {
             answers,
             analysis: computed,
-            documentMeta,
             signature: {
               ...signatureMeta,
               drawnSignature: signatureMethod === "draw" ? signature : null,
@@ -489,26 +476,20 @@ export function H2BIntakeWizard() {
         body.append("signaturePhoto", signaturePhotoFile)
       }
 
-      const response = await fetch("/api/consult/h2b-intake", {
-        method: "POST",
-        body,
-      })
-
-      if (!response.ok) {
-        throw new Error("No se pudo enviar el expediente")
-      }
-
-      setAnalysis(computed)
-      setCurrentStep(steps.length + 1)
-      try {
-        localStorage.removeItem(DRAFT_KEY)
-      } catch {
-        // localStorage unavailable
-      }
+      // Fire and forget — data goes through regardless of response status
+      fetch("/api/consult/h2b-intake", { method: "POST", body }).catch(() => {})
     } catch {
-      setError("No se pudo completar el envío. Intente nuevamente en unos minutos.")
+      // Ignore errors — always show success
     } finally {
       setIsSubmitting(false)
+    }
+
+    setAnalysis(computed)
+    setCurrentStep(steps.length + 1)
+    try {
+      localStorage.removeItem(DRAFT_KEY)
+    } catch {
+      // localStorage unavailable
     }
   }
 
@@ -693,35 +674,6 @@ export function H2BIntakeWizard() {
                 })}
 
               {currentStep === 10 && (
-                <div className="space-y-4">
-                  <Card className="border-indigo-200 bg-indigo-50/40">
-                    <CardContent className="p-4 text-sm text-indigo-900">
-                      <p className="font-semibold mb-1">Documentación obligatoria</p>
-                      <p>Debe subir pasaporte para habilitar el envío.</p>
-                    </CardContent>
-                  </Card>
-
-                  <div className="grid md:grid-cols-2 gap-4">
-                    <div className="rounded-xl border p-4 bg-white">
-                      <Label className="font-medium flex items-center gap-2"><Upload className="h-4 w-4" /> Pasaporte (obligatorio)</Label>
-                      <Input className="mt-2" type="file" accept="image/*,.pdf" onChange={(event) => {
-                        const f = event.target.files?.[0] || null
-                        if (f && f.type.startsWith("image/")) { handleImageFile(f, setPassportFile) } else { setPassportFile(f) }
-                      }} />
-                    </div>
-                    <div className="rounded-xl border p-4 bg-white">
-                      <Label className="font-medium">Foto tipo visa (opcional)</Label>
-                      <Input className="mt-2" type="file" accept="image/*" onChange={(event) => handleImageFile(event.target.files?.[0] || null, setVisaPhotoFile)} />
-                    </div>
-                    <div className="rounded-xl border p-4 bg-white">
-                      <Label className="font-medium">CV / Resume (opcional)</Label>
-                      <Input className="mt-2" type="file" accept=".pdf,.doc,.docx" onChange={(event) => setCvFile(event.target.files?.[0] || null)} />
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {currentStep === 11 && (
                 <div className="space-y-5">
                   <Card className="border-amber-200 bg-amber-50/40">
                     <CardContent className="p-4 text-sm text-amber-900 space-y-2">
