@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server"
 import { createClient } from "@supabase/supabase-js"
 import { uploadLeadFile } from "@/lib/server/blob"
+import { isH2BContractVariant } from "@/lib/h2b-contract-pricing"
 
 export async function POST(request: NextRequest) {
   try {
@@ -35,6 +36,7 @@ export async function POST(request: NextRequest) {
       contractYear,
       clientSignature,
       signatureMethod,
+      contractVariant,
     } = body
 
     const normalizedClientName = String(clientName || "").trim()
@@ -49,6 +51,9 @@ export async function POST(request: NextRequest) {
     const normalizedContractMonth = String(contractMonth || "").trim()
     const normalizedContractYear = Number(contractYear)
     const normalizedSignatureMethod = signatureMethod === "upload" ? "upload" : "draw"
+    const normalizedContractVariant = isH2BContractVariant(contractVariant)
+      ? contractVariant
+      : "split_300_200"
 
     // Validate required fields
     if (
@@ -121,6 +126,7 @@ export async function POST(request: NextRequest) {
       contract_day: normalizedContractDay,
       contract_month: normalizedContractMonth,
       contract_year: normalizedContractYear,
+      contract_variant: normalizedContractVariant,
       client_signature: signatureValue,
       ip_address: ip,
       user_agent: userAgent,

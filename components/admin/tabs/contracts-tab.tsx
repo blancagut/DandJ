@@ -8,6 +8,10 @@ import { Button } from "@/components/ui/button"
 import { Download } from "lucide-react"
 import { generateContractPDF } from "@/lib/generate-contract-pdf"
 import type { ContractData } from "@/lib/generate-contract-pdf"
+import {
+  getH2BContractPricing,
+  type H2BContractVariant,
+} from "@/lib/h2b-contract-pricing"
 
 // ── Types ──────────────────────────────────────────
 type ContractStatus = "signed" | "voided" | "expired"
@@ -25,6 +29,7 @@ type H2BContract = {
   contract_day: number
   contract_month: string
   contract_year: number
+  contract_variant: H2BContractVariant
   client_signature: string
   ip_address: string | null
   user_agent: string | null
@@ -105,6 +110,7 @@ function ContractDetail({ r }: { r: H2BContract }) {
     setDownloading(true)
     try {
       const barNumber = LAWYER_BAR_NUMBERS[r.lawyer_name] || "—"
+      const pricing = getH2BContractPricing(r.contract_variant || "split_300_200")
       const pdfData: ContractData = {
         clientName: r.client_name,
         clientDob: r.client_dob,
@@ -123,6 +129,10 @@ function ContractDetail({ r }: { r: H2BContract }) {
         clientSignature: r.client_signature,
         ipAddress: r.ip_address || undefined,
         userAgent: r.user_agent || undefined,
+        feeTotalTextEs: pricing.totalClause,
+        firstInstallmentTextEs: pricing.firstInstallmentClause,
+        secondInstallmentTextEs: pricing.secondInstallmentClause,
+        thirdInstallmentTextEs: pricing.thirdInstallmentClause,
       }
       await generateContractPDF(pdfData)
     } catch (err) {
@@ -189,6 +199,10 @@ function ContractDetail({ r }: { r: H2BContract }) {
           <div>
             <span className="text-muted-foreground">Attorney:</span>{" "}
             <span className="font-medium">{r.lawyer_name}</span>
+          </div>
+          <div>
+            <span className="text-muted-foreground">Pricing:</span>{" "}
+            <span className="font-medium">{getH2BContractPricing(r.contract_variant || "split_300_200").paymentScheduleText}</span>
           </div>
           <div>
             <span className="text-muted-foreground">Signed at:</span>{" "}

@@ -15,6 +15,7 @@ CREATE TABLE IF NOT EXISTS h2b_contracts (
   contract_day INTEGER NOT NULL,
   contract_month TEXT NOT NULL DEFAULT 'Febrero',
   contract_year INTEGER NOT NULL DEFAULT 2026,
+  contract_variant TEXT NOT NULL DEFAULT 'split_300_200',
   -- Signatures (base64 encoded PNG)
   client_signature TEXT NOT NULL,
   -- Metadata
@@ -24,6 +25,9 @@ CREATE TABLE IF NOT EXISTS h2b_contracts (
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   status TEXT NOT NULL DEFAULT 'signed' CHECK (status IN ('signed', 'voided', 'expired'))
 );
+
+ALTER TABLE h2b_contracts
+  ADD COLUMN IF NOT EXISTS contract_variant TEXT NOT NULL DEFAULT 'split_300_200';
 
 -- Enable RLS
 ALTER TABLE h2b_contracts ENABLE ROW LEVEL SECURITY;

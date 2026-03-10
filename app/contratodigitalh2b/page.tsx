@@ -37,6 +37,10 @@ import Link from "next/link"
 import Image from "next/image"
 import { usePathname } from "next/navigation"
 import { generateContractPDF } from "@/lib/generate-contract-pdf"
+import {
+  getH2BContractPricing,
+  getH2BContractVariantFromPath,
+} from "@/lib/h2b-contract-pricing"
 
 /* ── Design tokens ── */
 const NAVY = "#0B1E3A"
@@ -187,67 +191,8 @@ function CarlosDiazSignature() {
 
 export default function ContratoDigitalH2B() {
   const pathname = usePathname()
-  const pricing = pathname === "/contract2h2b28"
-    ? {
-        totalText: "Novecientos sesenta dólares estadounidenses (USD $960.00)",
-        totalClause:
-          "EL CLIENTE se obliga a pagar a EL ESTUDIO la suma única y total de Novecientos sesenta dólares estadounidenses (USD $960.00), por concepto de comisión profesional. La cual se pagará en 3 partes iguales:",
-        firstInstallmentClause: "La primera de $320.00 (trescientos veinte dólares) a la firma del contrato;",
-        secondInstallmentClause: "La segunda de $320.00 (trescientos veinte dólares) cuando EL CLIENTE esté en Miami, Florida;",
-        thirdInstallmentClause: "La tercera de $320.00 (trescientos veinte dólares) en su primera quincena de sueldo.",
-        firstInstallmentAmount: "$320",
-        secondInstallmentAmount: "$320",
-        installments: [
-          { amount: "$320", label: "A la firma del contrato" },
-          { amount: "$320", label: "Cuando esté en Miami, FL" },
-          { amount: "$320", label: "En su primera quincena de sueldo" },
-        ],
-      }
-    : pathname === "/contract2h2b"
-    ? {
-        totalText: "Novecientos sesenta dólares estadounidenses (USD $960.00)",
-        totalClause:
-          "EL CLIENTE se obliga a pagar a EL ESTUDIO la suma única y total de Novecientos sesenta dólares estadounidenses (USD $960.00), por concepto de comisión profesional. La cual se pagará en 2 partes iguales:",
-        firstInstallmentClause: "La primera de $480.00 (cuatrocientos ochenta dólares) a la firma del contrato;",
-        secondInstallmentClause: "$480.00 (cuatrocientos ochenta dólares) al momento de instalarse en el trabajo dentro de Miami, Florida.",
-        firstInstallmentAmount: "$480",
-        secondInstallmentAmount: "$480",
-        thirdInstallmentClause: undefined,
-        installments: [
-          { amount: "$480", label: "A la firma del contrato" },
-          { amount: "$480", label: "Al instalarse en el trabajo en Miami, FL" },
-        ],
-      }
-    : pathname === "/contract3h2b"
-      ? {
-          totalText: "Mil doscientos dólares estadounidenses (USD $1200.00)",
-          totalClause:
-            "EL CLIENTE se obliga a pagar a EL ESTUDIO la suma única y total de Mil doscientos dólares estadounidenses (USD $1200.00), por concepto de comisión profesional. La cual se pagará en 3 partes iguales:",
-          firstInstallmentClause: "La primera de $400.00 (cuatrocientos dólares);",
-          secondInstallmentClause: "La segunda de $400.00 (cuatrocientos dólares);",
-          thirdInstallmentClause: "La tercera de $400.00 (cuatrocientos dólares).",
-          firstInstallmentAmount: "$400",
-          secondInstallmentAmount: "$400",
-          installments: [
-            { amount: "$400", label: "Primer pago" },
-            { amount: "$400", label: "Segundo pago" },
-            { amount: "$400", label: "Tercer pago" },
-          ],
-        }
-      : {
-          totalText: "Quinientos dólares estadounidenses (USD $500.00)",
-          totalClause:
-            "EL CLIENTE se obliga a pagar a EL ESTUDIO la suma única y total de Quinientos dólares estadounidenses (USD $500.00), por concepto de comisión profesional. La cual se pagará en 2 partes:",
-          firstInstallmentClause: "La primera de $300.00 (trescientos dólares) a la firma del contrato;",
-          secondInstallmentClause: "$200.00 (doscientos dólares) al momento de instalarse en el trabajo dentro de Miami, Florida.",
-          thirdInstallmentClause: undefined,
-          firstInstallmentAmount: "$300",
-          secondInstallmentAmount: "$200",
-          installments: [
-            { amount: "$300", label: "A la firma del contrato" },
-            { amount: "$200", label: "Al instalarse en el trabajo en Miami, FL" },
-          ],
-        }
+  const contractVariant = getH2BContractVariantFromPath(pathname)
+  const pricing = getH2BContractPricing(contractVariant)
 
   const [clientName, setClientName] = useState("")
   const [clientDob, setClientDob] = useState("")
@@ -364,6 +309,7 @@ export default function ContratoDigitalH2B() {
         contractYear: parseInt(contractYear),
         clientSignature: signatureMethod === "upload" ? null : clientSignature,
         signatureMethod,
+        contractVariant,
       }
 
       const body = new FormData()
@@ -660,8 +606,8 @@ export default function ContratoDigitalH2B() {
             <p className="text-sm mt-3 pl-4 border-l-2" style={{ borderColor: `${GOLD}44` }}>La garantía se refiere a la obtención efectiva de la visa H-2B, no implicando en ningún caso la repetición del trámite, reembolso de honorarios, ni gestiones posteriores adicionales si la denegación se debiera a factores no imputables a EL ESTUDIO.</p>
 
             <ClauseHeading num="CUARTA" title="HONORARIOS" icon={<DollarSign className="w-5 h-5 text-white" />} />
-            <p>EL CLIENTE se obliga a pagar a EL ESTUDIO la suma única y total de <strong style={{ color: NAVY }}>{pricing.totalText}</strong>, por concepto de comisión profesional. La cual se pagará en {pricing.installments.length === 3 ? "3 partes iguales" : pathname === "/contract2h2b" ? "2 partes iguales" : "2 partes"}:</p>
-            <div className={`grid grid-cols-1 ${pricing.installments.length === 3 ? "sm:grid-cols-3" : "sm:grid-cols-2"} gap-3 mt-3 mb-3`}>
+            <p>EL CLIENTE se obliga a pagar a EL ESTUDIO la suma única y total de <strong style={{ color: NAVY }}>{pricing.totalText}</strong>, por concepto de comisión profesional. La cual se pagará en {pricing.paymentScheduleText}:</p>
+            <div className={`grid grid-cols-1 ${pricing.installments.length === 3 ? "sm:grid-cols-3" : pricing.installments.length === 2 ? "sm:grid-cols-2" : ""} gap-3 mt-3 mb-3`}>
               {pricing.installments.map((installment, idx) => (
                 <div key={idx} className="rounded-xl border p-4 text-sm text-center shadow-sm" style={{ borderColor: `${NAVY}26`, background: "#F8FAFC" }}>
                   <p className="text-lg sm:text-xl font-semibold font-sans" style={{ color: NAVY }}>{installment.amount}<span className="text-sm">.00</span></p>

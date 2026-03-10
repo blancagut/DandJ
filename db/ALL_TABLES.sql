@@ -340,6 +340,7 @@ CREATE TABLE IF NOT EXISTS h2b_contracts (
   contract_day INTEGER NOT NULL,
   contract_month TEXT NOT NULL DEFAULT 'Febrero',
   contract_year INTEGER NOT NULL DEFAULT 2026,
+  contract_variant TEXT NOT NULL DEFAULT 'split_300_200',
   client_signature TEXT NOT NULL,
   ip_address TEXT,
   user_agent TEXT,
@@ -347,6 +348,9 @@ CREATE TABLE IF NOT EXISTS h2b_contracts (
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   status TEXT NOT NULL DEFAULT 'signed' CHECK (status IN ('signed', 'voided', 'expired'))
 );
+
+ALTER TABLE h2b_contracts
+  ADD COLUMN IF NOT EXISTS contract_variant TEXT NOT NULL DEFAULT 'split_300_200';
 
 CREATE INDEX IF NOT EXISTS idx_h2b_contracts_signed_at ON h2b_contracts(signed_at DESC);
 CREATE INDEX IF NOT EXISTS idx_h2b_contracts_email ON h2b_contracts(client_email);
