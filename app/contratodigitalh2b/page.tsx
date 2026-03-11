@@ -389,10 +389,11 @@ export default function ContratoDigitalH2B() {
                 pdfBase64: base64,
               }),
             })
-            if (emailRes.ok) {
+            const emailData = await emailRes.json().catch(() => null)
+            if (emailRes.ok && emailData?.adminSent && emailData?.clientSent) {
               setEmailSent(true)
             } else {
-              console.error("Contract email endpoint returned non-OK response")
+              console.error("Contract email endpoint returned incomplete delivery", emailData)
               setEmailDeliveryFailed(true)
             }
           } catch {

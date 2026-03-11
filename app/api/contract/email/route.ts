@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server"
 import { Resend } from "resend"
 import { buildBrandedEmail } from "@/lib/server/email-template"
+import { CONTRACTS_EMAIL } from "@/lib/site-config"
 
 function requiredEnv(name: string) {
   const value = process.env[name]
@@ -22,7 +23,7 @@ export async function POST(request: NextRequest) {
 
     const resend = new Resend(requiredEnv("RESEND_API_KEY"))
     const from = requiredEnv("RESEND_FROM_EMAIL")
-    const adminEmail = requiredEnv("LEADS_TO_EMAIL")
+    const adminEmail = process.env.LEADS_TO_EMAIL?.trim() || CONTRACTS_EMAIL
 
     const signedDate = signedAt
       ? new Date(signedAt).toLocaleDateString("es-ES", {
@@ -61,38 +62,65 @@ export async function POST(request: NextRequest) {
       bodyHtml,
     )
 
-    // Send to client
-    await resend.emails.send({
-      from,
-      to: clientEmail,
-      subject: `Contrato H-2B Firmado — ${clientName} · Díaz & Johnson`,
-      html,
-      attachments: [
-        {
-          filename,
-          content: pdfBuffer,
-          contentType: "application/pdf",
-        },
-      ],
-    })
+    const attachments = [
+      {
+        filename,
+        content: pdfBuffer,
+        contentType: "application/pdf",
+      },
+    ]
 
-    // Send copy to admin/firm
-    await resend.emails.send({
-      from,
-      to: adminEmail,
-      subject: `[Contrato Firmado] ${clientName} — H-2B · ${contractId.slice(0, 8)}`,
-      html,
-      replyTo: clientEmail,
-      attachments: [
-        {
-          filename,
-          content: pdfBuffer,
-          contentType: "application/pdf",
-        },
-      ],
-    })
+    const [adminResult, clientResult] = await Promise.allSettled([
+      resend.emails.send({
+        from,
+        to: adminEmail,
+        subject: `[Contrato Firmado] ${clientName} — H-2B · ${contractId.slice(0, 8)}`,
+        html,
+        replyTo: clientEmail,
+        attachments,
+      }),
+      resend.emails.send({
+        from,
+        to: clientEmail,
+        subject: `Contrato H-2B Firmado — ${clientName} · Díaz & Johnson`,
+        html,
+        attachments,
+      }),
+    ])
 
-    return NextResponse.json({ success: true, message: "Emails sent successfully" })
+    const adminSent = adminResult.status === "fulfilled"
+    const clientSent = clientResult.status === "fulfilled"
+
+    if (!adminSent || !clientSent) {
+      console.error("Contract email partial failure:", {
+        contractId,
+        adminEmail,
+        clientEmail,
+        adminError: adminResult.status === "rejected" ? adminResult.reason : null,
+        clientError: clientResult.status === "rejected" ? clientResult.reason : null,
+      })
+    }
+
+    if (!adminSent && !clientSent) {
+      return NextResponse.json(
+        {
+          error: "Error sending contract email",
+          adminSent: false,
+          clientSent: false,
+        },
+        { status: 500 },
+      )
+    }
+
+    return NextResponse.json({
+      success: adminSent && clientSent,
+      adminSent,
+      clientSent,
+      message:
+        adminSent && clientSent
+          ? "Emails sent successfully"
+          : "Contract saved, but one email delivery failed",
+    })
   } catch (err) {
     console.error("Contract email error:", err)
     return NextResponse.json(
